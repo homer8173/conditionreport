@@ -1,15 +1,16 @@
 {
-    "name": "Entrée",
-    "lines": [
+    "name": "Toilettes",
+    "elements": [
         "Rangements, placards",
         "Serrures, portes, menuiseries",
         "Fenêtres, volets",
         "Murs",
         "Plafond",
         "Sol, plinthes",
-        "Robinetterie",
+        "Robinetterie, évier, miroir",
         "Radiateurs, tuyauterie",
         "Prises, interrupteurs",
         "Eclairage"
     ]
 }
+

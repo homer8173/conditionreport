@@ -1,0 +1,22 @@
+{
+    "name": "Électroménager",
+    "elements": [
+        "Réfrigérateur",
+        "Congélateur",
+        "Four",
+        "Cuisinière",
+        "Plaque de cuisson",
+        "Four",
+        "Four micro-ondes",
+        "Grille-pain",
+        "Bouilloire",
+        "Cafetière",
+        "Lave-vaisselle",
+        "Lave-linge",
+        "Sèche-linge",
+        "Vidéoprojecteur",
+        "Télévision",
+        "Lecteur DVD",
+        "Chaine Hi-fi"
+    ]
+}

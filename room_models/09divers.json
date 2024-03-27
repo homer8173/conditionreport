@@ -1,0 +1,15 @@
+{
+    "name": "Divers",
+    "elements": [
+        "Toiture",
+        "Isolation",
+        "Portail",
+        "Cheminée",
+        "Charpente",
+        "Sonnette",
+        "Alarme",
+        "Détecteur de fumées",
+        "Boîte aux lettres",
+        "Interphone"
+    ]
+}

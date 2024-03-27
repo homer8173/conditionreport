@@ -1,0 +1,30 @@
+{
+    "name": "Salle de bain",
+    "elements": [
+        "Plafond",
+        "Mur",
+        "Sol",
+        "Porte",
+        "Plinthes",
+        "Fenêtre, volet",
+        "Placard",
+        "Vasque",
+        "Meuble sous vasque",
+        "Baignoire, douche",
+        "Robinetterie vasque",
+        "Evacuation vasque",
+        "Robinetterie douche",
+        "Evacuation douche",
+        "Robinetterie baignoire",
+        "Evacuation baignoire",
+        "Joints",
+        "Rangements",
+        "WC",
+        "Miroir",
+        "Radiateur",
+        "Eclairage",
+        "Prises électriques",
+        "Interrupteurs",
+        "Ventilation"
+    ]
+}

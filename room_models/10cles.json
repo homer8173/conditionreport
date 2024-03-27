@@ -1,0 +1,9 @@
+{
+    "name": "Clés attachées au logement",
+    "elements": [
+        "Clé porte principale",
+        "Clé boîte aux lettres",
+        "Clé garage",
+        "Badge d'entrée"
+    ]
+}

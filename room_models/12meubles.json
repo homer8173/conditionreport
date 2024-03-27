@@ -1,0 +1,26 @@
+{
+    "name": "Inventaire des meubles",
+    "elements": [
+        "Chaises (séjour)",
+        "Chaises (chambres)",
+        "Chaises (cuisine)",
+        "Chaises (autres)",
+        "Tabourets",
+        "Fauteuils",
+        "Canapés",
+        "Tables (séjour)",
+        "Tables (chambres)",
+        "Tables (cuisine)",
+        "Tables de nuit",
+        "Tables (autres)",
+        "Bureaux",
+        "Commodes",
+        "Armoires",
+        "Buffets",
+        "Lits simples",
+        "Lits doubles",
+        "Placards",
+        "Lustres / plafonniers",
+        "Lampes / appliques"
+    ]
+}

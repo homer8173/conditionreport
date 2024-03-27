@@ -449,7 +449,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     print '<td>';
     print $langs->trans("LoadRoomModele") . " :<br />";
-    $files = glob(dol_buildpath('/conditionreport/room_model/') . "*.json");
+    $files = glob(dol_buildpath('/conditionreport/room_models/') . "*.json");
     if (count($files)) {
         print '<ul class="load_model">';
         foreach ($files as $filename) {

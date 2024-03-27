@@ -1,0 +1,14 @@
+{
+    "name": "Parties privatives rattachées au logement",
+    "elements": [
+        "Terrasse / balcon",
+        "Garage",
+        "Cave",
+        "Cheminée",
+        "Escalier",
+        "Parking",
+        "Jardin",
+        "Evacuation eaux pluviales"
+    ]
+}
+
