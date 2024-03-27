@@ -104,8 +104,13 @@ div.mainmenu.conditionreport {
 	background-image: none;
 }
 
-.myclasscss {
-	/* ... */
+ul.load_model  {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.load_model li {
+  margin-left: 1em;
 }
 
 
