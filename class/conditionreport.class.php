@@ -588,7 +588,7 @@ class Conditionreport extends CommonObject
 
             if (!$error && !$notrigger) {
                 // Call trigger
-                $result = $this->call_trigger('MYOBJECT_VALIDATE', $user);
+                $result = $this->call_trigger('CONDITIONREPORT_VALIDATE', $user);
                 if ($result < 0) {
                     $error++;
                 }
@@ -677,7 +677,7 @@ class Conditionreport extends CommonObject
           return -1;
           } */
 
-        return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'CONDITIONREPORT_MYOBJECT_UNVALIDATE');
+        return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'CONDITIONREPORT_CONDITIONREPORT_UNVALIDATE');
     }
 
     /**
@@ -701,7 +701,7 @@ class Conditionreport extends CommonObject
           return -1;
           } */
 
-        return $this->setStatusCommon($user, self::STATUS_CANCELED, $notrigger, 'CONDITIONREPORT_MYOBJECT_CANCEL');
+        return $this->setStatusCommon($user, self::STATUS_CANCELED, $notrigger, 'CONDITIONREPORT_CONDITIONREPORT_CANCEL');
     }
 
     /**
@@ -725,7 +725,7 @@ class Conditionreport extends CommonObject
           return -1;
           } */
 
-        return $this->setStatusCommon($user, self::STATUS_VALIDATED, $notrigger, 'CONDITIONREPORT_MYOBJECT_REOPEN');
+        return $this->setStatusCommon($user, self::STATUS_VALIDATED, $notrigger, 'CONDITIONREPORT_CONDITIONREPORT_REOPEN');
     }
 
     /**
@@ -1080,15 +1080,15 @@ class Conditionreport extends CommonObject
         global $langs, $conf;
         $langs->load("conditionreport@conditionreport");
 
-        if (!getDolGlobalString('CONDITIONREPORT_MYOBJECT_ADDON')) {
-            $conf->global->CONDITIONREPORT_MYOBJECT_ADDON = 'mod_conditionreport_standard';
+        if (!getDolGlobalString('CONDITIONREPORT_CONDITIONREPORT_ADDON')) {
+            $conf->global->CONDITIONREPORT_CONDITIONREPORT_ADDON = 'mod_conditionreport_standard';
         }
 
-        if (getDolGlobalString('CONDITIONREPORT_MYOBJECT_ADDON')) {
+        if (getDolGlobalString('CONDITIONREPORT_CONDITIONREPORT_ADDON')) {
             $mybool = false;
 
-            $file      = getDolGlobalString('CONDITIONREPORT_MYOBJECT_ADDON') . ".php";
-            $classname = getDolGlobalString('CONDITIONREPORT_MYOBJECT_ADDON');
+            $file      = getDolGlobalString('CONDITIONREPORT_CONDITIONREPORT_ADDON') . ".php";
+            $classname = getDolGlobalString('CONDITIONREPORT_CONDITIONREPORT_ADDON');
 
             // Include file with class
             $dirmodels = array_merge(array('/'), (array) $conf->modules_parts['models']);
@@ -1150,8 +1150,8 @@ class Conditionreport extends CommonObject
 
             if (!empty($this->model_pdf)) {
                 $modele = $this->model_pdf;
-            } elseif (getDolGlobalString('MYOBJECT_ADDON_PDF')) {
-                $modele = getDolGlobalString('MYOBJECT_ADDON_PDF');
+            } elseif (getDolGlobalString('CONDITIONREPORT_ADDON_PDF')) {
+                $modele = getDolGlobalString('CONDITIONREPORT_ADDON_PDF');
             }
         }
 

@@ -179,8 +179,8 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
 		$outputlangs->loadLangs(array("main", "bills", "products", "dict", "companies"));
 
 		// Show Draft Watermark
-		if (getDolGlobalString('MYOBJECT_DRAFT_WATERMARK') && $object->statut == $object::STATUS_DRAFT) {
-			$this->watermark = getDolGlobalString('MYOBJECT_DRAFT_WATERMARK');
+		if (getDolGlobalString('CONDITIONREPORT_DRAFT_WATERMARK') && $object->statut == $object::STATUS_DRAFT) {
+			$this->watermark = getDolGlobalString('CONDITIONREPORT_DRAFT_WATERMARK');
 		}
 
 		global $outputlangsbis;
@@ -202,7 +202,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
 		$realpatharray = array();
 		$this->atleastonephoto = false;
 		/*
-		if (getDolGlobalInt('MAIN_GENERATE_MYOBJECT_WITH_PICTURE'))) {
+		if (getDolGlobalInt('MAIN_GENERATE_CONDITIONREPORT_WITH_PICTURE'))) {
 			$objphoto = new Product($this->db);
 
 			for ($i = 0; $i < $nblines; $i++) {
@@ -338,7 +338,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
 					$info = array(
 						'Name' => $this->emetteur->name,
 						'Location' => getCountry($this->emetteur->country_code, 0),
-						'Reason' => 'MYOBJECT',
+						'Reason' => 'CONDITIONREPORT',
 						'ContactInfo' => $this->emetteur->email
 					);
 					$pdf->setSignature($cert, $cert, $this->emetteur->name, '', 2, $info);

@@ -73,7 +73,7 @@ class doc_generic_conditionreportroom_odt extends ModelePDFConditionreportroom
 		$this->db = $db;
 		$this->name = "ODT templates";
 		$this->description = $langs->trans("DocumentModelOdt");
-		$this->scandir = 'CONDITIONREPORT_MYOBJECT_ADDON_PDF_ODT_PATH'; // Name of constant that is used to save list of directories to scan
+		$this->scandir = 'CONDITIONREPORT_CONDITIONREPORT_ADDON_PDF_ODT_PATH'; // Name of constant that is used to save list of directories to scan
 
 		// Page size for A4 format
 		$this->type = 'odt';
@@ -123,13 +123,13 @@ class doc_generic_conditionreportroom_odt extends ModelePDFConditionreportroom
 		$texte .= '<input type="hidden" name="token" value="'.newToken().'">';
 		$texte .= '<input type="hidden" name="page_y" value="">';
 		$texte .= '<input type="hidden" name="action" value="setModuleOptions">';
-		$texte .= '<input type="hidden" name="param1" value="CONDITIONREPORT_MYOBJECT_ADDON_PDF_ODT_PATH">';
+		$texte .= '<input type="hidden" name="param1" value="CONDITIONREPORT_CONDITIONREPORT_ADDON_PDF_ODT_PATH">';
 		$texte .= '<table class="nobordernopadding centpercent">';
 
 		// List of directories area
 		$texte .= '<tr><td>';
 		$texttitle = $langs->trans("ListOfDirectories");
-		$listofdir = explode(',', preg_replace('/[\r\n]+/', ',', trim(getDolGlobalString('CONDITIONREPORT_MYOBJECT_ADDON_PDF_ODT_PATH'))));
+		$listofdir = explode(',', preg_replace('/[\r\n]+/', ',', trim(getDolGlobalString('CONDITIONREPORT_CONDITIONREPORT_ADDON_PDF_ODT_PATH'))));
 		$listoffiles = array();
 		foreach ($listofdir as $key => $tmpdir) {
 			$tmpdir = trim($tmpdir);
@@ -156,7 +156,7 @@ class doc_generic_conditionreportroom_odt extends ModelePDFConditionreportroom
 		$texte .= $form->textwithpicto($texttitle, $texthelp, 1, 'help', '', 1, 3, $this->name);
 		$texte .= '<div><div style="display: inline-block; min-width: 100px; vertical-align: middle;">';
 		$texte .= '<textarea class="flat" cols="60" name="value1">';
-		$texte .= getDolGlobalString('CONDITIONREPORT_MYOBJECT_ADDON_PDF_ODT_PATH');
+		$texte .= getDolGlobalString('CONDITIONREPORT_CONDITIONREPORT_ADDON_PDF_ODT_PATH');
 		$texte .= '</textarea>';
 		$texte .= '</div><div style="display: inline-block; vertical-align: middle;">';
 		$texte .= '<input type="submit" class="button smallpaddingimp reposition" name="modify" value="'.dol_escape_htmltag($langs->trans("Modify")).'">';
@@ -164,7 +164,7 @@ class doc_generic_conditionreportroom_odt extends ModelePDFConditionreportroom
 
 		// Scan directories
 		$nbofiles = count($listoffiles);
-		if (getDolGlobalString('CONDITIONREPORT_MYOBJECT_ADDON_PDF_ODT_PATH')) {
+		if (getDolGlobalString('CONDITIONREPORT_CONDITIONREPORT_ADDON_PDF_ODT_PATH')) {
 			$texte .= $langs->trans("NumberOfModelFilesFound").': <b>';
 			//$texte.=$nbofiles?'<a id="a_'.get_class($this).'" href="#">':'';
 			$texte .= count($listoffiles);
@@ -177,7 +177,7 @@ class doc_generic_conditionreportroom_odt extends ModelePDFConditionreportroom
 			// Show list of found files
 			foreach ($listoffiles as $file) {
 				$texte .= '- '.$file['name'].' <a href="'.DOL_URL_ROOT.'/document.php?modulepart=doctemplates&file=conditionreport_conditionreportroom/'.urlencode(basename($file['name'])).'">'.img_picto('', 'listlight').'</a>';
-				$texte .= ' &nbsp; <a class="reposition" href="'.$_SERVER["PHP_SELF"].'?modulepart=doctemplates&keyforuploaddir=CONDITIONREPORT_MYOBJECT_ADDON_PDF_ODT_PATH&action=deletefile&token='.newToken().'&file='.urlencode(basename($file['name'])).'">'.img_picto('', 'delete').'</a>';
+				$texte .= ' &nbsp; <a class="reposition" href="'.$_SERVER["PHP_SELF"].'?modulepart=doctemplates&keyforuploaddir=CONDITIONREPORT_CONDITIONREPORT_ADDON_PDF_ODT_PATH&action=deletefile&token='.newToken().'&file='.urlencode(basename($file['name'])).'">'.img_picto('', 'delete').'</a>';
 				$texte .= '<br>';
 			}
 			$texte .= '</div>';
@@ -191,7 +191,7 @@ class doc_generic_conditionreportroom_odt extends ModelePDFConditionreportroom
 			$texte .= '<input type="hidden" name="MAX_FILE_SIZE" value="'.($maxmin * 1024).'">';	// MAX_FILE_SIZE must precede the field type=file
 		}
 		$texte .= ' <input type="file" name="uploadfile">';
-		$texte .= '<input type="hidden" value="CONDITIONREPORT_MYOBJECT_ADDON_PDF_ODT_PATH" name="keyforuploaddir">';
+		$texte .= '<input type="hidden" value="CONDITIONREPORT_CONDITIONREPORT_ADDON_PDF_ODT_PATH" name="keyforuploaddir">';
 		$texte .= '<input type="submit" class="button smallpaddingimp reposition" value="'.dol_escape_htmltag($langs->trans("Upload")).'" name="upload">';
 		$texte .= '</div>';
 
@@ -341,7 +341,7 @@ class doc_generic_conditionreportroom_odt extends ModelePDFConditionreportroom
 
 				// Line of free text
 				$newfreetext = '';
-				$paramfreetext = 'CONDITIONREPORT_MYOBJECT_FREE_TEXT';
+				$paramfreetext = 'CONDITIONREPORT_CONDITIONREPORT_FREE_TEXT';
 				if (getDolGlobalString($paramfreetext)) {
 					$newfreetext = make_substitutions(getDolGlobalString($paramfreetext), $substitutionarray);
 				}

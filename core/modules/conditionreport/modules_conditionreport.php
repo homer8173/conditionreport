@@ -29,6 +29,7 @@
  */
 
 require_once DOL_DOCUMENT_ROOT.'/core/class/commondocgenerator.class.php';
+if(file_exists(DOL_DOCUMENT_ROOT.'/core/class/commonnumrefgenerator.class.php'))
 require_once DOL_DOCUMENT_ROOT.'/core/class/commonnumrefgenerator.class.php';
 
 
