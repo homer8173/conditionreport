@@ -27,43 +27,43 @@
  *  \ingroup		conditionreport
  *  \brief			File that contains parent class for conditionreports document models and parent class for conditionreports numbering models
  */
-
-require_once DOL_DOCUMENT_ROOT.'/core/class/commondocgenerator.class.php';
-if(file_exists(DOL_DOCUMENT_ROOT.'/core/class/commonnumrefgenerator.class.php'))
-require_once DOL_DOCUMENT_ROOT.'/core/class/commonnumrefgenerator.class.php';
-
+require_once DOL_DOCUMENT_ROOT . '/core/class/commondocgenerator.class.php';
+if (file_exists(DOL_DOCUMENT_ROOT . '/core/class/commonnumrefgenerator.class.php'))
+    require_once DOL_DOCUMENT_ROOT . '/core/class/commonnumrefgenerator.class.php';
+else // not available on Dol 17
+    dol_include_once('/conditionreport/core/modules/conditionreport/commonnumrefgenerator.class.php');
 
 /**
- *	Parent class for documents models
+ * 	Parent class for documents models
  */
 abstract class ModelePDFConditionreport extends CommonDocGenerator
 {
-	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
-	/**
-	 *  Return list of active generation modules
-	 *
-	 *  @param	DoliDB	$db     			Database handler
-	 *  @param  integer	$maxfilenamelength  Max length of value to show
-	 *  @return	array						List of templates
-	 */
-	public static function liste_modeles($db, $maxfilenamelength = 0)
-	{
-		// phpcs:enable
-		$type = 'conditionreport';
-		$list = array();
+    // phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 
-		include_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
-		$list = getListOfModels($db, $type, $maxfilenamelength);
+    /**
+     *  Return list of active generation modules
+     *
+     *  @param	DoliDB	$db     			Database handler
+     *  @param  integer	$maxfilenamelength  Max length of value to show
+     *  @return	array						List of templates
+     */
+    public static function liste_modeles($db, $maxfilenamelength = 0)
+    {
+        // phpcs:enable
+        $type = 'conditionreport';
+        $list = array();
 
-		return $list;
-	}
+        include_once DOL_DOCUMENT_ROOT . '/core/lib/functions2.lib.php';
+        $list = getListOfModels($db, $type, $maxfilenamelength);
+
+        return $list;
+    }
 }
-
 
 /**
  *  Parent class to manage numbering of Conditionreport
  */
 abstract class ModeleNumRefConditionreport extends CommonNumRefGenerator
 {
-	// No overload code
+    // No overload code
 }
