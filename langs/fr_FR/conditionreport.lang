@@ -23,6 +23,11 @@ Conditionreport = État des lieux
 Conditionreports = États des lieux
 conditionreport = état des lieux
 conditionreports = états des lieux
+Conditionreportroom = État des lieux d'une pièce
+Conditionreportsroom = États des lieux d'une pièce
+conditionreportroom = état des lieux d'une pièce
+conditionreportsroom = états des lieux d'une pièce
+
 # Module description 'ModuleConditionreportDesc'
 ModuleConditionreportDesc = Gestion des état des lieux
 
@@ -56,7 +61,8 @@ MyPageName = My page name
 #
 MyWidget = My widget État des lieux
 MyWidgetDescription = My widget description État des lieux
-
+ExtraFieldsConditionreport=Champs complémentaire état des lieux
+ExtraFieldsConditionreportroom=Champs complémentaire état des lieux d'une pièce
 
 # fields names :
 Lessor=Bailleur
@@ -72,3 +78,7 @@ type_water_heater=Type de chauffage d'eau chaude
 type_cooker=Type d'appareil de cuisson 
 DateSignatureLessor=Date de la signature du bailleur
 DateSignatureTenant=Date de la signature du locataire
+
+# room fields name :
+RoomName=Nom de la pièce
+RoomNameDetails=exemple: cuisine, salle de bain, etc
