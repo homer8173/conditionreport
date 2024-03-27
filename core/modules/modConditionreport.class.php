@@ -566,7 +566,7 @@ class modConditionreport extends DolibarrModules
 		// Document templates
 		$moduledir = dol_sanitizeFileName('conditionreport');
 		$myTmpObjects = array();
-		$myTmpObjects['Conditionreport'] = array('includerefgeneration'=>0, 'includedocgeneration'=>0);
+		$myTmpObjects['Conditionreport'] = array('includerefgeneration'=>1, 'includedocgeneration'=>1);
 
 		foreach ($myTmpObjects as $myTmpObjectKey => $myTmpObjectArray) {
 			if ($myTmpObjectKey == 'Conditionreport') {

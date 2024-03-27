@@ -17,8 +17,8 @@
 CREATE TABLE llx_conditionreport_conditionreportroom(
 	-- BEGIN MODULEBUILDER FIELDS
 	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
-	ref varchar(128) NOT NULL, 
-	label varchar(255), 
+	ref varchar(255) NOT NULL, 
+	label varchar(255) null, 
 	description text, 
 	note_public text, 
 	note_private text, 
