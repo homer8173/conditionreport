@@ -1,0 +1,74 @@
+# Copyright (C) 2024 SuperAdmin
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#
+# Generic
+#
+
+# Module label 'ModuleConditionreportName'
+ModuleConditionreportName = État des lieux
+Conditionreport = État des lieux
+Conditionreports = États des lieux
+conditionreport = état des lieux
+conditionreports = états des lieux
+# Module description 'ModuleConditionreportDesc'
+ModuleConditionreportDesc = Gestion des état des lieux
+
+#
+# Admin page
+#
+ConditionreportSetup = État des lieux setup
+Settings = Settings
+ConditionreportSetupPage = État des lieux setup page
+CONDITIONREPORT_MYPARAM1 = My param 1
+CONDITIONREPORT_MYPARAM1Tooltip = My param 1 tooltip
+CONDITIONREPORT_MYPARAM2=My param 2
+CONDITIONREPORT_MYPARAM2Tooltip=My param 2 tooltip
+
+
+#
+# About page
+#
+About = About
+ConditionreportAbout = About État des lieux
+ConditionreportAboutPage = État des lieux about page
+
+#
+# Sample page
+#
+ConditionreportArea = Accueil État des lieux
+MyPageName = My page name
+
+#
+# Sample widget
+#
+MyWidget = My widget État des lieux
+MyWidgetDescription = My widget description État des lieux
+
+
+# fields names :
+Lessor=Bailleur
+Tenant=Locataire
+RoomQty=Nombre de pièces
+RoomQtyDetails=Nombre de pièces dans le logement
+DateEnter=Date d'entrée
+DateEnterDetails=Date d'entrée dans le logement
+DateExit=Date de sortie
+DateExitDetails=Date de sortie du logement
+type_heater=Type de chauffage
+type_water_heater=Type de chauffage d'eau chaude
+type_cooker=Type d'appareil de cuisson 
+DateSignatureLessor=Date de la signature du bailleur
+DateSignatureTenant=Date de la signature du locataire
