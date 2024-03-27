@@ -256,7 +256,19 @@ $param = '&id='.$object->id;
 $relativepathwithnofile = 'conditionreportroom/'.dol_sanitizeFileName($object->ref).'/';
 
 include DOL_DOCUMENT_ROOT.'/core/tpl/document_actions_post_headers.tpl.php';
+?><script>
+$(document).ready(function(){
+    // Sélectionnez l'élément input avec l'attribut name="userfile[]"
+    var inputElement = $('input[name="userfile[]"]');
 
+    // Ajoutez les attributs accept et capture
+    inputElement.attr({
+        'accept': 'image/*',
+        'capture': 'environment'
+    });
+});
+</script>
+<?php
 // End of page
 llxFooter();
 $db->close();
