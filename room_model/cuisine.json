@@ -1,0 +1,24 @@
+{
+    "name": "Cuisine",
+    "lines": [
+        "Plafond",
+        "Sol",
+        "Plinthes",
+        "Murs",
+        "Portes, menuiserie",
+        "Fenêtres, volets",
+        "Rangement, placard",
+        "Prises, interrupteurs",
+        "Robinets, évacuation eau",
+        "Radiateurs",
+        "Eclairage",
+        "Ventilation",
+        "Eviers",
+        "Meuble évier",
+        "Hotte",
+        "Plan de travail",
+        "Placards",
+        "Tiroirs",
+        "Autres"
+    ]
+}

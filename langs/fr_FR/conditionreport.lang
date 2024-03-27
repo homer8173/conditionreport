@@ -82,3 +82,6 @@ DateSignatureTenant=Date de la signature du locataire
 # room fields name :
 RoomName=Nom de la pièce
 RoomNameDetails=exemple: cuisine, salle de bain, etc
+
+
+LoadRoomModele=Charger un modèle

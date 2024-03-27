@@ -62,7 +62,7 @@ class Conditionreportroom extends CommonObject
 	/**
 	 * @var string String with name of icon for conditionreportroom. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'conditionreportroom@conditionreport' if picto is file 'img/object_conditionreportroom.png'.
 	 */
-	public $picto = 'fa-search-plus';
+	public $picto = 'fa-bed';
 
 
 	const STATUS_DRAFT = 0;
@@ -114,8 +114,8 @@ class Conditionreportroom extends CommonObject
 	 */
 	public $fields=array(
 		'rowid' => array('type'=>'integer', 'label'=>'TechnicalID', 'enabled'=>'1', 'position'=>1, 'notnull'=>1, 'visible'=>0, 'noteditable'=>'1', 'index'=>1, 'css'=>'left', 'comment'=>"Id"),
-		'ref' => array('type'=>'varchar(255)', 'label'=>'RoomName', 'enabled'=>'1', 'position'=>20, 'notnull'=>1, 'visible'=>1, 'index'=>1, 'searchall'=>1, 'showoncombobox'=>'1', 'validate'=>'1', 'comment'=>"Reference of object"),
-//		'label' => array('type'=>'varchar(255)', 'label'=>'RoomName', 'enabled'=>'1', 'position'=>30, 'notnull'=>1, 'visible'=>1, 'alwayseditable'=>'1', 'searchall'=>1, 'css'=>'minwidth300', 'cssview'=>'wordbreak', 'help'=>"RoomNameDetails", 'showoncombobox'=>'2', 'validate'=>'1',),
+		'ref' => array('type'=>'varchar(255)', 'label'=>'Ref', 'enabled'=>'1', 'position'=>20, 'notnull'=>1, 'visible'=>1, 'index'=>1, 'searchall'=>1, 'showoncombobox'=>'1', 'validate'=>'1', 'comment'=>"Reference of object"),
+		'label' => array('type'=>'varchar(255)', 'label'=>'RoomName', 'enabled'=>'1', 'position'=>30, 'notnull'=>1, 'visible'=>1, 'alwayseditable'=>'1', 'searchall'=>1, 'css'=>'minwidth300', 'cssview'=>'wordbreak', 'help'=>"RoomNameDetails", 'showoncombobox'=>'2', 'validate'=>'1',),
 		'description' => array('type'=>'text', 'label'=>'Description', 'enabled'=>'1', 'position'=>60, 'notnull'=>0, 'visible'=>3, 'validate'=>'1',),
 		'note_public' => array('type'=>'html', 'label'=>'NotePublic', 'enabled'=>'1', 'position'=>61, 'notnull'=>0, 'visible'=>0, 'cssview'=>'wordbreak', 'validate'=>'1',),
 		'note_private' => array('type'=>'html', 'label'=>'NotePrivate', 'enabled'=>'1', 'position'=>62, 'notnull'=>0, 'visible'=>0, 'cssview'=>'wordbreak', 'validate'=>'1',),
