@@ -65,6 +65,7 @@ ExtraFieldsConditionreport=Champs complémentaire état des lieux
 ExtraFieldsConditionreportroom=Champs complémentaire état des lieux d'une pièce
 
 # fields names :
+RealEstate=Logement
 Lessor=Bailleur
 Tenant=Locataire
 RoomQty=Nombre de pièces

@@ -17,8 +17,9 @@
 -- BEGIN MODULEBUILDER INDEXES
 ALTER TABLE llx_conditionreport_conditionreport ADD INDEX idx_conditionreport_conditionreport_rowid (rowid);
 ALTER TABLE llx_conditionreport_conditionreport ADD INDEX idx_conditionreport_conditionreport_ref (ref);
-ALTER TABLE llx_conditionreport_conditionreport ADD INDEX idx_conditionreport_conditionreport_fk_soc (fk_soc);
-ALTER TABLE llx_conditionreport_conditionreport ADD INDEX idx_conditionreport_conditionreport_fk_project (fk_project);
+ALTER TABLE llx_conditionreport_conditionreport ADD INDEX idx_conditionreport_conditionreport_fk_property (fk_property);
+ALTER TABLE llx_conditionreport_conditionreport ADD INDEX idx_conditionreport_conditionreport_fk_lessor (fk_lessor);
+ALTER TABLE llx_conditionreport_conditionreport ADD INDEX idx_conditionreport_conditionreport_fk_tenant (fk_tenant);
 ALTER TABLE llx_conditionreport_conditionreport ADD CONSTRAINT llx_conditionreport_conditionreport_fk_user_creat FOREIGN KEY (fk_user_creat) REFERENCES llx_user(rowid);
 ALTER TABLE llx_conditionreport_conditionreport ADD INDEX idx_conditionreport_conditionreport_status (status);
 -- END MODULEBUILDER INDEXES

@@ -19,7 +19,7 @@ CREATE TABLE llx_conditionreport_conditionreport(
 	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
 	ref varchar(128) DEFAULT '(PROV)' NOT NULL, 
 	label varchar(255), 
-	fk_soc integer, 
+	fk_property integer, 
 	fk_lessor integer, 
 	fk_tenant integer, 
 	description text, 
