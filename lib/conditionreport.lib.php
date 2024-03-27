@@ -30,9 +30,9 @@ function conditionreportAdminPrepareHead()
 {
 	global $langs, $conf;
 
-	// global $db;
-	// $extrafields = new ExtraFields($db);
-	// $extrafields->fetch_name_optionals_label('myobject');
+	 global $db;
+	 $extrafields = new ExtraFields($db);
+	 $extrafields->fetch_name_optionals_label('conditionreport');
 
 	$langs->load("conditionreport@conditionreport");
 
@@ -44,16 +44,28 @@ function conditionreportAdminPrepareHead()
 	$head[$h][2] = 'settings';
 	$h++;
 
-	/*
-	$head[$h][0] = dol_buildpath("/conditionreport/admin/myobject_extrafields.php", 1);
-	$head[$h][1] = $langs->trans("ExtraFields");
-	$nbExtrafields = is_countable($extrafields->attributes['myobject']['label']) ? count($extrafields->attributes['myobject']['label']) : 0;
+	
+	$head[$h][0] = dol_buildpath("/conditionreport/admin/conditionreport_extrafields.php", 1);
+	$head[$h][1] = $langs->trans("ExtraFieldsConditionreport");
+	$nbExtrafields = is_countable($extrafields->attributes['conditionreport']['label']) ? count($extrafields->attributes['conditionreport']['label']) : 0;
 	if ($nbExtrafields > 0) {
 		$head[$h][1] .= ' <span class="badge">' . $nbExtrafields . '</span>';
 	}
-	$head[$h][2] = 'myobject_extrafields';
+	$head[$h][2] = 'conditionreport_extrafields';
 	$h++;
-	*/
+    
+    
+	 $extrafields = new ExtraFields($db);
+	 $extrafields->fetch_name_optionals_label('conditionreportroom');
+	$head[$h][0] = dol_buildpath("/conditionreport/admin/conditionreportroom_extrafields.php", 1);
+	$head[$h][1] = $langs->trans("ExtraFieldsConditionreportroom");
+	$nbExtrafields = is_countable($extrafields->attributes['conditionreportroom']['label']) ? count($extrafields->attributes['conditionreportroom']['label']) : 0;
+	if ($nbExtrafields > 0) {
+		$head[$h][1] .= ' <span class="badge">' . $nbExtrafields . '</span>';
+	}
+	$head[$h][2] = 'conditionreportroom_extrafields';
+	$h++;
+	
 
 	$head[$h][0] = dol_buildpath("/conditionreport/admin/about.php", 1);
 	$head[$h][1] = $langs->trans("About");

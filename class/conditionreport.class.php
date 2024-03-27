@@ -158,32 +158,38 @@ class Conditionreport extends CommonObject
 
     // END MODULEBUILDER PROPERTIES
     // If this object has a subtable with lines
-     /**
-      * @var string    Name of subtable line
-      */
-     public $table_element_line = 'conditionreport_conditionreportline';
-     /**
-      * @var string    Field with ID of parent key if this object has a parent
-      */
-     public $fk_element = 'fk_conditionreport';
-     /**
-      * @var string    Name of subtable class that manage subtable lines
-      */
-     public $class_element_line = 'Conditionreportline';
-     /**
-      * @var array	List of child tables. To test if we can delete object.
-      */
-     protected $childtables = array('mychildtable' => array('name'=>'Conditionreport', 'fk_element'=>'fk_conditionreport'));
-     /**
-      * @var array    List of child tables. To know object to delete on cascade.
-      *               If name matches '@ClassNAme:FilePathClass;ParentFkFieldName' it will
-      *               call method deleteByParentField(parentId, ParentFkFieldName) to fetch and delete child object
-      */
-     protected $childtablesoncascade = array('conditionreport_conditionreportdet');
-     /**
-      * @var ConditionreportLine[]     Array of subtable lines
-      */
-     public $lines = array();
+
+    /**
+     * @var string    Name of subtable line
+     */
+    public $table_element_line      = 'conditionreport_conditionreportline';
+
+    /**
+     * @var string    Field with ID of parent key if this object has a parent
+     */
+    public $fk_element              = 'fk_conditionreport';
+
+    /**
+     * @var string    Name of subtable class that manage subtable lines
+     */
+    public $class_element_line      = 'Conditionreportline';
+
+    /**
+     * @var array	List of child tables. To test if we can delete object.
+     */
+    protected $childtables          = array('mychildtable' => array('name' => 'Conditionreport', 'fk_element' => 'fk_conditionreport'));
+
+    /**
+     * @var array    List of child tables. To know object to delete on cascade.
+     *               If name matches '@ClassNAme:FilePathClass;ParentFkFieldName' it will
+     *               call method deleteByParentField(parentId, ParentFkFieldName) to fetch and delete child object
+     */
+    protected $childtablesoncascade = array('conditionreport_conditionreportdet');
+
+    /**
+     * @var ConditionreportLine[]     Array of subtable lines
+     */
+    public $lines                   = array();
 
     /**
      * Constructor
@@ -1194,7 +1200,7 @@ class Conditionreport extends CommonObject
 
         return $error;
     }
-    
+
     public function setErrorsFromObject($param)
     {
         return $param;
@@ -1208,16 +1214,18 @@ require_once DOL_DOCUMENT_ROOT . '/core/class/commonobjectline.class.php';
  */
 class ConditionreportLine extends CommonObjectLine
 {
+
     // To complete with content of an object ConditionreportLine
     // We should have a field rowid, fk_conditionreport and position
-    public $fields = array(
+    public $fields              = array(
         'rowid' => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "Id"),
         'fk_conditionreport' => array('type' => 'integer', 'label' => 'Ref', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'validate' => '1', 'comment' => "Reference of object"),
- );
+    );
+
     /**
      * @var int  Does object support extrafields ? 0=No, 1=Yes
      */
-    public $isextrafieldmanaged = 1;
+    public $isextrafieldmanaged = 0;
 
     /**
      * Constructor
