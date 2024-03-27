@@ -18,9 +18,9 @@
  */
 
 /**
- * \file        class/conditionreport.class.php
+ * \file        class/conditionreportroom.class.php
  * \ingroup     conditionreport
- * \brief       This file is a CRUD class file for Conditionreport (Create/Read/Update/Delete)
+ * \brief       This file is a CRUD class file for Conditionreportroom (Create/Read/Update/Delete)
  */
 
 // Put here all includes required by your class file
@@ -29,9 +29,9 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/commonobject.class.php';
 //require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
 
 /**
- * Class for Conditionreport
+ * Class for Conditionreportroom
  */
-class Conditionreport extends CommonObject
+class Conditionreportroom extends CommonObject
 {
 	/**
 	 * @var string ID of module.
@@ -41,12 +41,12 @@ class Conditionreport extends CommonObject
 	/**
 	 * @var string ID to identify managed object.
 	 */
-	public $element = 'conditionreport';
+	public $element = 'conditionreportroom';
 
 	/**
 	 * @var string Name of table without prefix where object is stored. This is also the key used for extrafields management.
 	 */
-	public $table_element = 'conditionreport_conditionreport';
+	public $table_element = 'conditionreport_conditionreportroom';
 
 	/**
 	 * @var int  	Does this object support multicompany module ?
@@ -60,9 +60,9 @@ class Conditionreport extends CommonObject
 	public $isextrafieldmanaged = 1;
 
 	/**
-	 * @var string String with name of icon for conditionreport. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'conditionreport@conditionreport' if picto is file 'img/object_conditionreport.png'.
+	 * @var string String with name of icon for conditionreportroom. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'conditionreportroom@conditionreport' if picto is file 'img/object_conditionreportroom.png'.
 	 */
-	public $picto = 'fa-file';
+	public $picto = 'fa-search-plus';
 
 
 	const STATUS_DRAFT = 0;
@@ -114,7 +114,7 @@ class Conditionreport extends CommonObject
 	 */
 	public $fields=array(
 		"rowid" => array("type"=>"integer", "label"=>"TechnicalID", "enabled"=>"1", 'position'=>1, 'notnull'=>1, "visible"=>"0", "noteditable"=>"1", "index"=>"1", "css"=>"left", "comment"=>"Id"),
-		"ref" => array("type"=>"varchar(128)", "label"=>"Ref", "enabled"=>"1", 'position'=>20, 'notnull'=>1, "visible"=>"4", "noteditable"=>"1", "default"=>"(PROV)", "index"=>"1", "searchall"=>"1", "showoncombobox"=>"1", "validate"=>"1", "comment"=>"Reference of object"),
+		"ref" => array("type"=>"varchar(128)", "label"=>"Ref", "enabled"=>"1", 'position'=>20, 'notnull'=>1, "visible"=>"1", "index"=>"1", "searchall"=>"1", "showoncombobox"=>"1", "validate"=>"1", "comment"=>"Reference of object"),
 		"label" => array("type"=>"varchar(255)", "label"=>"Label", "enabled"=>"1", 'position'=>30, 'notnull'=>0, "visible"=>"1", "alwayseditable"=>"1", "searchall"=>"1", "css"=>"minwidth300", "cssview"=>"wordbreak", "help"=>"Help text", "showoncombobox"=>"2", "validate"=>"1",),
 		"amount" => array("type"=>"price", "label"=>"Amount", "enabled"=>"1", 'position'=>40, 'notnull'=>0, "visible"=>"1", "default"=>"null", "isameasure"=>"1", "help"=>"Help text for amount", "validate"=>"1",),
 		"qty" => array("type"=>"real", "label"=>"Qty", "enabled"=>"1", 'position'=>45, 'notnull'=>0, "visible"=>"1", "default"=>"0", "isameasure"=>"1", "css"=>"maxwidth75imp", "help"=>"Help text for quantity", "validate"=>"1",),
@@ -158,32 +158,32 @@ class Conditionreport extends CommonObject
 	// /**
 	//  * @var string    Name of subtable line
 	//  */
-	// public $table_element_line = 'conditionreport_conditionreportline';
+	// public $table_element_line = 'conditionreport_conditionreportroomline';
 
 	// /**
 	//  * @var string    Field with ID of parent key if this object has a parent
 	//  */
-	// public $fk_element = 'fk_conditionreport';
+	// public $fk_element = 'fk_conditionreportroom';
 
 	// /**
 	//  * @var string    Name of subtable class that manage subtable lines
 	//  */
-	// public $class_element_line = 'Conditionreportline';
+	// public $class_element_line = 'Conditionreportroomline';
 
 	// /**
 	//  * @var array	List of child tables. To test if we can delete object.
 	//  */
-	// protected $childtables = array('mychildtable' => array('name'=>'Conditionreport', 'fk_element'=>'fk_conditionreport'));
+	// protected $childtables = array('mychildtable' => array('name'=>'Conditionreportroom', 'fk_element'=>'fk_conditionreportroom'));
 
 	// /**
 	//  * @var array    List of child tables. To know object to delete on cascade.
 	//  *               If name matches '@ClassNAme:FilePathClass;ParentFkFieldName' it will
 	//  *               call method deleteByParentField(parentId, ParentFkFieldName) to fetch and delete child object
 	//  */
-	// protected $childtablesoncascade = array('conditionreport_conditionreportdet');
+	// protected $childtablesoncascade = array('conditionreport_conditionreportroomdet');
 
 	// /**
-	//  * @var ConditionreportLine[]     Array of subtable lines
+	//  * @var ConditionreportroomLine[]     Array of subtable lines
 	//  */
 	// public $lines = array();
 
@@ -208,7 +208,7 @@ class Conditionreport extends CommonObject
 		}
 
 		// Example to show how to set values of fields definition dynamically
-		/*if ($user->hasRight('conditionreport', 'conditionreport', 'read')) {
+		/*if ($user->hasRight('conditionreport', 'conditionreportroom', 'read')) {
 			$this->fields['myfield']['visible'] = 1;
 			$this->fields['myfield']['noteditable'] = 0;
 		}*/
@@ -552,8 +552,8 @@ class Conditionreport extends CommonObject
 			return 0;
 		}
 
-		/* if (! ((!getDolGlobalInt('MAIN_USE_ADVANCED_PERMS') && $user->hasRight('conditionreport', 'conditionreport', 'write'))
-		 || (getDolGlobalInt('MAIN_USE_ADVANCED_PERMS') && $user->hasRight('conditionreport', 'conditionreport_advance', 'validate')))
+		/* if (! ((!getDolGlobalInt('MAIN_USE_ADVANCED_PERMS') && $user->hasRight('conditionreport', 'conditionreportroom', 'write'))
+		 || (getDolGlobalInt('MAIN_USE_ADVANCED_PERMS') && $user->hasRight('conditionreport', 'conditionreportroom_advance', 'validate')))
 		 {
 		 $this->error='NotEnoughPermissions';
 		 dol_syslog(get_class($this)."::valid ".$this->error, LOG_ERR);
@@ -609,15 +609,15 @@ class Conditionreport extends CommonObject
 			// Rename directory if dir was a temporary ref
 			if (preg_match('/^[\(]?PROV/i', $this->ref)) {
 				// Now we rename also files into index
-				$sql = 'UPDATE '.MAIN_DB_PREFIX."ecm_files set filename = CONCAT('".$this->db->escape($this->newref)."', SUBSTR(filename, ".(strlen($this->ref) + 1).")), filepath = 'conditionreport/".$this->db->escape($this->newref)."'";
-				$sql .= " WHERE filename LIKE '".$this->db->escape($this->ref)."%' AND filepath = 'conditionreport/".$this->db->escape($this->ref)."' and entity = ".$conf->entity;
+				$sql = 'UPDATE '.MAIN_DB_PREFIX."ecm_files set filename = CONCAT('".$this->db->escape($this->newref)."', SUBSTR(filename, ".(strlen($this->ref) + 1).")), filepath = 'conditionreportroom/".$this->db->escape($this->newref)."'";
+				$sql .= " WHERE filename LIKE '".$this->db->escape($this->ref)."%' AND filepath = 'conditionreportroom/".$this->db->escape($this->ref)."' and entity = ".$conf->entity;
 				$resql = $this->db->query($sql);
 				if (!$resql) {
 					$error++;
 					$this->error = $this->db->lasterror();
 				}
-				$sql = 'UPDATE '.MAIN_DB_PREFIX."ecm_files set filepath = 'conditionreport/".$this->db->escape($this->newref)."'";
-				$sql .= " WHERE filepath = 'conditionreport/".$this->db->escape($this->ref)."' and entity = ".$conf->entity;
+				$sql = 'UPDATE '.MAIN_DB_PREFIX."ecm_files set filepath = 'conditionreportroom/".$this->db->escape($this->newref)."'";
+				$sql .= " WHERE filepath = 'conditionreportroom/".$this->db->escape($this->ref)."' and entity = ".$conf->entity;
 				$resql = $this->db->query($sql);
 				if (!$resql) {
 					$error++;
@@ -627,15 +627,15 @@ class Conditionreport extends CommonObject
 				// We rename directory ($this->ref = old ref, $num = new ref) in order not to lose the attachments
 				$oldref = dol_sanitizeFileName($this->ref);
 				$newref = dol_sanitizeFileName($num);
-				$dirsource = $conf->conditionreport->dir_output.'/conditionreport/'.$oldref;
-				$dirdest = $conf->conditionreport->dir_output.'/conditionreport/'.$newref;
+				$dirsource = $conf->conditionreport->dir_output.'/conditionreportroom/'.$oldref;
+				$dirdest = $conf->conditionreport->dir_output.'/conditionreportroom/'.$newref;
 				if (!$error && file_exists($dirsource)) {
 					dol_syslog(get_class($this)."::validate() rename dir ".$dirsource." into ".$dirdest);
 
 					if (@rename($dirsource, $dirdest)) {
 						dol_syslog("Rename ok");
 						// Rename docs starting with $oldref with $newref
-						$listoffiles = dol_dir_list($conf->conditionreport->dir_output.'/conditionreport/'.$newref, 'files', 1, '^'.preg_quote($oldref, '/'));
+						$listoffiles = dol_dir_list($conf->conditionreport->dir_output.'/conditionreportroom/'.$newref, 'files', 1, '^'.preg_quote($oldref, '/'));
 						foreach ($listoffiles as $fileentry) {
 							$dirsource = $fileentry['name'];
 							$dirdest = preg_replace('/^'.preg_quote($oldref, '/').'/', $newref, $dirsource);
@@ -750,9 +750,9 @@ class Conditionreport extends CommonObject
 		$datas = [];
 
 		if (getDolGlobalInt('MAIN_OPTIMIZEFORTEXTBROWSER')) {
-			return ['optimize' => $langs->trans("ShowConditionreport")];
+			return ['optimize' => $langs->trans("ShowConditionreportroom")];
 		}
-		$datas['picto'] = img_picto('', $this->picto).' <u>'.$langs->trans("Conditionreport").'</u>';
+		$datas['picto'] = img_picto('', $this->picto).' <u>'.$langs->trans("Conditionreportroom").'</u>';
 		if (isset($this->status)) {
 			$datas['picto'] .= ' '.$this->getLibStatut(5);
 		}
@@ -800,7 +800,7 @@ class Conditionreport extends CommonObject
 			$label = implode($this->getTooltipContentArray($params));
 		}
 
-		$url = dol_buildpath('/conditionreport/conditionreport_card.php', 1).'?id='.$this->id;
+		$url = dol_buildpath('/conditionreport/conditionreportroom_card.php', 1).'?id='.$this->id;
 
 		if ($option !== 'nolink') {
 			// Add param to save lastsearch_values or not
@@ -816,7 +816,7 @@ class Conditionreport extends CommonObject
 		$linkclose = '';
 		if (empty($notooltip)) {
 			if (getDolGlobalInt('MAIN_OPTIMIZEFORTEXTBROWSER')) {
-				$label = $langs->trans("ShowConditionreport");
+				$label = $langs->trans("ShowConditionreportroom");
 				$linkclose .= ' alt="'.dol_escape_htmltag($label, 1).'"';
 			}
 			$linkclose .= ($label ? ' title="'.dol_escape_htmltag($label, 1).'"' : ' title="tocomplete"');
@@ -1066,8 +1066,8 @@ class Conditionreport extends CommonObject
 	{
 		$this->lines = array();
 
-		$objectline = new ConditionreportLine($this->db);
-		$result = $objectline->fetchAll('ASC', 'position', 0, 0, array('customsql'=>'fk_conditionreport = '.((int) $this->id)));
+		$objectline = new ConditionreportroomLine($this->db);
+		$result = $objectline->fetchAll('ASC', 'position', 0, 0, array('customsql'=>'fk_conditionreportroom = '.((int) $this->id)));
 
 		if (is_numeric($result)) {
 			$this->setErrorsFromObject($objectline);
@@ -1089,7 +1089,7 @@ class Conditionreport extends CommonObject
 		$langs->load("conditionreport@conditionreport");
 
 		if (!getDolGlobalString('CONDITIONREPORT_MYOBJECT_ADDON')) {
-			$conf->global->CONDITIONREPORT_MYOBJECT_ADDON = 'mod_conditionreport_standard';
+			$conf->global->CONDITIONREPORT_MYOBJECT_ADDON = 'mod_conditionreportroom_standard';
 		}
 
 		if (getDolGlobalString('CONDITIONREPORT_MYOBJECT_ADDON')) {
@@ -1154,7 +1154,7 @@ class Conditionreport extends CommonObject
 		$langs->load("conditionreport@conditionreport");
 
 		if (!dol_strlen($modele)) {
-			$modele = 'standard_conditionreport';
+			$modele = 'standard_conditionreportroom';
 
 			if (!empty($this->model_pdf)) {
 				$modele = $this->model_pdf;
@@ -1209,12 +1209,12 @@ class Conditionreport extends CommonObject
 require_once DOL_DOCUMENT_ROOT.'/core/class/commonobjectline.class.php';
 
 /**
- * Class ConditionreportLine. You can also remove this and generate a CRUD class for lines objects.
+ * Class ConditionreportroomLine. You can also remove this and generate a CRUD class for lines objects.
  */
-class ConditionreportLine extends CommonObjectLine
+class ConditionreportroomLine extends CommonObjectLine
 {
-	// To complete with content of an object ConditionreportLine
-	// We should have a field rowid, fk_conditionreport and position
+	// To complete with content of an object ConditionreportroomLine
+	// We should have a field rowid, fk_conditionreportroom and position
 
 	/**
 	 * @var int  Does object support extrafields ? 0=No, 1=Yes
