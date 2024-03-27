@@ -19,10 +19,9 @@ CREATE TABLE llx_conditionreport_conditionreport(
 	rowid integer AUTO_INCREMENT PRIMARY KEY NOT NULL, 
 	ref varchar(128) DEFAULT '(PROV)' NOT NULL, 
 	label varchar(255), 
-	amount double DEFAULT NULL, 
-	qty real, 
 	fk_soc integer, 
-	fk_project integer, 
+	fk_lessor integer, 
+	fk_tenant integer, 
 	description text, 
 	note_public text, 
 	note_private text, 
@@ -33,6 +32,14 @@ CREATE TABLE llx_conditionreport_conditionreport(
 	last_main_doc varchar(255), 
 	import_key varchar(14), 
 	model_pdf varchar(255), 
-	status integer NOT NULL
+	status integer NOT NULL, 
+	room_qty integer NOT NULL, 
+	date_enter datetime NOT NULL, 
+	date_exit datetime NOT NULL, 
+	date_signature_lessor datetime NOT NULL, 
+	date_signature_tenant datetime NOT NULL, 
+	type_heater integer, 
+	type_water_heater integer, 
+	type_cooker integer
 	-- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;
