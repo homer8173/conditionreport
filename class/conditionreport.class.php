@@ -1202,9 +1202,15 @@ class Conditionreport extends CommonObject
         return $error;
     }
 
-    public function setErrorsFromObject($param)
+
+    public function setErrorsFromObject($object)
     {
-        return $param;
+		if (!empty($object->error)) {
+			$this->error = $object->error;
+		}
+		if (!empty($object->errors)) {
+			$this->errors = array_merge($this->errors, $object->errors);
+		}
     }
 }
 
