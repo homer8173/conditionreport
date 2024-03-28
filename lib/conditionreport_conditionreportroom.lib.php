@@ -33,7 +33,7 @@ function conditionreportroomPrepareHead($object)
 
 	$langs->load("conditionreport@conditionreport");
 
-	$showtabofpagecontact = 1;
+	$showtabofpagecontact = 0;
 	$showtabofpagenote = 1;
 	$showtabofpagedocument = 1;
 	$showtabofpageagenda = 1;

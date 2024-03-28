@@ -55,13 +55,13 @@ function conditionreportAdminPrepareHead()
 	$h++;
     
     
-	 $extrafields = new ExtraFields($db);
-	 $extrafields->fetch_name_optionals_label('conditionreportroom');
+	 $extrafields2 = new ExtraFields($db);
+	 $extrafields2->fetch_name_optionals_label('conditionreportroom');
 	$head[$h][0] = dol_buildpath("/conditionreport/admin/conditionreportroom_extrafields.php", 1);
 	$head[$h][1] = $langs->trans("ExtraFieldsConditionreportroom");
-	$nbExtrafields = is_countable($extrafields->attributes['conditionreportroom']['label']) ? count($extrafields->attributes['conditionreportroom']['label']) : 0;
-	if ($nbExtrafields > 0) {
-		$head[$h][1] .= ' <span class="badge">' . $nbExtrafields . '</span>';
+	$nbExtrafields2 = is_countable($extrafields2->attributes['conditionreportroom']['label']) ? count($extrafields2->attributes['conditionreportroom']['label']) : 0;
+	if ($nbExtrafields2 > 0) {
+		$head[$h][1] .= ' <span class="badge">' . $nbExtrafields2 . '</span>';
 	}
 	$head[$h][2] = 'conditionreportroom_extrafields';
 	$h++;
