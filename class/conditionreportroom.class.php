@@ -68,6 +68,13 @@ class Conditionreportroom extends CommonObject
     const STATUS_VALIDATED = 1;
     const STATUS_CANCELED  = 9;
 
+    //constante for state of element 
+    const CONDITION =[
+        0 => 'BadCondition',
+        1 => 'PoorCondition',
+        2 => 'GoodCondition',
+        3 => 'ExcellentCondition',
+    ];
     /**
      *  'type' field format:
      *  	'integer', 'integer:ObjectClass:PathToClass[:AddCreateButtonOrNot[:Filter[:Sortfield]]]',
@@ -1192,12 +1199,44 @@ class Conditionreportroom extends CommonObject
 
     public function setErrorsFromObject($object)
     {
-		if (!empty($object->error)) {
-			$this->error = $object->error;
-		}
-		if (!empty($object->errors)) {
-			$this->errors = array_merge($this->errors, $object->errors);
-		}
+        if (!empty($object->error)) {
+            $this->error = $object->error;
+        }
+        if (!empty($object->errors)) {
+            $this->errors = array_merge($this->errors, $object->errors);
+        }
+    }
+    // --------------------
+    // TODO: All functions here must be redesigned and moved as they are not business functions but output functions
+    // --------------------
+
+    /* This is to show add lines */
+
+    /**
+     * 	Show add free and predefined products/services form
+     *
+     *  @param	int		        $dateSelector       1=Show also date range input fields
+     *  @param	Societe			$seller				Object thirdparty who sell
+     *  @param	Societe			$buyer				Object thirdparty who buy
+     *  @param	string			$defaulttpldir		Directory where to find the template
+     * 	@return	void
+     */
+    public function formAddObjectLine($dateSelector, $seller, $buyer, $defaulttpldir = '/core/tpl')
+    {
+        global $conf, $user, $langs, $object, $hookmanager, $extrafields, $form;
+
+        // Line extrafield
+        if (!is_object($extrafields)) {
+            require_once DOL_DOCUMENT_ROOT . '/core/class/extrafields.class.php';
+            $extrafields = new ExtraFields($this->db);
+        }
+        $extrafields->fetch_name_optionals_label($this->table_element_line);
+        $tpl = dol_buildpath('/conditionreport/tplCRR/objectline_create.tpl.php');
+        if (empty($conf->file->strict_mode)) {
+            $res = @include $tpl;
+        } else {
+            $res = include $tpl; // for debug
+        }
     }
 }
 

@@ -86,3 +86,9 @@ RoomNameDetails=exemple: cuisine, salle de bain, etc
 
 
 LoadRoomModele=Charger un modèle
+AddNewElement=Ajouter un nouvel élément
+Condition=État
+BadCondition=Mauvais état
+PoorCondition=État moyen
+GoodCondition=Bon état
+ExcellentCondition=Très bon état
