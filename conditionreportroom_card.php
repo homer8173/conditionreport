@@ -186,7 +186,7 @@ if (empty($reshook)) {
         }
     }
 
-    $triggermodname = 'CONDITIONREPORT_MYOBJECT_MODIFY'; // Name of trigger action code to execute when we modify record
+    $triggermodname = 'CONDITIONREPORT_CONDITIONREPORTROOM_MODIFY'; // Name of trigger action code to execute when we modify record
     // Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
     include DOL_DOCUMENT_ROOT . '/core/actions_addupdatedelete.inc.php';
 
@@ -209,8 +209,8 @@ if (empty($reshook)) {
     }
 
     // Actions to send emails
-    $triggersendname = 'CONDITIONREPORT_MYOBJECT_SENTBYMAIL';
-    $autocopy        = 'MAIN_MAIL_AUTOCOPY_MYOBJECT_TO';
+    $triggersendname = 'CONDITIONREPORT_CONDITIONREPORTROOM_SENTBYMAIL';
+    $autocopy        = 'MAIN_MAIL_AUTOCOPY_CONDITIONREPORTROOM_TO';
     $trackid         = 'conditionreportroom' . $object->id;
     include DOL_DOCUMENT_ROOT . '/core/actions_sendmails.inc.php';
 }
@@ -363,7 +363,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
           require_once DOL_DOCUMENT_ROOT . '/core/class/notify.class.php';
           $notify = new Notify($db);
           $text .= '<br>';
-          $text .= $notify->confirmMessage('MYOBJECT_CLOSE', $object->socid, $object);
+          $text .= $notify->confirmMessage('CONDITIONREPORTROOM_CLOSE', $object->socid, $object);
           } */
 
         $formquestion = array();
