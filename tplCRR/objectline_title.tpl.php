@@ -51,118 +51,17 @@ print '<tr class="liste_titre nodrag nodrop">';
 if (!empty($conf->global->MAIN_VIEW_LINE_NUMBER)) {
 	print '<th class="linecolnum center">&nbsp;</th>';
 }
+?>
 
-// Description
-print '<th class="linecoldescription">'.$langs->trans('Description').'</th>';
+        <th class="linecollabel minwidth400imp">
+            <div id="add"></div><span class="hideonsmartphone"><?php echo $langs->trans('Element'); ?></span>
+        </th>
+        <th class="linecolqty right"><?php echo $langs->trans('Qty'); ?></th>
+        <th class="linecolcondition right"><?php echo $langs->trans('Condition'); ?></th>
+        <th class="linecoldescription center"><?php echo $langs->trans('Observations'); ?></th>
+        <th class="linecoledit" colspan="<?php echo $colspan; ?>">&nbsp;</th>
+<?php
 
-// Supplier ref
-if ($this->element == 'supplier_proposal' || $this->element == 'order_supplier' || $this->element == 'invoice_supplier' || $this->element == 'invoice_supplier_rec') {
-	print '<th class="linerefsupplier maxwidth125"><span id="title_fourn_ref">'.$langs->trans("SupplierRef").'</span></th>';
-}
-
-// VAT
-print '<th class="linecolvat right nowraponall">';
-if (!empty($conf->global->FACTURE_LOCAL_TAX1_OPTION) || !empty($conf->global->FACTURE_LOCAL_TAX2_OPTION)) {
-	print $langs->trans('Taxes');
-} else {
-	print $langs->trans('VAT');
-}
-
-if (in_array($object->element, array('propal', 'commande', 'facture', 'supplier_proposal', 'order_supplier', 'invoice_supplier')) && $object->status == $object::STATUS_DRAFT) {
-	global $mysoc;
-
-	if (empty($disableedit) && GETPOST('mode', 'aZ09') != 'vatforalllines') {
-		print '<a class="reposition" href="'.$_SERVER["PHP_SELF"].'?mode=vatforalllines&id='.$object->id.'">'.img_edit($langs->trans("UpdateForAllLines"), 0, 'class="clickvatforalllines opacitymedium paddingleft cursorpointer"').'</a>';
-	}
-	//print '<script>$(document).ready(function() { $(".clickvatforalllines").click(function() { jQuery(".classvatforalllines").toggle(); }); });</script>';
-	if (GETPOST('mode', 'aZ09') == 'vatforalllines') {
-		print '<div class="classvatforalllines inline-block nowraponall">';
-		print $form->load_tva('vatforalllines', '', $mysoc, $object->thirdparty, 0, 0, '', false, 1);
-		print '<input class="inline-block button smallpaddingimp" type="submit" name="submitforalllines" value="'.$langs->trans("Update").'">';
-		print '</div>';
-	}
-}
-print '</th>';
-
-// Price HT
-print '<th class="linecoluht right nowraponall">'.$langs->trans('PriceUHT').'</th>';
-
-// Multicurrency
-if (isModEnabled("multicurrency") && $this->multicurrency_code != $conf->currency) {
-	print '<th class="linecoluht_currency right" style="width: 80px">'.$langs->trans('PriceUHTCurrency', $this->multicurrency_code).'</th>';
-}
-
-if (!empty($inputalsopricewithtax) && !getDolGlobalInt('MAIN_NO_INPUT_PRICE_WITH_TAX')) {
-	print '<th class="right nowraponall">'.$langs->trans('PriceUTTC').'</th>';
-}
-
-// Qty
-print '<th class="linecolqty right">'.$langs->trans('Qty').'</th>';
-
-// Unit
-if (!empty($conf->global->PRODUCT_USE_UNITS)) {
-	print '<th class="linecoluseunit left">'.$langs->trans('Unit').'</th>';
-}
-
-// Reduction short
-print '<th class="linecoldiscount right nowraponall">';
-print $langs->trans('ReductionShort');
-
-if (in_array($object->element, array('propal', 'commande', 'facture')) && $object->status == $object::STATUS_DRAFT) {
-	global $mysoc;
-
-	if (empty($disableedit) && GETPOST('mode', 'aZ09') != 'remiseforalllines') {
-		print '<a class="reposition" href="'.$_SERVER["PHP_SELF"].'?mode=remiseforalllines&id='.$object->id.'">'.img_edit($langs->trans("UpdateForAllLines"), 0, 'class="clickvatforalllines opacitymedium paddingleft cursorpointer"').'</a>';
-	}
-	//print '<script>$(document).ready(function() { $(".clickremiseforalllines").click(function() { jQuery(".classremiseforalllines").toggle(); }); });</script>';
-	if (GETPOST('mode', 'aZ09') == 'remiseforalllines') {
-		print '<div class="remiseforalllines inline-block nowraponall">';
-		print '<input class="inline-block smallpaddingimp width50 right" name="remiseforalllines" value="" placeholder="%">';
-		print '<input class="inline-block button smallpaddingimp" type="submit" name="submitforalllines" value="'.$langs->trans("Update").'">';
-		print '</div>';
-	}
-}
-print '</th>';
-
-// Fields for situation invoice
-if (isset($this->situation_cycle_ref) && $this->situation_cycle_ref) {
-	print '<th class="linecolcycleref right">'.$langs->trans('Progress').'</th>';
-	print '<th class="linecolcycleref2 right">'.$form->textwithpicto($langs->trans('TotalHT100Short'), $langs->trans('UnitPriceXQtyLessDiscount')).'</th>';
-}
-
-// Purchase price
-if ($usemargins && isModEnabled('margin') && empty($user->socid)) {
-	if (!empty($user->rights->margins->creer)) {
-		if ($conf->global->MARGIN_TYPE == "1") {
-			print '<th class="linecolmargin1 margininfos right" style="width: 80px">'.$langs->trans('BuyingPrice').'</th>';
-		} else {
-			print '<th class="linecolmargin1 margininfos right" style="width: 80px">'.$langs->trans('CostPrice').'</th>';
-		}
-	}
-
-	if (!empty($conf->global->DISPLAY_MARGIN_RATES) && $user->rights->margins->liretous) {
-		print '<th class="linecolmargin2 margininfos right" style="width: 50px">'.$langs->trans('MarginRate').'</th>';
-	}
-	if (!empty($conf->global->DISPLAY_MARK_RATES) && $user->rights->margins->liretous) {
-		print '<th class="linecolmargin2 margininfos right" style="width: 50px">'.$langs->trans('MarkRate').'</th>';
-	}
-}
-
-// Total HT
-print '<th class="linecolht right">'.$langs->trans('TotalHTShort').'</th>';
-
-// Multicurrency
-if (isModEnabled("multicurrency") && $this->multicurrency_code != $conf->currency) {
-	print '<th class="linecoltotalht_currency right">'.$langs->trans('TotalHTShortCurrency', $this->multicurrency_code).'</th>';
-}
-
-if ($outputalsopricetotalwithtax) {
-	print '<th class="right" style="width: 80px">'.$langs->trans('TotalTTCShort').'</th>';
-}
-
-if (isModEnabled('asset') && $object->element == 'invoice_supplier') {
-	print '<th class="linecolasset"></th>';
-}
 
 print '<th class="linecoledit"></th>'; // No width to allow autodim
 

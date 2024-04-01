@@ -34,7 +34,7 @@
  * $senderissupplier (0 by default, 1 or 2 for supplier invoices/orders)
  * $inputalsopricewithtax (0 by default, 1 to also show column with unit price including tax)
  */
-
+$colspan = 4;
 // Protection to avoid direct call of template
 if (empty($object) || !is_object($object)) {
     print "Error: this template page cannot be called directly as an URL";
@@ -63,42 +63,7 @@ if (empty($senderissupplier)) {
 if (empty($inputalsopricewithtax)) {
     $inputalsopricewithtax = 0;
 }
-// Define colspan for the button 'Add'
-$colspan = 3; // Columns: total ht + col edit + col delete
-if (isModEnabled("multicurrency") && $this->multicurrency_code != $conf->currency) {
-    $colspan++; //Add column for Total (currency) if required
-}
-if (in_array($object->element, array('propal', 'commande', 'order', 'facture', 'facturerec', 'invoice', 'supplier_proposal', 'order_supplier', 'invoice_supplier', 'invoice_supplier_rec'))) {
-    $colspan++; // With this, there is a column move button
-}
-if (isModEnabled('asset') && $object->element == 'invoice_supplier') {
-    $colspan++;
-}
 
-//print $object->element;
-// Lines for extrafield
-$objectline = null;
-if (!empty($extrafields)) {
-    if ($this->table_element_line == 'commandedet') {
-        $objectline = new OrderLine($this->db);
-    } elseif ($this->table_element_line == 'propaldet') {
-        $objectline = new PropaleLigne($this->db);
-    } elseif ($this->table_element_line == 'supplier_proposaldet') {
-        $objectline = new SupplierProposalLine($this->db);
-    } elseif ($this->table_element_line == 'facturedet') {
-        $objectline = new FactureLigne($this->db);
-    } elseif ($this->table_element_line == 'contratdet') {
-        $objectline = new ContratLigne($this->db);
-    } elseif ($this->table_element_line == 'commande_fournisseurdet') {
-        $objectline = new CommandeFournisseurLigne($this->db);
-    } elseif ($this->table_element_line == 'facture_fourn_det') {
-        $objectline = new SupplierInvoiceLine($this->db);
-    } elseif ($this->table_element_line == 'facturedet_rec') {
-        $objectline = new FactureLigneRec($this->db);
-    } elseif ($this->table_element_line == 'facture_fourn_det_rec') {
-        $objectline = new FactureFournisseurLigneRec($this->db);
-    }
-}
 print "<!-- BEGIN PHP TEMPLATE objectline_create.tpl.php -->\n";
 $nolinesbefore = (count($this->lines) == 0 || $forcetoshowtitlelines);
 if ($nolinesbefore) {
@@ -108,21 +73,12 @@ if ($nolinesbefore) {
         <?php if (!empty($conf->global->MAIN_VIEW_LINE_NUMBER)) { ?>
             <td class="linecolnum center"></td>
         <?php } ?>
-        <td class="linecoldescription minwidth400imp">
+        <td class="linecollabel minwidth400imp">
             <div id="add"></div><span class="hideonsmartphone"><?php echo $langs->trans('AddNewElement'); ?></span>
         </td>
-        <?php
-        if ($object->element == 'supplier_proposal' || $object->element == 'order_supplier' || $object->element == 'invoice_supplier' || $object->element == 'invoice_supplier_rec') { // We must have same test in printObjectLines
-
-            ?>
-            <td class="linecolrefsupplier"><span id="title_fourn_ref"><?php echo $langs->trans('SupplierRef'); ?></span></td>
-            <?php
-        }
-
-        ?>
         <td class="linecolqty right"><?php echo $langs->trans('Qty'); ?></td>
-        <td class="linecolqty right"><?php echo $langs->trans('Condition'); ?></td>
-        <td class="linecolqty center"><?php echo $langs->trans('Observation et date pour les clés'); ?></td>
+        <td class="linecolcondition right"><?php echo $langs->trans('Condition'); ?></td>
+        <td class="linecoldescription center"><?php echo $langs->trans('Observations'); ?></td>
         <td class="linecoledit" colspan="<?php echo $colspan; ?>">&nbsp;</td>
     </tr>
     <?php

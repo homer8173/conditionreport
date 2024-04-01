@@ -67,14 +67,14 @@ class Conditionreportroom extends CommonObject
     const STATUS_DRAFT     = 0;
     const STATUS_VALIDATED = 1;
     const STATUS_CANCELED  = 9;
-
     //constante for state of element 
-    const CONDITION =[
+    const CONDITION        = [
         0 => 'BadCondition',
         1 => 'PoorCondition',
         2 => 'GoodCondition',
         3 => 'ExcellentCondition',
     ];
+
     /**
      *  'type' field format:
      *  	'integer', 'integer:ObjectClass:PathToClass[:AddCreateButtonOrNot[:Filter[:Sortfield]]]',
@@ -158,7 +158,7 @@ class Conditionreportroom extends CommonObject
     /**
      * @var string    Name of subtable line
      */
-    public $table_element_line = 'conditionreport_conditionreportroomline';
+    public $table_element_line = 'conditionreport_conditionreportroomdet';
 
     /**
      * @var string    Field with ID of parent key if this object has a parent
@@ -1061,7 +1061,7 @@ class Conditionreportroom extends CommonObject
         $this->lines = array();
 
         $objectline = new ConditionreportroomLine($this->db);
-        $result     = $objectline->fetchAll('ASC', 'position', 0, 0, array('customsql' => 'fk_conditionreportroom = ' . ((int) $this->id)));
+        $result     = $objectline->fetchAll('ASC', 'rang', 0, 0, array('customsql' => 'fk_conditionreportroom = ' . ((int) $this->id)));
 
         if (is_numeric($result)) {
             $this->setErrorsFromObject($objectline);
@@ -1238,6 +1238,79 @@ class Conditionreportroom extends CommonObject
             $res = include $tpl; // for debug
         }
     }
+
+    /**
+     * 	Add an order line into database (linked to product/service or not)
+     *
+     *  @param		string			$label				Label
+     * 	@param      float			$qty             	Quantite
+     * 	@param      int             $conditon           Condition state
+     * 	@param      string			$desc            	Description of line
+     *  @param		array			$array_options		extrafields array. Example array('options_codeforfield1'=>'valueforfield1', 'options_codeforfield2'=>'valueforfield2', ...)
+     *  @return     int             					>0 if OK, <0 if KO
+     *
+     * 	@see        add_product()
+     *
+     * 	Les parametres sont deja cense etre juste et avec valeurs finales a l'appel
+     * 	de cette methode. Aussi, pour le taux tva, il doit deja avoir ete defini
+     * 	par l'appelant par la methode get_default_tva(societe_vendeuse,societe_acheteuse,produit)
+     * 	et le desc doit deja avoir la bonne valeur (a l'appelant de gerer le multilangue)
+     */
+    public function addline($label, $qty, $condition, $desc, $array_options = [])
+    {
+        global $mysoc, $conf, $langs, $user;
+
+        $logtext = "::addline roomid=$this->id, label=$label, qty=$qty, condition=$condition, desc=$desc";
+        dol_syslog(get_class($this) . $logtext, LOG_DEBUG);
+
+        if ($this->statut == self::STATUS_DRAFT) {
+
+            // Clean parameters
+
+            if (empty($qty)) {
+                $qty = 0;
+            }
+            if (empty($condition)) {
+                $condition = 0;
+            }
+
+            $condition = price2num($condition);
+            $qty       = price2num($qty);
+            $label     = trim($label);
+            $desc      = trim($desc);
+
+            $this->db->begin();
+
+            $product_type = $type;
+
+            // Insert line
+            $this->line = new ConditionreportroomLine($this->db);
+
+            $this->line->fk_conditionreportroom = $this->id;
+            $this->line->label                  = $label;
+            $this->line->description            = $desc;
+            $this->line->qty                    = $qty;
+            $this->line->condition              = $condition;
+
+            if (is_array($array_options) && count($array_options) > 0) {
+                $this->line->array_options = $array_options;
+            }
+
+            $result = $this->line->insert($user);
+            if ($result > 0) {
+                $this->db->commit();
+                return $this->line->id;
+            } else {
+                $this->error = $this->line->error;
+                dol_syslog(get_class($this) . "::addline error=" . $this->error, LOG_ERR);
+                $this->db->rollback();
+                return -1;
+            }
+        } else {
+            dol_syslog(get_class($this) . "::addline status of condtionreportroom must be Draft to allow use of ->addline()", LOG_ERR);
+            return -2;
+        }
+    }
 }
 
 require_once DOL_DOCUMENT_ROOT . '/core/class/commonobjectline.class.php';
@@ -1248,19 +1321,24 @@ require_once DOL_DOCUMENT_ROOT . '/core/class/commonobjectline.class.php';
 class ConditionreportroomLine extends CommonObjectLine
 {
 
+    /**
+     * @var string    Name of subtable line
+     */
+    public $table_element = 'conditionreport_conditionreportroomdet';
     // To complete with content of an object ConditionreportroomLine
     // We should have a field rowid, fk_conditionreportroom and position
-    public $fields = array(
+    public $fields        = array(
         'rowid' => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "Id"),
-        'ref' => array('type' => 'varchar(255)', 'label' => 'Ref', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'validate' => '1', 'comment' => "Reference of object"),
         'label' => array('type' => 'varchar(255)', 'label' => 'RoomName', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 1, 'alwayseditable' => '1', 'searchall' => 1, 'css' => 'minwidth300', 'cssview' => 'wordbreak', 'help' => "RoomNameDetails", 'showoncombobox' => '2', 'validate' => '1',),
+        'qty' => array('type' => 'real', 'label' => 'Qty', 'enabled' => '1', 'position' => 45, 'notnull' => 0, 'visible' => 1, 'default' => '0', 'isameasure' => '1', 'css' => 'maxwidth75imp', 'help' => "ImmoCompteurStatementInfo",),
+        'condition' => array('type' => 'real', 'label' => 'Condition', 'enabled' => '1', 'position' => 45, 'notnull' => 0, 'visible' => 1, 'default' => '0', 'isameasure' => '1', 'css' => 'maxwidth75imp', 'help' => "ImmoCompteurStatementInfo",),
         'description' => array('type' => 'text', 'label' => 'Description', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 3, 'validate' => '1',),
-        'date_creation' => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 500, 'notnull' => 1, 'visible' => -2,),
-        'tms' => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 501, 'notnull' => 0, 'visible' => -2,),
-        'fk_user_creat' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'picto' => 'user', 'enabled' => '1', 'position' => 510, 'notnull' => 1, 'visible' => -2, 'csslist' => 'tdoverflowmax150',),
-        'fk_user_modif' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'picto' => 'user', 'enabled' => '1', 'position' => 511, 'notnull' => -1, 'visible' => -2, 'csslist' => 'tdoverflowmax150',),
-        'import_key' => array('type' => 'varchar(14)', 'label' => 'ImportId', 'enabled' => '1', 'position' => 1000, 'notnull' => -1, 'visible' => -2,),
-        'status' => array('type' => 'integer', 'label' => 'Status', 'enabled' => '1', 'position' => 2000, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'arrayofkeyval' => array('0' => 'Brouillon', '1' => 'Valid&eacute;', '9' => 'Annul&eacute;'), 'validate' => '1',),
+//        'date_creation' => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 500, 'notnull' => 1, 'visible' => -2,),
+//        'tms' => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 501, 'notnull' => 0, 'visible' => -2,),
+//        'fk_user_creat' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'picto' => 'user', 'enabled' => '1', 'position' => 510, 'notnull' => 1, 'visible' => -2, 'csslist' => 'tdoverflowmax150',),
+//        'fk_user_modif' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'picto' => 'user', 'enabled' => '1', 'position' => 511, 'notnull' => -1, 'visible' => -2, 'csslist' => 'tdoverflowmax150',),
+//        'import_key' => array('type' => 'varchar(14)', 'label' => 'ImportId', 'enabled' => '1', 'position' => 1000, 'notnull' => -1, 'visible' => -2,),
+//        'status' => array('type' => 'integer', 'label' => 'Status', 'enabled' => '1', 'position' => 2000, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'arrayofkeyval' => array('0' => 'Brouillon', '1' => 'Valid&eacute;', '9' => 'Annul&eacute;'), 'validate' => '1',),
     );
 
     /**
@@ -1276,5 +1354,485 @@ class ConditionreportroomLine extends CommonObjectLine
     public function __construct(DoliDB $db)
     {
         $this->db = $db;
+    }
+
+    /**
+     *  Load line order
+     *
+     *  @param  int		$rowid          Id line order
+     *  @return	int						Return integer <0 if KO, >0 if OK
+     */
+    public function fetch($rowid)
+    {
+        $sql    = 'SELECT cd.rowid, cd.fk_conditionreportroom, cd.label , cd.description  cd.qty, cd.condition';
+        $sql    .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as cd';
+        $sql    .= ' WHERE cd.rowid = ' . ((int) $rowid);
+        $result = $this->db->query($sql);
+        if ($result) {
+            $objp = $this->db->fetch_object($result);
+
+            if (!$objp) {
+                $this->error = 'ConditionreportroomLine with id ' . $rowid . ' not found sql=' . $sql;
+                return 0;
+            }
+
+            $this->rowid                  = $objp->rowid;
+            $this->id                     = $objp->rowid;
+            $this->fk_conditionreportroom = $objp->fk_conditionreportroom;
+            $this->label                  = $objp->label;
+            $this->desc                   = $objp->description;
+            $this->qty                    = $objp->qty;
+            $this->condition              = $objp->condition;
+            $this->db->free($result);
+
+            return 1;
+        } else {
+            $this->error = $this->db->lasterror();
+            return -1;
+        }
+    }
+
+    /**
+     * 	Delete line in database
+     *
+     * 	@param      User	$user        	User that modify
+     *  @param      int		$notrigger	    0=launch triggers after, 1=disable triggers
+     * 	@return	 int  Return integer <0 si ko, >0 si ok
+     */
+    public function delete(User $user, $notrigger = 0)
+    {
+        global $conf, $langs;
+
+        $error = 0;
+
+        if (empty($this->id) && !empty($this->rowid)) {  // For backward compatibility
+            $this->id = $this->rowid;
+        }
+
+        // check if order line is not in a shipment line before deleting
+        $sqlCheckShipmentLine = "SELECT";
+        $sqlCheckShipmentLine .= " ed.rowid";
+        $sqlCheckShipmentLine .= " FROM " . MAIN_DB_PREFIX . "expeditiondet ed";
+        $sqlCheckShipmentLine .= " WHERE ed.fk_origin_line = " . ((int) $this->id);
+
+        $resqlCheckShipmentLine = $this->db->query($sqlCheckShipmentLine);
+        if (!$resqlCheckShipmentLine) {
+            $error++;
+            $this->error    = $this->db->lasterror();
+            $this->errors[] = $this->error;
+        } else {
+            $langs->load('errors');
+            $num = $this->db->num_rows($resqlCheckShipmentLine);
+            if ($num > 0) {
+                $error++;
+                $objCheckShipmentLine = $this->db->fetch_object($resqlCheckShipmentLine);
+                $this->error          = $langs->trans('ErrorRecordAlreadyExists') . ' : ' . $langs->trans('ShipmentLine') . ' ' . $objCheckShipmentLine->rowid;
+                $this->errors[]       = $this->error;
+            }
+            $this->db->free($resqlCheckShipmentLine);
+        }
+        if ($error) {
+            dol_syslog(__METHOD__ . 'Error ; ' . $this->error, LOG_ERR);
+            return -1;
+        }
+
+        $this->db->begin();
+
+        $sql = 'DELETE FROM ' . MAIN_DB_PREFIX . $this->table_element . " WHERE rowid = " . ((int) $this->id);
+
+        dol_syslog("ConditionreportroomLine::delete", LOG_DEBUG);
+        $resql = $this->db->query($sql);
+        if ($resql) {
+            if (!$error && !$notrigger) {
+                // Call trigger
+                $result = $this->call_trigger('LINEORDER_DELETE', $user);
+                if ($result < 0) {
+                    $error++;
+                }
+                // End call triggers
+            }
+
+            // Remove extrafields
+            if (!$error) {
+                $result = $this->deleteExtraFields();
+                if ($result < 0) {
+                    $error++;
+                    dol_syslog(get_class($this) . "::delete error -4 " . $this->error, LOG_ERR);
+                }
+            }
+
+            if (!$error) {
+                $this->db->commit();
+                return 1;
+            }
+
+            foreach ($this->errors as $errmsg) {
+                dol_syslog(get_class($this) . "::delete " . $errmsg, LOG_ERR);
+                $this->error .= ($this->error ? ', ' . $errmsg : $errmsg);
+            }
+            $this->db->rollback();
+            return -1 * $error;
+        } else {
+            $this->error = $this->db->lasterror();
+            return -1;
+        }
+    }
+
+    /**
+     * 	Insert line into database
+     *
+     * 	@param      User	$user        	User that modify
+     * 	@param      int		$notrigger		1 = disable triggers
+     * 	@return		int						Return integer <0 if KO, >0 if OK
+     */
+    public function insert($user = null, $notrigger = 0)
+    {
+        $error = 0;
+
+        $pa_ht_isemptystring = (empty($this->pa_ht) && $this->pa_ht == ''); // If true, we can use a default value. If this->pa_ht = '0', we must use '0'.
+
+        dol_syslog(get_class($this) . "::insert rang=" . $this->rang);
+
+        if (empty($this->qty)) {
+            $this->qty = 0;
+        }
+        if (empty($this->condition)) {
+            $this->condition = 0;
+        }
+        if (empty($this->label)) {
+            $this->label = '';
+        }
+        if (empty($this->description)) {
+            $this->description = '';
+        }
+
+        // Check parameters
+        if ($this->condition < 0 || $this->qty < 0) {
+            return -1;
+        }
+        if (empty($this->fk_conditionreportroom)) {
+            return -2;
+        }
+
+        $this->db->begin();
+
+        // Insertion dans base de la ligne
+        $sql = 'INSERT INTO ' . MAIN_DB_PREFIX . $this->table_element;
+        $sql .= ' (fk_conditionreportroom, qty, description, label, `condition`, rang )';
+        $sql .= " SELECT";
+        $sql .= " " . ($this->fk_conditionreportroom) . ",";
+        $sql .= " '" . price2num($this->qty) . "',";
+        $sql .= " '" . $this->db->escape($this->description) . "',";
+        $sql .= " " . (!empty($this->label) ? "'" . $this->db->escape($this->label) . "'" : "null") . ",";
+        $sql .= " '" . price2num($this->condition) . "',";
+        $sql .= " if(MAX(rang) IS NULL,1,MAX(rang)+1) FROM " . MAIN_DB_PREFIX . $this->table_element . " WHERE fk_conditionreportroom=" . $this->fk_conditionreportroom;
+
+        dol_syslog(get_class($this) . "::insert", LOG_DEBUG);
+        $resql = $this->db->query($sql);
+        if ($resql) {
+            $this->id    = $this->db->last_insert_id(MAIN_DB_PREFIX . $this->table_element);
+            $this->rowid = $this->id;
+
+            if (!$error) {
+                $result = $this->insertExtraFields();
+                if ($result < 0) {
+                    $error++;
+                }
+            }
+
+            if (!$error && !$notrigger) {
+                // Call trigger
+                $result = $this->call_trigger('LINEORDER_INSERT', $user);
+                if ($result < 0) {
+                    $error++;
+                }
+                // End call triggers
+            }
+
+            if (!$error) {
+                $this->db->commit();
+                return 1;
+            }
+
+            foreach ($this->errors as $errmsg) {
+                dol_syslog(get_class($this) . "::insert " . $errmsg, LOG_ERR);
+                $this->error .= ($this->error ? ', ' . $errmsg : $errmsg);
+            }
+            $this->db->rollback();
+            return -3;
+        } else {
+            $this->error = $this->db->error();
+            $this->db->rollback();
+            return -4;
+        }
+    }
+
+    /**
+     * 	Update the line object into db
+     *
+     * 	@param      User	$user        	User that modify
+     * 	@param      int		$notrigger		1 = disable triggers
+     * 	@return		int		Return integer <0 si ko, >0 si ok
+     */
+    public function update(User $user, $notrigger = 0)
+    {
+        $error = 0;
+
+        $pa_ht_isemptystring = (empty($this->pa_ht) && $this->pa_ht == ''); // If true, we can use a default value. If this->pa_ht = '0', we must use '0'.
+        // Clean parameters
+        if (empty($this->tva_tx)) {
+            $this->tva_tx = 0;
+        }
+        if (empty($this->localtax1_tx)) {
+            $this->localtax1_tx = 0;
+        }
+        if (empty($this->localtax2_tx)) {
+            $this->localtax2_tx = 0;
+        }
+        if (empty($this->localtax1_type)) {
+            $this->localtax1_type = 0;
+        }
+        if (empty($this->localtax2_type)) {
+            $this->localtax2_type = 0;
+        }
+        if (empty($this->qty)) {
+            $this->qty = 0;
+        }
+        if (empty($this->total_localtax1)) {
+            $this->total_localtax1 = 0;
+        }
+        if (empty($this->total_localtax2)) {
+            $this->total_localtax2 = 0;
+        }
+        if (empty($this->marque_tx)) {
+            $this->marque_tx = 0;
+        }
+        if (empty($this->marge_tx)) {
+            $this->marge_tx = 0;
+        }
+        if (empty($this->remise_percent)) {
+            $this->remise_percent = 0;
+        }
+        if (empty($this->remise)) {
+            $this->remise = 0;
+        }
+        if (empty($this->info_bits)) {
+            $this->info_bits = 0;
+        }
+        if (empty($this->special_code)) {
+            $this->special_code = 0;
+        }
+        if (empty($this->product_type)) {
+            $this->product_type = 0;
+        }
+        if (empty($this->fk_parent_line)) {
+            $this->fk_parent_line = 0;
+        }
+        if (empty($this->pa_ht)) {
+            $this->pa_ht = 0;
+        }
+        if (empty($this->ref_ext)) {
+            $this->ref_ext = '';
+        }
+
+        // if buy price not defined, define buyprice as configured in margin admin
+        if ($this->pa_ht == 0 && $pa_ht_isemptystring) {
+            $result = $this->defineBuyPrice($this->subprice, $this->remise_percent, $this->fk_product);
+            if ($result < 0) {
+                return $result;
+            } else {
+                $this->pa_ht = $result;
+            }
+        }
+
+        $this->db->begin();
+
+        // Mise a jour ligne en base
+        $sql = "UPDATE " . MAIN_DB_PREFIX . "conditionreportroomdet SET";
+        $sql .= " description='" . $this->db->escape($this->desc) . "'";
+        $sql .= " , label=" . (!empty($this->label) ? "'" . $this->db->escape($this->label) . "'" : "null");
+        $sql .= " , vat_src_code=" . (!empty($this->vat_src_code) ? "'" . $this->db->escape($this->vat_src_code) . "'" : "''");
+        $sql .= " , tva_tx=" . price2num($this->tva_tx);
+        $sql .= " , localtax1_tx=" . price2num($this->localtax1_tx);
+        $sql .= " , localtax2_tx=" . price2num($this->localtax2_tx);
+        $sql .= " , localtax1_type='" . $this->db->escape($this->localtax1_type) . "'";
+        $sql .= " , localtax2_type='" . $this->db->escape($this->localtax2_type) . "'";
+        $sql .= " , qty=" . price2num($this->qty);
+        $sql .= " , ref_ext='" . $this->db->escape($this->ref_ext) . "'";
+        $sql .= " , subprice=" . price2num($this->subprice);
+        $sql .= " , remise_percent=" . price2num($this->remise_percent);
+        $sql .= " , price=" . price2num($this->price); // TODO A virer
+        $sql .= " , remise=" . price2num($this->remise); // TODO A virer
+        if (empty($this->skip_update_total)) {
+            $sql .= " , total_ht=" . price2num($this->total_ht);
+            $sql .= " , total_tva=" . price2num($this->total_tva);
+            $sql .= " , total_ttc=" . price2num($this->total_ttc);
+            $sql .= " , total_localtax1=" . price2num($this->total_localtax1);
+            $sql .= " , total_localtax2=" . price2num($this->total_localtax2);
+        }
+        $sql .= " , fk_product_fournisseur_price=" . (!empty($this->fk_fournprice) ? $this->fk_fournprice : "null");
+        $sql .= " , buy_price_ht='" . price2num($this->pa_ht) . "'";
+        $sql .= " , info_bits=" . ((int) $this->info_bits);
+        $sql .= " , special_code=" . ((int) $this->special_code);
+        $sql .= " , date_start=" . (!empty($this->date_start) ? "'" . $this->db->idate($this->date_start) . "'" : "null");
+        $sql .= " , date_end=" . (!empty($this->date_end) ? "'" . $this->db->idate($this->date_end) . "'" : "null");
+        $sql .= " , product_type=" . $this->product_type;
+        $sql .= " , fk_parent_line=" . (!empty($this->fk_parent_line) ? $this->fk_parent_line : "null");
+        if (!empty($this->rang)) {
+            $sql .= ", rang=" . ((int) $this->rang);
+        }
+        $sql .= " , fk_unit=" . (!$this->fk_unit ? 'NULL' : $this->fk_unit);
+
+        // Multicurrency
+        $sql .= " , multicurrency_subprice=" . price2num($this->multicurrency_subprice);
+        $sql .= " , multicurrency_total_ht=" . price2num($this->multicurrency_total_ht);
+        $sql .= " , multicurrency_total_tva=" . price2num($this->multicurrency_total_tva);
+        $sql .= " , multicurrency_total_ttc=" . price2num($this->multicurrency_total_ttc);
+
+        $sql .= " WHERE rowid = " . ((int) $this->rowid);
+
+        dol_syslog(get_class($this) . "::update", LOG_DEBUG);
+        $resql = $this->db->query($sql);
+        if ($resql) {
+            if (!$error) {
+                $this->id = $this->rowid;
+                $result   = $this->insertExtraFields();
+                if ($result < 0) {
+                    $error++;
+                }
+            }
+
+            if (!$error && !$notrigger) {
+                // Call trigger
+                $result = $this->call_trigger('LINEORDER_MODIFY', $user);
+                if ($result < 0) {
+                    $error++;
+                }
+                // End call triggers
+            }
+
+            if (!$error) {
+                $this->db->commit();
+                return 1;
+            }
+
+            foreach ($this->errors as $errmsg) {
+                dol_syslog(get_class($this) . "::update " . $errmsg, LOG_ERR);
+                $this->error .= ($this->error ? ', ' . $errmsg : $errmsg);
+            }
+            $this->db->rollback();
+            return -1 * $error;
+        } else {
+            $this->error = $this->db->error();
+            $this->db->rollback();
+            return -2;
+        }
+    }
+
+    /**
+     * Load list of objects in memory from the database. Using a fetchAll is a bad practice, instead try to forge you optimized and limited SQL request.
+     *
+     * @param  string      $sortorder    Sort Order
+     * @param  string      $sortfield    Sort field
+     * @param  int         $limit        limit
+     * @param  int         $offset       Offset
+     * @param  array       $filter       Filter array. Example array('mystringfield'=>'value', 'myintfield'=>4, 'customsql'=>...)
+     * @param  string      $filtermode   Filter mode (AND or OR)
+     * @return array|int                 int <0 if KO, array of pages if OK
+     */
+    public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND')
+    {
+        dol_syslog(__METHOD__, LOG_DEBUG);
+
+        $records = array();
+
+        $sql = "SELECT ";
+        $sql .= $this->getFieldList('t');
+        $sql .= " FROM " . $this->db->prefix() . $this->table_element . " as t";
+        if (isset($this->isextrafieldmanaged) && $this->isextrafieldmanaged == 1) {
+            $sql .= " LEFT JOIN " . $this->db->prefix() . $this->table_element . "_extrafields as te ON te.fk_object = t.rowid";
+        }
+        if (isset($this->ismultientitymanaged) && $this->ismultientitymanaged == 1) {
+            $sql .= " WHERE t.entity IN (" . getEntity($this->element) . ")";
+        } else {
+            $sql .= " WHERE 1 = 1";
+        }
+        // Manage filter
+        $sqlwhere = array();
+        if (count($filter) > 0) {
+            foreach ($filter as $key => $value) {
+                $columnName = preg_replace('/^t\./', '', $key);
+                if ($key === 'customsql') {
+                    // Never use 'customsql' with a value from user input since it is injected as is. The value must be hard coded.
+                    $sqlwhere[] = $value;
+                    continue;
+                } elseif (isset($this->fields[$columnName])) {
+                    $type = $this->fields[$columnName]['type'];
+                    if (preg_match('/^integer/', $type)) {
+                        if (is_int($value)) {
+                            // single value
+                            $sqlwhere[] = $key . " = " . intval($value);
+                        } elseif (is_array($value)) {
+                            if (empty($value)) {
+                                continue;
+                            }
+                            $sqlwhere[] = $key . ' IN (' . $this->db->sanitize(implode(',', array_map('intval', $value))) . ')';
+                        }
+                        continue;
+                    } elseif (in_array($type, array('date', 'datetime', 'timestamp'))) {
+                        $sqlwhere[] = $key . " = '" . $this->db->idate($value) . "'";
+                        continue;
+                    }
+                }
+
+                // when the $key doesn't fall into the previously handled categories, we do as if the column were a varchar/text
+                if (is_array($value) && count($value)) {
+                    $value = implode(',', array_map(function ($v) {
+                            return "'" . $this->db->sanitize($this->db->escape($v)) . "'";
+                        }, $value));
+                    $sqlwhere[] = $key . ' IN (' . $this->db->sanitize($value, true) . ')';
+                } elseif (is_scalar($value)) {
+                    if (strpos($value, '%') === false) {
+                        $sqlwhere[] = $key . " = '" . $this->db->sanitize($this->db->escape($value)) . "'";
+                    } else {
+                        $sqlwhere[] = $key . " LIKE '%" . $this->db->escape($this->db->escapeforlike($value)) . "%'";
+                    }
+                }
+            }
+        }
+        if (count($sqlwhere) > 0) {
+            $sql .= " AND (" . implode(" " . $filtermode . " ", $sqlwhere) . ")";
+        }
+
+        if (!empty($sortfield)) {
+            $sql .= $this->db->order($sortfield, $sortorder);
+        }
+        if (!empty($limit)) {
+            $sql .= $this->db->plimit($limit, $offset);
+        }
+
+        $resql = $this->db->query($sql);
+        if ($resql) {
+            $num = $this->db->num_rows($resql);
+            $i   = 0;
+            while ($i < ($limit ? min($limit, $num) : $num)) {
+                $obj = $this->db->fetch_object($resql);
+
+                $record = new self($this->db);
+                $record->setVarsFromFetchObj($obj);
+
+                $records[$record->id] = $record;
+
+                $i++;
+            }
+            $this->db->free($resql);
+
+            return $records;
+        } else {
+            $this->errors[] = 'Error ' . $this->db->lasterror();
+            dol_syslog(__METHOD__ . ' ' . join(',', $this->errors), LOG_ERR);
+
+            return -1;
+        }
     }
 }

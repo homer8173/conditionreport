@@ -23,12 +23,11 @@
  * Put detailed description here.
  */
 
-require_once DOL_DOCUMENT_ROOT.'/core/class/commonhookactions.class.php';
 
 /**
  * Class ActionsConditionreport
  */
-class ActionsConditionreport extends CommonHookActions
+class ActionsConditionreport
 {
 	/**
 	 * @var DoliDB Database handler.
@@ -367,4 +366,11 @@ class ActionsConditionreport extends CommonHookActions
 	}
 
 	/* Add here any other hooked methods... */
+    
+    function checkRowPerms($parameters, $object, $action, $hookmanager)
+    {
+        
+        $this->results['perm']=1;
+        return 1;
+    }
 }

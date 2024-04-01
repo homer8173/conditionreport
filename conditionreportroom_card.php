@@ -131,7 +131,7 @@ if (empty($action) && empty($id) && empty($ref)) {
 include DOL_DOCUMENT_ROOT . '/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
 // There is several ways to check permission.
 // Set $enablepermissioncheck to 1 to enable a minimum low level of checks
-$enablepermissioncheck = 0;
+$enablepermissioncheck = 1;
 if ($enablepermissioncheck) {
     $permissiontoread   = $user->hasRight('conditionreport', 'conditionreportroom', 'read');
     $permissiontoadd    = $user->hasRight('conditionreport', 'conditionreportroom', 'write'); // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
@@ -213,8 +213,75 @@ if (empty($reshook)) {
     $autocopy        = 'MAIN_MAIL_AUTOCOPY_CONDITIONREPORTROOM_TO';
     $trackid         = 'conditionreportroom' . $object->id;
     include DOL_DOCUMENT_ROOT . '/core/actions_sendmails.inc.php';
-}
 
+    if ($action == 'addline' && $permissiontoadd) {  // Add a new line
+        $langs->load('errors');
+        $error = 0;
+
+        $label        = (GETPOSTISSET('dp_desc') ? GETPOST('label', 'alpha') : '');
+        $product_desc = (GETPOSTISSET('dp_desc') ? GETPOST('dp_desc', 'restricthtml') : '');
+
+        $condition = price2num(GETPOST('condition', 'int'), 0, 2);
+        $qty       = price2num(GETPOST('qty', 'alpha'), 0, 2);
+
+        // Extrafields
+        $extralabelsline = $extrafields->fetch_name_optionals_label($object->table_element_line);
+        $array_options   = $extrafields->getOptionalsFromPost($object->table_element_line);
+        // Unset extrafield
+        if (is_array($extralabelsline)) {
+            // Get extra fields
+            foreach ($extralabelsline as $key => $value) {
+                unset($_POST["options_" . $key]);
+            }
+        }
+
+        if ($qty < 0) {
+            setEventMessages($langs->trans('FieldCannotBeNegative', $langs->transnoentitiesnoconv('Qty')), null, 'errors');
+            $error++;
+        }
+        if (!$error && ($qty >= 0)) {
+
+
+            $product_desc = dol_htmlcleanlastbr($product_desc);
+
+            if (!$error) {
+                // Insert line
+                $result = $object->addline($label, $qty, $condition, $product_desc, $array_options);
+
+                if ($result > 0) {
+                    $ret = $object->fetch($object->id); // Reload to get new records
+
+                    if (!getDolGlobalString('MAIN_DISABLE_PDF_AUTOUPDATE')) {
+                        $object->generateDocument($object->model_pdf, $langs, $hidedetails, $hidedesc, $hideref);
+                    }
+                    header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $object->id); // Pour reaffichage de la fiche en cours d'edition
+                    exit();
+                } else {
+                    setEventMessages($object->error, $object->errors, 'errors');
+                }
+            }
+        }
+    } elseif ($action == 'updateline' && $permissiontoadd && GETPOST('save')) {
+        $result = $object->updateline(GETPOST('lineid', 'int'), $description, $pu, $qty, $remise_percent, $vat_rate, $localtax1_rate, $localtax2_rate, $price_base_type, $info_bits, $date_start, $date_end, $type, GETPOST('fk_parent_line'), 0, $fournprice, $buyingprice, $label, $special_code, $array_options, GETPOST('units'), $pu_ht_devise);
+        if ($result >= 0) {
+            if (!getDolGlobalString('MAIN_DISABLE_PDF_AUTOUPDATE')) {
+                $ret = $object->fetch($object->id); // Reload to get new records
+                $object->generateDocument($object->model_pdf, $langs, $hidedetails, $hidedesc, $hideref);
+            }
+            header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $object->id); // Pour reaffichage de la fiche en cours d'edition
+            exit();
+        } else {
+            setEventMessages($object->error, $object->errors, 'errors');
+        }
+    } elseif ($action == 'updateline' && $permissiontoadd && GETPOST('cancel', 'alpha')) {
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $object->id); // Pour reaffichage de la fiche en cours d'edition
+        exit();
+    } elseif ($action == 'deleteline' && $permissiontoadd){
+        $object->deleteLine($user, GETPOST('lineid', 'int'));
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $object->id); // Pour reaffichage de la fiche en cours d'edition
+        exit();
+    }
+}
 
 
 
@@ -400,8 +467,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     $morehtmlref = '<div class="refidno">';
     /*
       // Ref customer
-      $morehtmlref .= $form->editfieldkey("RefCustomer", 'ref_client', $object->ref_client, $object, $usercancreate, 'string', '', 0, 1);
-      $morehtmlref .= $form->editfieldval("RefCustomer", 'ref_client', $object->ref_client, $object, $usercancreate, 'string'.(getDolGlobalInt('THIRDPARTY_REF_INPUT_SIZE') ? ':'.getDolGlobalInt('THIRDPARTY_REF_INPUT_SIZE') : ''), '', null, null, '', 1);
+      $morehtmlref .= $form->editfieldkey("RefCustomer", 'ref_client', $object->ref_client, $object, $permissiontoadd, 'string', '', 0, 1);
+      $morehtmlref .= $form->editfieldval("RefCustomer", 'ref_client', $object->ref_client, $object, $permissiontoadd, 'string'.(getDolGlobalInt('THIRDPARTY_REF_INPUT_SIZE') ? ':'.getDolGlobalInt('THIRDPARTY_REF_INPUT_SIZE') : ''), '', null, null, '', 1);
       // Thirdparty
       $morehtmlref .= '<br>'.$object->thirdparty->getNomUrl(1, 'customer');
       if (!getDolGlobalInt('MAIN_DISABLE_OTHER_LINK') && $object->thirdparty->id > 0) {
@@ -478,7 +545,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     if (!empty($object->table_element_line)) {
         // Show object lines
         $result = $object->getLinesArray();
-
         print '	<form name="addproduct" id="addproduct" action="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . (($action != 'editline') ? '#addline' : '#line_' . GETPOST('lineid', 'int')) . '" method="POST">
 		<input type="hidden" name="token" value="' . newToken() . '">
 		<input type="hidden" name="action" value="' . (($action != 'editline') ? 'addline' : 'updateline') . '">
@@ -497,7 +563,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         }
 
         if (!empty($object->lines)) {
-            $object->printObjectLines($action, $mysoc, null, GETPOST('lineid', 'int'), 1);
+            $dir = '/conditionreport/tplCRR';
+            // is module in custom ?
+            if (!is_dir(DOL_DOCUMENT_ROOT . $dir)) {
+                $dir = '/custom' . $dir;
+            }
+            $object->printObjectLines($action, $mysoc, null, GETPOST('lineid', 'int'), 1, $dir);
         }
 
         // Form to add new line

@@ -115,11 +115,10 @@ class modConditionreport extends DolibarrModules
 			),
 			// Set here all hooks context managed by module. To find available hook context, make a "grep -r '>initHooks(' *" on source code. You can also set hook context to 'all'
 			'hooks' => array(
-				//   'data' => array(
-				//       'hookcontext1',
-				//       'hookcontext2',
-				//   ),
-				//   'entity' => '0',
+				   'data' => array(
+				       'rowinterface',
+				   ),
+				   'entity' => '0',
 			),
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
@@ -300,6 +299,21 @@ class modConditionreport extends DolibarrModules
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', (0 * 10) + 2 + 1);
 		$this->rights[$r][1] = 'Delete Conditionreport object of Conditionreport';
 		$this->rights[$r][4] = 'conditionreport';
+		$this->rights[$r][5] = 'delete';
+		$r++;
+		$this->rights[$r][0] = $this->numero . sprintf('%02d', (0 * 10) + 3 + 1);
+		$this->rights[$r][1] = 'Read Conditionreportroom object of Conditionreport';
+		$this->rights[$r][4] = 'conditionreportroom';
+		$this->rights[$r][5] = 'read';
+		$r++;
+		$this->rights[$r][0] = $this->numero . sprintf('%02d', (0 * 10) + 4 + 1);
+		$this->rights[$r][1] = 'Create/Update Conditionreportroom object of Conditionreport';
+		$this->rights[$r][4] = 'conditionreportroom';
+		$this->rights[$r][5] = 'write';
+		$r++;
+		$this->rights[$r][0] = $this->numero . sprintf('%02d', (0 * 10) + 5 + 1);
+		$this->rights[$r][1] = 'Delete Conditionreportroom object of Conditionreport';
+		$this->rights[$r][4] = 'conditionreportroom';
 		$this->rights[$r][5] = 'delete';
 		$r++;
 		
