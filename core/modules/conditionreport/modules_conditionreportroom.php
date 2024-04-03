@@ -69,6 +69,6 @@ abstract class ModeleNumRefConditionreportroom extends CommonNumRefGenerator
     
     function getMultidirOutput()
     {
-        return dol_buildpath(DOL_DOCUMENT_ROOT.'/conditionreport/room/');
+        return DOL_DATA_ROOT.'/conditionreport/conditionreportroom/';
     }
 }

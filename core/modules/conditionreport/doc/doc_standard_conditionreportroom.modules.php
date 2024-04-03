@@ -39,7 +39,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/pdf.lib.php';
 /**
  * 	Class to manage PDF template standard_conditionreportroom
  */
-class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
+class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
 {
 
     /**
@@ -105,7 +105,7 @@ class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
         global $conf, $langs, $mysoc;
 
         // Translations
-        $langs->loadLangs(array("main", "bills"));
+        $langs->loadLangs(array("main", "bills", "conditionreport@conditionreport"));
 
         $this->db                    = $db;
         $this->name                  = "standard";
@@ -636,7 +636,7 @@ class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
                     $reshook    = $hookmanager->executeHooks('printPDFline', $parameters, $this); // Note that $object may have been modified by hook
 
 
-                    $sign          = 1;
+                    $sign = 1;
                     // Collecte des totaux par valeur de tva dans $this->tva["taux"]=total_tva
 //                    $prev_progress = $object->lines[$i]->get_prev_progress($object->id);
 //                    if ($prev_progress > 0 && !empty($object->lines[$i]->situation_percent)) { // Compute progress from previous situation
@@ -778,7 +778,6 @@ class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
                 }
 
                 $pdf->Close();
-
                 $pdf->Output($file, 'F');
 
                 // Add pdfgeneration hook
@@ -1349,7 +1348,7 @@ if (!function_exists('getMultidirOutput')) {
 
     function getMultidirOutput()
     {
-        return dol_buildpath(DOL_DOCUMENT_ROOT . '/conditionreport/room/');
+        return DOL_DATA_ROOT . '/conditionreport/conditionreportroom/';
     }
 }
 if (!function_exists('dolChmod')) {/**

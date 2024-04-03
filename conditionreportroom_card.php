@@ -218,7 +218,7 @@ if (empty($reshook)) {
         $langs->load('errors');
         $error = 0;
 
-        $label        = (GETPOSTISSET('dp_desc') ? GETPOST('label', 'alpha') : '');
+        $label        = (GETPOSTISSET('label') ? GETPOST('label', 'alpha') : '');
         $product_desc = (GETPOSTISSET('dp_desc') ? GETPOST('dp_desc', 'restricthtml') : '');
 
         $condition = price2num(GETPOST('condition', 'int'), 0, 2);
@@ -262,24 +262,52 @@ if (empty($reshook)) {
             }
         }
     } elseif ($action == 'updateline' && $permissiontoadd && GETPOST('save')) {
-        $result = $object->updateline(GETPOST('lineid', 'int'), $description, $pu, $qty, $remise_percent, $vat_rate, $localtax1_rate, $localtax2_rate, $price_base_type, $info_bits, $date_start, $date_end, $type, GETPOST('fk_parent_line'), 0, $fournprice, $buyingprice, $label, $special_code, $array_options, GETPOST('units'), $pu_ht_devise);
-        if ($result >= 0) {
-            if (!getDolGlobalString('MAIN_DISABLE_PDF_AUTOUPDATE')) {
-                $ret = $object->fetch($object->id); // Reload to get new records
-                $object->generateDocument($object->model_pdf, $langs, $hidedetails, $hidedesc, $hideref);
+
+
+        $label        = (GETPOSTISSET('label') ? GETPOST('label', 'alpha') : '');
+        $product_desc = (GETPOSTISSET('product_desc') ? GETPOST('product_desc', 'restricthtml') : '');
+
+        $condition = price2num(GETPOST('condition', 'int'), 0, 2);
+        $qty       = price2num(GETPOST('qty', 'alpha'), 0, 2);
+
+        // Extrafields
+        $extralabelsline = $extrafields->fetch_name_optionals_label($object->table_element_line);
+        $array_options   = $extrafields->getOptionalsFromPost($object->table_element_line);
+        // Unset extrafield
+        if (is_array($extralabelsline)) {
+            // Get extra fields
+            foreach ($extralabelsline as $key => $value) {
+                unset($_POST["options_" . $key]);
             }
-            header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $object->id); // Pour reaffichage de la fiche en cours d'edition
-            exit();
-        } else {
-            setEventMessages($object->error, $object->errors, 'errors');
+        }
+
+        if ($qty < 0) {
+            setEventMessages($langs->trans('FieldCannotBeNegative', $langs->transnoentitiesnoconv('Qty')), null, 'errors');
+            $error++;
+        }
+        if (!$error) {
+            $result = $object->updateline(GETPOST('lineid', 'int'), $label, $qty, $condition, $product_desc, $array_options);
+            if ($result >= 0) {
+                if (!getDolGlobalString('MAIN_DISABLE_PDF_AUTOUPDATE')) {
+                    $ret = $object->fetch($object->id); // Reload to get new records
+                    $object->generateDocument($object->model_pdf, $langs, $hidedetails, $hidedesc, $hideref);
+                }
+                header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $object->id); // Pour reaffichage de la fiche en cours d'edition
+                exit();
+            } else {
+                setEventMessages($object->error, $object->errors, 'errors');
+            }
         }
     } elseif ($action == 'updateline' && $permissiontoadd && GETPOST('cancel', 'alpha')) {
         header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $object->id); // Pour reaffichage de la fiche en cours d'edition
         exit();
-    } elseif ($action == 'deleteline' && $permissiontoadd){
+    } elseif ($action == 'deleteline' && $permissiontoadd) {
         $object->deleteLine($user, GETPOST('lineid', 'int'));
         header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $object->id); // Pour reaffichage de la fiche en cours d'edition
         exit();
+    } elseif ($action == 'load_model' && GETPOSTISSET('model_name')) {
+        // load model from json
+        $object->loadModel($user, GETPOST('model_name','alpha'));
     }
 }
 
@@ -522,7 +550,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         foreach ($files as $filename) {
             try {
                 $model = json_decode(file_get_contents($filename));
-                print '<li><a href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=load_model&model_name=' . basename($filename) . '">' . $model->name . '</a></li>';
+                print '<li><a href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=load_model&model_name=' . basename($filename) . '" title="'.implode("\n",$model->elements).'">' . $model->name . '</a></li>';
             } catch (Exception $exc) {
                 
             }

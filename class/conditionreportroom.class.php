@@ -1281,8 +1281,6 @@ class Conditionreportroom extends CommonObject
 
             $this->db->begin();
 
-            $product_type = $type;
-
             // Insert line
             $this->line = new ConditionreportroomLine($this->db);
 
@@ -1308,6 +1306,119 @@ class Conditionreportroom extends CommonObject
             }
         } else {
             dol_syslog(get_class($this) . "::addline status of condtionreportroom must be Draft to allow use of ->addline()", LOG_ERR);
+            return -2;
+        }
+    }
+
+    /**
+     * 	Add an order line into database (linked to product/service or not)
+     *
+     *  @param		int             $id                 line id
+     *  @param		string			$label				Label
+     * 	@param      float			$qty             	Quantite
+     * 	@param      int             $conditon           Condition state
+     * 	@param      string			$desc            	Description of line
+     *  @param		array			$array_options		extrafields array. Example array('options_codeforfield1'=>'valueforfield1', 'options_codeforfield2'=>'valueforfield2', ...)
+     *  @return     int             					>0 if OK, <0 if KO
+     *
+     * 	@see        add_product()
+     *
+     * 	Les parametres sont deja cense etre juste et avec valeurs finales a l'appel
+     * 	de cette methode. Aussi, pour le taux tva, il doit deja avoir ete defini
+     * 	par l'appelant par la methode get_default_tva(societe_vendeuse,societe_acheteuse,produit)
+     * 	et le desc doit deja avoir la bonne valeur (a l'appelant de gerer le multilangue)
+     */
+    public function updateline($id, $label, $qty, $condition, $desc, $array_options = [])
+    {
+        global $mysoc, $conf, $langs, $user;
+
+        $logtext = "::updateline roomid=$this->id, label=$label, qty=$qty, condition=$condition, desc=$desc";
+        dol_syslog(get_class($this) . $logtext, LOG_DEBUG);
+
+        if ($this->statut == self::STATUS_DRAFT) {
+
+            // Clean parameters
+
+            if (empty($qty)) {
+                $qty = 0;
+            }
+            if (empty($condition)) {
+                $condition = 0;
+            }
+
+            $condition = price2num($condition);
+            $qty       = price2num($qty);
+            $label     = trim($label);
+            $desc      = trim($desc);
+
+            $this->db->begin();
+
+            // update line
+            $this->line = new ConditionreportroomLine($this->db);
+
+            $this->line->rowid                  = $id;
+            $this->line->fk_conditionreportroom = $this->id;
+            $this->line->label                  = $label;
+            $this->line->description            = $desc;
+            $this->line->qty                    = $qty;
+            $this->line->condition              = $condition;
+
+            if (is_array($array_options) && count($array_options) > 0) {
+                $this->line->array_options = $array_options;
+            }
+
+            $result = $this->line->update($user);
+            if ($result > 0) {
+                $this->db->commit();
+                return $this->line->id;
+            } else {
+                $this->error = $this->line->error;
+                dol_syslog(get_class($this) . "::updateline error=" . $this->error, LOG_ERR);
+                $this->db->rollback();
+                return -1;
+            }
+        } else {
+            dol_syslog(get_class($this) . "::updateline status of condtionreportroom must be Draft to allow use of ->updateline()", LOG_ERR);
+            return -2;
+        }
+    }
+
+    /**
+     * 	Load a list of lines from model
+     *
+     *  @param		User            $user               the user
+     *  @param		string			$model				the model file name     *  @return     int             					>0 if OK, <0 if KO
+     *
+     */
+    function loadModel($user, $model)
+    {
+
+        $filename = dol_buildpath('/conditionreport/room_models/fr/') . $model;
+        if (file_exists($filename)) {
+            try {
+                $model  = json_decode(file_get_contents($filename));
+                $result = 0;
+                if (isset($model->elements)) {
+                    foreach ($model->elements as $value) {
+                        $this->line = new ConditionreportroomLine($this->db);
+                        $this->line->fk_conditionreportroom = $this->id;
+                        $this->line->label                  = $value;
+                        $this->line->qty                    = 1;
+                        $this->line->condition              = 0;
+                        $result = $this->line->insert($user);
+                    }
+                }
+                if (isset($model->name)) {
+                    $this->ref = $model->name;
+                    $this->label = $model->name;
+                    $result      = $this->update($user);
+                }
+
+                return $result;
+            } catch (Exception $exc) {
+                return -1;
+            }
+        } else {
             return -2;
         }
     }
@@ -1445,7 +1556,7 @@ class ConditionreportroomLine extends CommonObjectLine
         if ($resql) {
             if (!$error && !$notrigger) {
                 // Call trigger
-                $result = $this->call_trigger('LINEORDER_DELETE', $user);
+                $result = $this->call_trigger('LINECONDITIONREPORTROOM_DELETE', $user);
                 if ($result < 0) {
                     $error++;
                 }
@@ -1542,7 +1653,7 @@ class ConditionreportroomLine extends CommonObjectLine
 
             if (!$error && !$notrigger) {
                 // Call trigger
-                $result = $this->call_trigger('LINEORDER_INSERT', $user);
+                $result = $this->call_trigger('LINECONDITIONREPORTROOM_INSERT', $user);
                 if ($result < 0) {
                     $error++;
                 }
@@ -1578,116 +1689,19 @@ class ConditionreportroomLine extends CommonObjectLine
     {
         $error = 0;
 
-        $pa_ht_isemptystring = (empty($this->pa_ht) && $this->pa_ht == ''); // If true, we can use a default value. If this->pa_ht = '0', we must use '0'.
         // Clean parameters
-        if (empty($this->tva_tx)) {
-            $this->tva_tx = 0;
-        }
-        if (empty($this->localtax1_tx)) {
-            $this->localtax1_tx = 0;
-        }
-        if (empty($this->localtax2_tx)) {
-            $this->localtax2_tx = 0;
-        }
-        if (empty($this->localtax1_type)) {
-            $this->localtax1_type = 0;
-        }
-        if (empty($this->localtax2_type)) {
-            $this->localtax2_type = 0;
-        }
-        if (empty($this->qty)) {
+        if (empty($this->qty) || $this->qty < 0) {
             $this->qty = 0;
-        }
-        if (empty($this->total_localtax1)) {
-            $this->total_localtax1 = 0;
-        }
-        if (empty($this->total_localtax2)) {
-            $this->total_localtax2 = 0;
-        }
-        if (empty($this->marque_tx)) {
-            $this->marque_tx = 0;
-        }
-        if (empty($this->marge_tx)) {
-            $this->marge_tx = 0;
-        }
-        if (empty($this->remise_percent)) {
-            $this->remise_percent = 0;
-        }
-        if (empty($this->remise)) {
-            $this->remise = 0;
-        }
-        if (empty($this->info_bits)) {
-            $this->info_bits = 0;
-        }
-        if (empty($this->special_code)) {
-            $this->special_code = 0;
-        }
-        if (empty($this->product_type)) {
-            $this->product_type = 0;
-        }
-        if (empty($this->fk_parent_line)) {
-            $this->fk_parent_line = 0;
-        }
-        if (empty($this->pa_ht)) {
-            $this->pa_ht = 0;
-        }
-        if (empty($this->ref_ext)) {
-            $this->ref_ext = '';
-        }
-
-        // if buy price not defined, define buyprice as configured in margin admin
-        if ($this->pa_ht == 0 && $pa_ht_isemptystring) {
-            $result = $this->defineBuyPrice($this->subprice, $this->remise_percent, $this->fk_product);
-            if ($result < 0) {
-                return $result;
-            } else {
-                $this->pa_ht = $result;
-            }
         }
 
         $this->db->begin();
 
         // Mise a jour ligne en base
-        $sql = "UPDATE " . MAIN_DB_PREFIX . "conditionreportroomdet SET";
-        $sql .= " description='" . $this->db->escape($this->desc) . "'";
+        $sql = "UPDATE " . MAIN_DB_PREFIX . $this->table_element . " SET";
+        $sql .= " description='" . $this->db->escape($this->description) . "'";
         $sql .= " , label=" . (!empty($this->label) ? "'" . $this->db->escape($this->label) . "'" : "null");
-        $sql .= " , vat_src_code=" . (!empty($this->vat_src_code) ? "'" . $this->db->escape($this->vat_src_code) . "'" : "''");
-        $sql .= " , tva_tx=" . price2num($this->tva_tx);
-        $sql .= " , localtax1_tx=" . price2num($this->localtax1_tx);
-        $sql .= " , localtax2_tx=" . price2num($this->localtax2_tx);
-        $sql .= " , localtax1_type='" . $this->db->escape($this->localtax1_type) . "'";
-        $sql .= " , localtax2_type='" . $this->db->escape($this->localtax2_type) . "'";
         $sql .= " , qty=" . price2num($this->qty);
-        $sql .= " , ref_ext='" . $this->db->escape($this->ref_ext) . "'";
-        $sql .= " , subprice=" . price2num($this->subprice);
-        $sql .= " , remise_percent=" . price2num($this->remise_percent);
-        $sql .= " , price=" . price2num($this->price); // TODO A virer
-        $sql .= " , remise=" . price2num($this->remise); // TODO A virer
-        if (empty($this->skip_update_total)) {
-            $sql .= " , total_ht=" . price2num($this->total_ht);
-            $sql .= " , total_tva=" . price2num($this->total_tva);
-            $sql .= " , total_ttc=" . price2num($this->total_ttc);
-            $sql .= " , total_localtax1=" . price2num($this->total_localtax1);
-            $sql .= " , total_localtax2=" . price2num($this->total_localtax2);
-        }
-        $sql .= " , fk_product_fournisseur_price=" . (!empty($this->fk_fournprice) ? $this->fk_fournprice : "null");
-        $sql .= " , buy_price_ht='" . price2num($this->pa_ht) . "'";
-        $sql .= " , info_bits=" . ((int) $this->info_bits);
-        $sql .= " , special_code=" . ((int) $this->special_code);
-        $sql .= " , date_start=" . (!empty($this->date_start) ? "'" . $this->db->idate($this->date_start) . "'" : "null");
-        $sql .= " , date_end=" . (!empty($this->date_end) ? "'" . $this->db->idate($this->date_end) . "'" : "null");
-        $sql .= " , product_type=" . $this->product_type;
-        $sql .= " , fk_parent_line=" . (!empty($this->fk_parent_line) ? $this->fk_parent_line : "null");
-        if (!empty($this->rang)) {
-            $sql .= ", rang=" . ((int) $this->rang);
-        }
-        $sql .= " , fk_unit=" . (!$this->fk_unit ? 'NULL' : $this->fk_unit);
-
-        // Multicurrency
-        $sql .= " , multicurrency_subprice=" . price2num($this->multicurrency_subprice);
-        $sql .= " , multicurrency_total_ht=" . price2num($this->multicurrency_total_ht);
-        $sql .= " , multicurrency_total_tva=" . price2num($this->multicurrency_total_tva);
-        $sql .= " , multicurrency_total_ttc=" . price2num($this->multicurrency_total_ttc);
+        $sql .= " , `condition`=" . price2num($this->condition);
 
         $sql .= " WHERE rowid = " . ((int) $this->rowid);
 
@@ -1696,7 +1710,7 @@ class ConditionreportroomLine extends CommonObjectLine
         if ($resql) {
             if (!$error) {
                 $this->id = $this->rowid;
-                $result   = $this->insertExtraFields();
+                //$result   = $this->updateExtraField();
                 if ($result < 0) {
                     $error++;
                 }
@@ -1704,7 +1718,7 @@ class ConditionreportroomLine extends CommonObjectLine
 
             if (!$error && !$notrigger) {
                 // Call trigger
-                $result = $this->call_trigger('LINEORDER_MODIFY', $user);
+                $result = $this->call_trigger('LINECONDITIONREPORTROOM_UPDATED', $user);
                 if ($result < 0) {
                     $error++;
                 }
