@@ -404,33 +404,35 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
 
                     //search jpg to add in notes
                     // Taille des images redimensionnées (en pixels)
-                    $newWidth     = 250;
-                    $newHeight    = 250;
-                    // Nombre d'images par ligne
-                    $imagesPerRow = 3;
-                    // Compteur pour garder une trace du nombre d'images ajoutées
-                    $imageCount   = 0;
-                    //search jpg to add in notes
-                    foreach (glob($dir . '/*.jpg') as $img) {
-                        // Redimensionner l'image avec GD
-                        $tmpName      = tempnam($dir, 'tmp_');
-                        $resizedImage = dol_imageResizeOrCrop($img, 0, $newWidth, 0, 0, 0, $tmpName);
-                        if(filesize($resizedImage)>0)
-                        // Insérer l'image redimensionnée dans une cellule
-                        $pdf->Cell($newWidth, $newHeight, $pdf->Image('@' . $resizedImage, $pdf->GetX(), $pdf->GetY(), $newWidth, $newHeight), 0, 0, 'C', false, '', 0, false, 'T', 'M');
-                        unlink($tmpName);
-                        // Incrémenter le compteur d'images
-                        $imageCount++;
+                    $imageWidth  = 100;
+                    $imageHeight = 100;
 
-                        // Si le nombre d'images ajoutées est égal au nombre d'images par ligne, sautez à la ligne
-                        if ($imageCount % $imagesPerRow == 0) {
-                            $pdf->Ln(); // Sauter à la ligne
+                    // Nombre d'images par ligne
+                    $imagesPerRow = 2;
+
+                    // Diviser le tableau d'images en sous-tableaux avec trois images par sous-tableau
+                    $imageChunks = array_chunk(glob($dir . '/*.jpg'), $imagesPerRow);
+                    //search jpg to add in notes
+                    $maxHeight   = 0;
+                    foreach ($imageChunks as $imgs) {
+
+                        // Parcours des images dans la ligne actuelle
+                        foreach ($imgs as $imagePath) {
+                            // Redimensionner l'image 
+                            $tmpName      = $dir . '/tmp'. uniqid() . '.jpg';
+                            $resizedImage = dol_imageResizeOrCrop($imagePath, 0, $imageWidth*2, 0, 0, 0, $tmpName);
+                            $imgInfo      = dol_getImageSize($tmpName);
+                            if (filesize($resizedImage) > 0) {
+                                // Insérer l'image dans une cellule
+                                $pdf->Cell($imgInfo['width']/4, $imgInfo['height']/4, $pdf->Image($tmpName, $pdf->GetX(), $pdf->GetY(), $imgInfo['width']/4, $imgInfo['height']/4));
+                            }
+                            unlink($tmpName);
                         }
                     }
-
                     // Description
                     $pageposafternote = $pdf->getPage();
-                    $posyafter        = $pdf->GetY();
+//                    var_dump($pdf->GetY(),$imgInfo['height']/2);die();
+                    $posyafter        = $pdf->GetY()+$imgInfo['height']/4 ;
 
                     if ($pageposafternote > $pageposbeforenote) {
                         $pdf->rollbackTransaction(true);
@@ -481,10 +483,10 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
                             // Draw note frame
                             if ($i > $pageposbeforenote) {
                                 $height_note = $this->page_hauteur - ($tab_top_newpage + $heightforfooter);
-                                $pdf->Rect($this->marge_gauche, $tab_top_newpage - 1, $tab_width, $height_note + 1);
+                                $pdf->Rect($this->marge_gauche, $tab_top_newpage - 1, $tab_width, $height_note + 1+ 70);
                             } else {
                                 $height_note = $this->page_hauteur - ($tab_top + $heightforfooter);
-                                $pdf->Rect($this->marge_gauche, $tab_top - 1, $tab_width, $height_note + 1);
+                                $pdf->Rect($this->marge_gauche, $tab_top - 1, $tab_width, $height_note + 1+ 70);
                             }
 
                             // Add footer
@@ -503,13 +505,13 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
                             $this->_pagehead($pdf, $object, 0, $outputlangs);
                         }
                         $height_note = $posyafter - $tab_top_newpage;
-                        $pdf->Rect($this->marge_gauche, $tab_top_newpage - 1, $tab_width, $height_note + 1);
+                        $pdf->Rect($this->marge_gauche, $tab_top_newpage - 1, $tab_width, $height_note + 1 + 70);
                     } else {
                         // No pagebreak
                         $pdf->commitTransaction();
                         $posyafter   = $pdf->GetY();
                         $height_note = $posyafter - $tab_top;
-                        $pdf->Rect($this->marge_gauche, $tab_top - 1, $tab_width, $height_note + 1);
+                        $pdf->Rect($this->marge_gauche, $tab_top - 1, $tab_width, $height_note + 1 +70);
 
                         if ($posyafter > ($this->page_hauteur - ($heightforfooter + $heightforfreetext + 20))) {
                             // not enough space, need to add page
@@ -529,7 +531,7 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
                     }
 
                     $tab_height = $tab_height - $height_note;
-                    $tab_top    = $posyafter + 6;
+                    $tab_top    = $posyafter + 6 + 70;
                 } else {
                     $height_note = 0;
                 }
