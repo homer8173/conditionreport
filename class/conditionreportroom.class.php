@@ -1404,7 +1404,7 @@ class Conditionreportroom extends CommonObject
                         $this->line->fk_conditionreportroom = $this->id;
                         $this->line->label                  = $value;
                         $this->line->qty                    = 1;
-                        $this->line->condition              = 0;
+                        $this->line->condition              = 3;
                         $result = $this->line->insert($user);
                     }
                 }

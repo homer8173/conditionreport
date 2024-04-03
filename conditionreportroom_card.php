@@ -305,9 +305,9 @@ if (empty($reshook)) {
         $object->deleteLine($user, GETPOST('lineid', 'int'));
         header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $object->id); // Pour reaffichage de la fiche en cours d'edition
         exit();
-    } elseif ($action == 'load_model' && GETPOSTISSET('model_name')) {
+    } elseif ($action == 'load_model' && GETPOSTISSET('model_name') && $object->status == Conditionreportroom::STATUS_DRAFT) {
         // load model from json
-        $object->loadModel($user, GETPOST('model_name','alpha'));
+        $object->loadModel($user, GETPOST('model_name', 'alpha'));
     }
 }
 
@@ -328,7 +328,7 @@ if ($action == 'create') {
 }
 $help_url = '';
 
-llxHeader('', $title, $help_url, '', 0, 0, '', '', '', 'mod-conditionreport page-card');
+llxHeader('', $title, $help_url, '', 0, 0, [dol_buildpath('/conditionreport/js/conditionreport.js.php', 2)], [dol_buildpath('/conditionreport/css/conditionreport.css.php', 2)], '', 'mod-conditionreport page-card');
 
 // Example : Adding jquery code
 // print '<script type="text/javascript">
@@ -524,6 +524,22 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
       }
       }
      */
+    $morehtmlref .= '<form name="formuserfile" id="formuserfile" action="' . dol_buildpath('/conditionreport/conditionreportroom_document.php', 2) . '?id=' . $object->id . '&amp;uploadform=1&back" enctype="multipart/form-data" method="POST">
+        <input type="hidden" name="token" value="' . newToken() . '">
+<input type="hidden" name="sendit" value="Envoyer fichier">
+        ';
+
+    $maxfilesizearray = getMaxFileSizeArray();
+    $maxmin           = $maxfilesizearray['maxmin'];
+    if ($maxmin > 0) {
+        $morehtmlref .= '<input type="hidden" name="MAX_FILE_SIZE" value="' . ($maxmin * 1024) . '">'; // MAX_FILE_SIZE must precede the field type=file
+    }
+    $morehtmlref .= '<label class="custom-file-upload">
+    <input type="file" class="quickUpload" name="userfile[]" id="userfile" multiple="" accept="image/*" capture="environment">
+    <i class="fa fa-camera-retro" aria-hidden="true" style="font-size:60px;"></i>
+</label>
+</form>';
+
     $morehtmlref .= '</div>';
 
     dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
@@ -542,22 +558,24 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     // Other attributes. Fields from hook formObjectOptions and Extrafields.
     include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_view.tpl.php';
 
-    print '<td>';
-    print $langs->trans("LoadRoomModele") . " :<br />";
-    $files = glob(dol_buildpath('/conditionreport/room_models/fr/') . "*.json");
-    if (count($files)) {
-        print '<ul class="load_model">';
-        foreach ($files as $filename) {
-            try {
-                $model = json_decode(file_get_contents($filename));
-                print '<li><a href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=load_model&model_name=' . basename($filename) . '" title="'.implode("\n",$model->elements).'">' . $model->name . '</a></li>';
-            } catch (Exception $exc) {
-                
+    if ($object->status == $object::STATUS_DRAFT) {
+        print '<td>';
+        print $langs->trans("LoadRoomModele") . " :<br />";
+        $files = glob(dol_buildpath('/conditionreport/room_models/fr/') . "*.json");
+        if (count($files)) {
+            print '<ul class="load_model">';
+            foreach ($files as $filename) {
+                try {
+                    $model = json_decode(file_get_contents($filename));
+                    print '<li><a href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=load_model&model_name=' . basename($filename) . '" title="' . implode("\n", $model->elements) . '">' . $model->name . '</a></li>';
+                } catch (Exception $exc) {
+                    
+                }
             }
+            print '</ul>';
         }
-        print '</ul>';
+        print '</td>';
     }
-    print '</td>';
     print '</table>';
     print '</div>';
     print '</div>';

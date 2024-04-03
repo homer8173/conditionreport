@@ -91,20 +91,38 @@ $coldisplay = 0;
         $text = img_object($langs->trans('Product'), 'product');
         $text .= ' <strong>' . $line->label . '</strong>';
         print $form->textwithtooltip($text, dol_htmlentitiesbr($line->description), 3, 0, '', $i);
-        
+
         print '</td>';
 
-        print '<td class="linecolqty nowraponall right">';
+        print '<td class="linecolqty nowraponall right ' . ($object->status == $object::STATUS_DRAFT ? ' editable' : '') . '">';
         $coldisplay++;
-        print price($line->qty, 0, '', 0, 0); // Yes, it is a quantity, not a price, but we just want the formating role of function price
+        print '<div class="view">';
+        print price($line->qty, 0, '', 0, 0); // Yes, it is a quantity, not a price, but we just want the formating role of function price               
+        print '</div>';
+        if ($object->status == $object::STATUS_DRAFT) {
+            print '<div class="edit">';
+            print '<input size="3" type="text" class="flat right" name="qty" id="qty" value="' . $line->qty . '" />';
+            print '</div>';
+        }
         print '</td>';
 
-        print '<td class="linecolcondition nowraponall right">';
+        print '<td class="linecolcondition nowraponall right ' . ($object->status == $object::STATUS_DRAFT ? ' editable' : '') . '">';
         $coldisplay++;
+        print '<div class="view">';
         if (in_array($line->condition, array_keys(Conditionreportroom::CONDITION))) {
             print $langs->trans(Conditionreportroom::CONDITION[$line->condition]);
         } else {
             print 'Condition not found in list ???';
+        }
+        print '</div>';
+        if ($object->status == $object::STATUS_DRAFT) {
+            print '<div class="edit">';
+            $conditions = [];
+            foreach (Conditionreportroom::CONDITION as $key => $value) {
+                $conditions[$key] = $langs->trans($value);
+            }
+            print $form->selectarray('condition', $conditions, $line->condition, 0, 0, 0, '', 0, 0, 0, '', 'minwidth75', 0);
+            print '</div>';
         }
         print '</td>';
 
@@ -113,117 +131,113 @@ $coldisplay = 0;
         print dol_htmlentitiesbr($line->description);
         print '</td>';
 
-        
-
         print '<td class="linecol nowraponall">';
         print '</td>';
-        
 
-
-    if ($this->statut == 0 && !empty($object_rights->write) && $action != 'selectlines') {
-        $situationinvoicelinewithparent = 0;
-        if (isset($line->fk_prev_id) && in_array($object->element, array('facture', 'facturedet'))) {
-            if ($object->type == $object::TYPE_SITUATION) { // The constant TYPE_SITUATION exists only for object invoice
-                // Set constant to disallow editing during a situation cycle
-                $situationinvoicelinewithparent = 1;
-            }
-        }
-
-        // Asset info
-        if (isModEnabled('asset') && $object->element == 'invoice_supplier') {
-            print '<td class="linecolasset center">';
-            $coldisplay++;
-            if (!empty($product_static->accountancy_code_buy) ||
-                !empty($product_static->accountancy_code_buy_intra) ||
-                !empty($product_static->accountancy_code_buy_export)
-            ) {
-                $accountancy_category_asset = $conf->global->ASSET_ACCOUNTANCY_CATEGORY;
-                $filters                    = array();
-                if (!empty($product_static->accountancy_code_buy))
-                    $filters[]                  = "account_number = '" . $this->db->escape($product_static->accountancy_code_buy) . "'";
-                if (!empty($product_static->accountancy_code_buy_intra))
-                    $filters[]                  = "account_number = '" . $this->db->escape($product_static->accountancy_code_buy_intra) . "'";
-                if (!empty($product_static->accountancy_code_buy_export))
-                    $filters[]                  = "account_number = '" . $this->db->escape($product_static->accountancy_code_buy_export) . "'";
-                $sql                        = "SELECT COUNT(*) AS found";
-                $sql                        .= " FROM " . MAIN_DB_PREFIX . "accounting_account";
-                $sql                        .= " WHERE pcg_type = '" . $this->db->escape($conf->global->ASSET_ACCOUNTANCY_CATEGORY) . "'";
-                $sql                        .= " AND (" . implode(' OR ', $filters) . ")";
-                $resql_asset                = $this->db->query($sql);
-                if (!$resql_asset) {
-                    print 'Error SQL: ' . $this->db->lasterror();
-                } elseif ($obj = $this->db->fetch_object($resql_asset)) {
-                    if (!empty($obj->found)) {
-                        print '<a class="reposition" href="' . DOL_URL_ROOT . '/asset/card.php?action=create&token=' . newToken() . '&supplier_invoice_id=' . $object->id . '">';
-                        print img_edit_add() . '</a>';
-                    }
+        if ($this->statut == 0 && !empty($object_rights->write) && $action != 'selectlines') {
+            $situationinvoicelinewithparent = 0;
+            if (isset($line->fk_prev_id) && in_array($object->element, array('facture', 'facturedet'))) {
+                if ($object->type == $object::TYPE_SITUATION) { // The constant TYPE_SITUATION exists only for object invoice
+                    // Set constant to disallow editing during a situation cycle
+                    $situationinvoicelinewithparent = 1;
                 }
             }
-            print '</td>';
-        }
 
-        // Edit picto
-        print '<td class="linecoledit center">';
-        $coldisplay++;
-        if (($line->info_bits & 2) == 2 || !empty($disableedit)) {
+            // Asset info
+            if (isModEnabled('asset') && $object->element == 'invoice_supplier') {
+                print '<td class="linecolasset center">';
+                $coldisplay++;
+                if (!empty($product_static->accountancy_code_buy) ||
+                    !empty($product_static->accountancy_code_buy_intra) ||
+                    !empty($product_static->accountancy_code_buy_export)
+                ) {
+                    $accountancy_category_asset = $conf->global->ASSET_ACCOUNTANCY_CATEGORY;
+                    $filters                    = array();
+                    if (!empty($product_static->accountancy_code_buy))
+                        $filters[]                  = "account_number = '" . $this->db->escape($product_static->accountancy_code_buy) . "'";
+                    if (!empty($product_static->accountancy_code_buy_intra))
+                        $filters[]                  = "account_number = '" . $this->db->escape($product_static->accountancy_code_buy_intra) . "'";
+                    if (!empty($product_static->accountancy_code_buy_export))
+                        $filters[]                  = "account_number = '" . $this->db->escape($product_static->accountancy_code_buy_export) . "'";
+                    $sql                        = "SELECT COUNT(*) AS found";
+                    $sql                        .= " FROM " . MAIN_DB_PREFIX . "accounting_account";
+                    $sql                        .= " WHERE pcg_type = '" . $this->db->escape($conf->global->ASSET_ACCOUNTANCY_CATEGORY) . "'";
+                    $sql                        .= " AND (" . implode(' OR ', $filters) . ")";
+                    $resql_asset                = $this->db->query($sql);
+                    if (!$resql_asset) {
+                        print 'Error SQL: ' . $this->db->lasterror();
+                    } elseif ($obj = $this->db->fetch_object($resql_asset)) {
+                        if (!empty($obj->found)) {
+                            print '<a class="reposition" href="' . DOL_URL_ROOT . '/asset/card.php?action=create&token=' . newToken() . '&supplier_invoice_id=' . $object->id . '">';
+                            print img_edit_add() . '</a>';
+                        }
+                    }
+                }
+                print '</td>';
+            }
+
+            // Edit picto
+            print '<td class="linecoledit center">';
+            $coldisplay++;
+            if (($line->info_bits & 2) == 2 || !empty($disableedit)) {
+                
+            } else {
+
+                ?>
+                <a class="editfielda reposition" href="<?php print $_SERVER["PHP_SELF"] . '?id=' . $this->id . '&action=editline&token=' . newToken() . '&lineid=' . $line->id; ?>">
+                    <?php
+                    print img_edit() . '</a>';
+                }
+                print '</td>';
+
+                // Delete picto
+                print '<td class="linecoldelete center">';
+                $coldisplay++;
+                if (!$situationinvoicelinewithparent && empty($disableremove)) { // For situation invoice, deletion is not possible if there is a parent company.
+                    print '<a class="reposition" href="' . $_SERVER["PHP_SELF"] . '?id=' . $this->id . '&action=deleteline&token=' . newToken() . '&lineid=' . $line->id . '">';
+                    print img_delete();
+                    print '</a>';
+                }
+                print '</td>';
+
+                // Move up-down picto
+                if ($num > 1 && $conf->browser->layout != 'phone' && ($this->situation_counter == 1 || !$this->situation_cycle_ref) && empty($disablemove)) {
+                    print '<td class="linecolmove tdlineupdown center">';
+                    $coldisplay++;
+                    if ($i > 0) {
+
+                        ?>
+                        <a class="lineupdown" href="<?php print $_SERVER["PHP_SELF"] . '?id=' . $this->id . '&action=up&token=' . newToken() . '&rowid=' . $line->id; ?>">
+                            <?php print img_up('default', 0, 'imgupforline'); ?>
+                        </a>
+                        <?php
+                    }
+                    if ($i < $num - 1) {
+
+                        ?>
+                        <a class="lineupdown" href="<?php print $_SERVER["PHP_SELF"] . '?id=' . $this->id . '&action=down&token=' . newToken() . '&rowid=' . $line->id; ?>">
+                            <?php print img_down('default', 0, 'imgdownforline'); ?>
+                        </a>
+                        <?php
+                    }
+                    print '</td>';
+                } else {
+                    print '<td ' . (($conf->browser->layout != 'phone' && empty($disablemove)) ? ' class="linecolmove tdlineupdown center"' : ' class="linecolmove center"') . '></td>';
+                    $coldisplay++;
+                }
+            } else {
+                print '<td colspan="3"></td>';
+                $coldisplay = $coldisplay + 3;
+            }
+
+            if ($action == 'selectlines') {
+
+                ?>
+                <td class="linecolcheck center"><input type="checkbox" class="linecheckbox" name="line_checkbox[<?php print $i + 1; ?>]" value="<?php print $line->id; ?>" ></td>
+                <?php
+            }
+
+            print "</tr>\n";
+
+            print "<!-- END PHP TEMPLATE objectline_view.tpl.php -->\n";
             
-        } else {
-
-            ?>
-        <a class="editfielda reposition" href="<?php print $_SERVER["PHP_SELF"] . '?id=' . $this->id . '&action=editline&token=' . newToken() . '&lineid=' . $line->id; ?>">
-            <?php
-            print img_edit() . '</a>';
-        }
-        print '</td>';
-
-        // Delete picto
-        print '<td class="linecoldelete center">';
-        $coldisplay++;
-        if (!$situationinvoicelinewithparent && empty($disableremove)) { // For situation invoice, deletion is not possible if there is a parent company.
-            print '<a class="reposition" href="' . $_SERVER["PHP_SELF"] . '?id=' . $this->id . '&action=deleteline&token=' . newToken() . '&lineid=' . $line->id . '">';
-            print img_delete();
-            print '</a>';
-        }
-        print '</td>';
-
-        // Move up-down picto
-        if ($num > 1 && $conf->browser->layout != 'phone' && ($this->situation_counter == 1 || !$this->situation_cycle_ref) && empty($disablemove)) {
-            print '<td class="linecolmove tdlineupdown center">';
-            $coldisplay++;
-            if ($i > 0) {
-
-                ?>
-                <a class="lineupdown" href="<?php print $_SERVER["PHP_SELF"] . '?id=' . $this->id . '&action=up&token=' . newToken() . '&rowid=' . $line->id; ?>">
-                    <?php print img_up('default', 0, 'imgupforline'); ?>
-                </a>
-                <?php
-            }
-            if ($i < $num - 1) {
-
-                ?>
-                <a class="lineupdown" href="<?php print $_SERVER["PHP_SELF"] . '?id=' . $this->id . '&action=down&token=' . newToken() . '&rowid=' . $line->id; ?>">
-                    <?php print img_down('default', 0, 'imgdownforline'); ?>
-                </a>
-                <?php
-            }
-            print '</td>';
-        } else {
-            print '<td ' . (($conf->browser->layout != 'phone' && empty($disablemove)) ? ' class="linecolmove tdlineupdown center"' : ' class="linecolmove center"') . '></td>';
-            $coldisplay++;
-        }
-    } else {
-        print '<td colspan="3"></td>';
-        $coldisplay = $coldisplay + 3;
-    }
-
-    if ($action == 'selectlines') {
-
-        ?>
-        <td class="linecolcheck center"><input type="checkbox" class="linecheckbox" name="line_checkbox[<?php print $i + 1; ?>]" value="<?php print $line->id; ?>" ></td>
-        <?php
-    }
-
-    print "</tr>\n";
-
-    print "<!-- END PHP TEMPLATE objectline_view.tpl.php -->\n";
-    

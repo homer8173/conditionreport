@@ -87,7 +87,7 @@ $coldisplay = 0;
 <tr class="oddeven tredited">
     <?php if (!empty($conf->global->MAIN_VIEW_LINE_NUMBER)) { ?>
         <td class="linecolnum center"><?php $coldisplay++; ?><?php echo ($i + 1); ?></td>
-    <?php
+        <?php
     }
 
     $coldisplay++;
@@ -124,8 +124,7 @@ $coldisplay = 0;
         foreach (Conditionreportroom::CONDITION as $key => $value) {
             $conditions[$key] = $langs->trans($value);
         }
-        print $form->selectarray('condition', $conditions, (GETPOSTISSET('condition') ? GETPOST('condition') : $line->condition));
-
+        print $form->selectarray('condition', $conditions, (GETPOSTISSET('condition') ? GETPOST('condition') : $line->condition), 0, 0, 0, '', 0, 0, 0, '', 'minwidth75', 0);
         ?>
     </td>
     <td class="linecoldesc minwidth250onall">

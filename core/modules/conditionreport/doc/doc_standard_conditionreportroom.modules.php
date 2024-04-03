@@ -752,7 +752,7 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
                 }
 
                 // Show square
-                if ($pagenb == $pageposbeforeprintlines) {
+                if ($pagenb == $pageposbeforeprintlines ) {
                     $this->_tableau($pdf, $tab_top, $this->page_hauteur - $tab_top - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, $hidetop, 0, $object->multicurrency_code, $outputlangsbis);
                 } else {
                     $this->_tableau($pdf, $tab_top_newpage, $this->page_hauteur - $tab_top_newpage - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, 1, 0, $object->multicurrency_code, $outputlangsbis);
@@ -851,7 +851,7 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('', '', $default_font_size - 2);
 
-        if (empty($hidetop)) {
+        if (false&& empty($hidetop)) {
             $titre = $outputlangs->transnoentities("AmountInCurrency", $outputlangs->transnoentitiesnoconv("Currency" . $currency));
             if (getDolGlobalInt('PDF_USE_ALSO_LANGUAGE_CODE') && is_object($outputlangsbis)) {
                 $titre .= ' - ' . $outputlangsbis->transnoentities("AmountInCurrency", $outputlangsbis->transnoentitiesnoconv("Currency" . $currency));
@@ -1210,7 +1210,7 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
             'width' => false, // only for desc
             'status' => true,
             'title' => array(
-                'textkey' => 'Designation', // use lang key is usefull in somme case with module
+                'textkey' => 'Element', // use lang key is usefull in somme case with module
                 'align' => 'L',
                 // 'textkey' => 'yourLangKey', // if there is no label, yourLangKey will be translated to replace label
                 // 'label' => ' ', // the final label
@@ -1220,53 +1220,6 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
                 'align' => 'L',
                 'padding' => array(1, 0.5, 1, 1.5), // Like css 0 => top , 1 => right, 2 => bottom, 3 => left
             ),
-        );
-
-        // PHOTO
-        $rank                = $rank + 10;
-        $this->cols['photo'] = array(
-            'rank' => $rank,
-            'width' => (!getDolGlobalInt('MAIN_DOCUMENTS_WITH_PICTURE_WIDTH') ? 20 : getDolGlobalInt('MAIN_DOCUMENTS_WITH_PICTURE_WIDTH')), // in mm
-            'status' => false,
-            'title' => array(
-                'textkey' => 'Photo',
-                'label' => ' '
-            ),
-            'content' => array(
-                'padding' => array(0, 0, 0, 0), // Like css 0 => top , 1 => right, 2 => bottom, 3 => left
-            ),
-            'border-left' => false, // remove left line separator
-        );
-
-        if (getDolGlobalInt('MAIN_GENERATE_INVOICES_WITH_PICTURE') && !empty($this->atleastonephoto)) {
-            $this->cols['photo']['status'] = true;
-        }
-
-
-        $rank              = $rank + 10;
-        $this->cols['vat'] = array(
-            'rank' => $rank,
-            'status' => false,
-            'width' => 16, // in mm
-            'title' => array(
-                'textkey' => 'VAT'
-            ),
-            'border-left' => true, // add left line separator
-        );
-
-        if (!getDolGlobalInt('MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT') && !getDolGlobalInt('MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT_COLUMN')) {
-            $this->cols['vat']['status'] = true;
-        }
-
-        $rank                   = $rank + 10;
-        $this->cols['subprice'] = array(
-            'rank' => $rank,
-            'width' => 19, // in mm
-            'status' => true,
-            'title' => array(
-                'textkey' => 'PriceUHT'
-            ),
-            'border-left' => true, // add left line separator
         );
 
         $rank              = $rank + 10;
@@ -1280,44 +1233,46 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
             'border-left' => true, // add left line separator
         );
 
-        $rank               = $rank + 10;
-        $this->cols['unit'] = array(
+
+
+
+
+        $rank              = $rank + 10;
+        $this->cols['vat'] = array(
             'rank' => $rank,
-            'width' => 11, // in mm
             'status' => false,
+            'width' => 16, // in mm
             'title' => array(
-                'textkey' => 'Unit'
+                'textkey' => 'Condition'
             ),
             'border-left' => true, // add left line separator
         );
-        if (getDolGlobalInt('PRODUCT_USE_UNITS')) {
-            $this->cols['unit']['status'] = true;
-        }
 
+
+
+        $rank              = $rank + 10;
+        $this->cols['condition'] = array(
+            'rank' => $rank,
+            'status' => true,
+            'width' => 32, // in mm
+            'title' => array(
+                'textkey' => 'Condition'
+            ),
+            'border-left' => true, // add left line separator
+        );
+        
         $rank                   = $rank + 10;
-        $this->cols['discount'] = array(
+        $this->cols['description'] = array(
             'rank' => $rank,
-            'width' => 13, // in mm
-            'status' => false,
-            'title' => array(
-                'textkey' => 'ReductionShort'
-            ),
-            'border-left' => true, // add left line separator
-        );
-        if ($this->atleastonediscount) {
-            $this->cols['discount']['status'] = true;
-        }
-
-        $rank                       = $rank + 1000; // add a big offset to be sure is the last col because default extrafield rank is 100
-        $this->cols['totalexcltax'] = array(
-            'rank' => $rank,
-            'width' => 26, // in mm
+            'width' => 90, // in mm
             'status' => true,
             'title' => array(
-                'textkey' => 'TotalHTShort'
+                'textkey' => 'Description'
             ),
             'border-left' => true, // add left line separator
         );
+
+
 
         // Add extrafields cols
         if (!empty($object->lines)) {
