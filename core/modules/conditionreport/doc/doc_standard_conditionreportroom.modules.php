@@ -33,6 +33,7 @@
 dol_include_once('/conditionreport/core/modules/conditionreport/modules_conditionreportroom.php');
 require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/functions2.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/pdf.lib.php';
 
@@ -379,7 +380,7 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
                 }
                 $withImages = false;
                 //search jpg to add in notes
-                foreach (glob($dir . '/*.jpg') as $file) {
+                foreach (glob($dir . '/*.jpg') as $img) {
                     $withImages = true;
                 }
 
@@ -399,23 +400,25 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
 
                     $pdf->SetFont('', '', $default_font_size - 1);
 
-                    $pdf->writeHTMLCell(190, 3, $this->posxdesc - 1, $tab_top, dol_htmlentitiesbr($notetoshow) , 0, 1);
+                    $pdf->writeHTMLCell(190, 3, $this->posxdesc - 1, $tab_top, dol_htmlentitiesbr($notetoshow), 0, 1);
 
                     //search jpg to add in notes
                     // Taille des images redimensionnées (en pixels)
-                    $newWidth     = 50;
-                    $newHeight    = 50;
+                    $newWidth     = 250;
+                    $newHeight    = 250;
                     // Nombre d'images par ligne
                     $imagesPerRow = 3;
                     // Compteur pour garder une trace du nombre d'images ajoutées
                     $imageCount   = 0;
                     //search jpg to add in notes
-                    foreach (glob($dir . '/*.jpg') as $file) {
+                    foreach (glob($dir . '/*.jpg') as $img) {
                         // Redimensionner l'image avec GD
-                        $resizedImage = $this->resizeImage($file, $newWidth, $newHeight);
+                        $tmpName      = tempnam($dir, 'tmp_');
+                        $resizedImage = dol_imageResizeOrCrop($img, 0, $newWidth, 0, 0, 0, $tmpName);
+                        if(filesize($resizedImage)>0)
                         // Insérer l'image redimensionnée dans une cellule
                         $pdf->Cell($newWidth, $newHeight, $pdf->Image('@' . $resizedImage, $pdf->GetX(), $pdf->GetY(), $newWidth, $newHeight), 0, 0, 'C', false, '', 0, false, 'T', 'M');
-
+                        unlink($tmpName);
                         // Incrémenter le compteur d'images
                         $imageCount++;
 
@@ -829,7 +832,7 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
                 }
 
                 $pdf->Close();
-                $pdf->Output($file, 'I');
+                $pdf->Output($file, 'F');
 
                 // Add pdfgeneration hook
                 $hookmanager->initHooks(array('pdfgeneration'));
@@ -1459,19 +1462,22 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
     function resizeImage($imagePath, $newWidth)
     {
         list($width, $height) = getimagesize($imagePath);
-        $ratio     = $width / $newWidth/10;
-        $newHeight = $height / $ratio;
+        $ratio = $width / $newWidth / 10;
+        if ($ratio > 0) {
+            $newHeight = $height / $ratio;
 
-        $imageResized = imagecreatetruecolor($newWidth, $newHeight);
-        $imageSource  = imagecreatefromjpeg($imagePath);
-        imagecopyresampled($imageResized, $imageSource, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+            $imageResized = imagecreatetruecolor($newWidth, $newHeight);
+            $imageSource  = imagecreatefromjpeg($imagePath);
+            imagecopyresampled($imageResized, $imageSource, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
 
-        ob_start(); // Commencer la capture de sortie
-        imagejpeg($imageResized); // Convertir l'image redimensionnée en jpeg et la mettre en mémoire tampon
-        $imageData = ob_get_clean(); // Récupérer les données de l'image redimensionnée depuis la mémoire tampon
-        imagedestroy($imageResized); // Libérer la mémoire utilisée par l'image redimensionnée
-
-        return $imageData; // Retourner les données de l'image redimensionnée
+            ob_start(); // Commencer la capture de sortie
+            imagejpeg($imageResized); // Convertir l'image redimensionnée en jpeg et la mettre en mémoire tampon
+            $imageData = ob_get_clean(); // Récupérer les données de l'image redimensionnée depuis la mémoire tampon
+            imagedestroy($imageResized); // Libérer la mémoire utilisée par l'image redimensionnée
+            return $imageData; // Retourner les données de l'image redimensionnée
+        } else {
+            return false;
+        }
     }
 }
 
@@ -1479,7 +1485,7 @@ if (!function_exists('getMultidirOutput')) {
 
     function getMultidirOutput()
     {
-        return DOL_DATA_ROOT . '/conditionreport/conditionreportroom';
+        return DOL_DATA_ROOT . '/conditionreport/conditionreportroom/';
     }
 }
 if (!function_exists('dolChmod')) {/**
