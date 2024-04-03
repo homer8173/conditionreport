@@ -351,7 +351,7 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
                 $pdf->MultiCell(0, 3, ''); // Set interline to 3
                 $pdf->SetTextColor(0, 0, 0);
 
-                $tab_top         = 90 + $top_shift;
+                $tab_top         = 0 + $top_shift;
                 $tab_top_newpage = (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD') ? 42 + $top_shift : 10);
 
                 $tab_height = $this->page_hauteur - $tab_top - $heightforfooter - $heightforfreetext;
@@ -363,6 +363,13 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
 
                 $nexY = $tab_top - 1;
 
+                // Définition de la police et de la taille du texte pour le titre
+                $pdf->SetFont('', 'B', $default_font_size + 5);
+
+                // Titre centré
+                $pdf->Cell(0, 10, $object->label, 0, 1, 'C');
+                $tab_top = $pdf->getY() + 5;
+
                 // Display notes
                 $notetoshow = empty($object->note_public) ? '' : $object->note_public;
                 // Extrafields in note
@@ -370,9 +377,14 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
                 if (!empty($extranote)) {
                     $notetoshow = dol_concatdesc($notetoshow, $extranote);
                 }
+                $withImages = false;
+                //search jpg to add in notes
+                foreach (glob($dir . '/*.jpg') as $file) {
+                    $withImages = true;
+                }
 
                 $pagenb = $pdf->getPage();
-                if ($notetoshow) {
+                if ($notetoshow || $withImages) {
                     $tab_top -= 2;
 
                     $tab_width         = $this->page_largeur - $this->marge_gauche - $this->marge_droite;
@@ -386,7 +398,33 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
                     $pdf->startTransaction();
 
                     $pdf->SetFont('', '', $default_font_size - 1);
-                    $pdf->writeHTMLCell(190, 3, $this->posxdesc - 1, $tab_top, dol_htmlentitiesbr($notetoshow), 0, 1);
+
+                    $pdf->writeHTMLCell(190, 3, $this->posxdesc - 1, $tab_top, dol_htmlentitiesbr($notetoshow) , 0, 1);
+
+                    //search jpg to add in notes
+                    // Taille des images redimensionnées (en pixels)
+                    $newWidth     = 50;
+                    $newHeight    = 50;
+                    // Nombre d'images par ligne
+                    $imagesPerRow = 3;
+                    // Compteur pour garder une trace du nombre d'images ajoutées
+                    $imageCount   = 0;
+                    //search jpg to add in notes
+                    foreach (glob($dir . '/*.jpg') as $file) {
+                        // Redimensionner l'image avec GD
+                        $resizedImage = $this->resizeImage($file, $newWidth, $newHeight);
+                        // Insérer l'image redimensionnée dans une cellule
+                        $pdf->Cell($newWidth, $newHeight, $pdf->Image('@' . $resizedImage, $pdf->GetX(), $pdf->GetY(), $newWidth, $newHeight), 0, 0, 'C', false, '', 0, false, 'T', 'M');
+
+                        // Incrémenter le compteur d'images
+                        $imageCount++;
+
+                        // Si le nombre d'images ajoutées est égal au nombre d'images par ligne, sautez à la ligne
+                        if ($imageCount % $imagesPerRow == 0) {
+                            $pdf->Ln(); // Sauter à la ligne
+                        }
+                    }
+
                     // Description
                     $pageposafternote = $pdf->getPage();
                     $posyafter        = $pdf->GetY();
@@ -552,10 +590,10 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
                     }
 
                     // Description of product line
-                    if ($this->getColumnStatus('desc')) {
+                    if ($this->getColumnStatus('description')) {
                         $pdf->startTransaction();
 
-                        $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
+                        $this->printColDescContent($pdf, $curY, 'description', $object, $i, $outputlangs, $hideref, $hidedesc);
                         $pageposafter = $pdf->getPage();
 
                         if ($pageposafter > $pageposbefore) { // There is a pagebreak
@@ -563,7 +601,7 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
                             $pageposafter = $pageposbefore;
                             $pdf->setPageOrientation('', 1, $heightforfooter); // The only function to edit the bottom margin of current page to set it.
 
-                            $this->printColDescContent($pdf, $curY, 'desc', $object, $i, $outputlangs, $hideref, $hidedesc);
+                            $this->printColDescContent($pdf, $curY, 'description', $object, $i, $outputlangs, $hideref, $hidedesc);
 
                             $pageposafter = $pdf->getPage();
                             $posyafter    = $pdf->GetY();
@@ -609,6 +647,19 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
                     if ($this->getColumnStatus('qty')) {
                         $qty  = pdf_getlineqty($object, $i, $outputlangs, $hidedetails);
                         $this->printStdColumnContent($pdf, $curY, 'qty', $qty);
+                        $nexY = max($pdf->GetY(), $nexY);
+                    }
+                    // condition
+                    if ($this->getColumnStatus('condition')) {
+                        $condition = $this->pdf_getlineCondition($object, $i, $outputlangs, $hidedetails);
+                        $this->printStdColumnContent($pdf, $curY, 'condition', $condition);
+                        $nexY      = max($pdf->GetY(), $nexY);
+                    }
+                    // label
+                    if ($this->getColumnStatus('label')) {
+                        $label = $this->pdf_getlineLabel($object, $i, $outputlangs, $hidedetails);
+
+                        $this->printStdColumnContent($pdf, $curY, 'label', $label);
                         $nexY = max($pdf->GetY(), $nexY);
                     }
 
@@ -752,7 +803,7 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
                 }
 
                 // Show square
-                if ($pagenb == $pageposbeforeprintlines ) {
+                if ($pagenb == $pageposbeforeprintlines) {
                     $this->_tableau($pdf, $tab_top, $this->page_hauteur - $tab_top - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, $hidetop, 0, $object->multicurrency_code, $outputlangsbis);
                 } else {
                     $this->_tableau($pdf, $tab_top_newpage, $this->page_hauteur - $tab_top_newpage - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, 1, 0, $object->multicurrency_code, $outputlangsbis);
@@ -778,7 +829,7 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
                 }
 
                 $pdf->Close();
-                $pdf->Output($file, 'F');
+                $pdf->Output($file, 'I');
 
                 // Add pdfgeneration hook
                 $hookmanager->initHooks(array('pdfgeneration'));
@@ -851,7 +902,7 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('', '', $default_font_size - 2);
 
-        if (false&& empty($hidetop)) {
+        if (false && empty($hidetop)) {
             $titre = $outputlangs->transnoentities("AmountInCurrency", $outputlangs->transnoentitiesnoconv("Currency" . $currency));
             if (getDolGlobalInt('PDF_USE_ALSO_LANGUAGE_CODE') && is_object($outputlangsbis)) {
                 $titre .= ' - ' . $outputlangsbis->transnoentities("AmountInCurrency", $outputlangsbis->transnoentitiesnoconv("Currency" . $currency));
@@ -895,7 +946,7 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
     {
         // phpcs:enable
         global $conf, $langs;
-
+        return $pdf->getY();
         $ltrdirection = 'L';
         if ($outputlangs->trans("DIRECTION") == 'rtl') {
             $ltrdirection = 'R';
@@ -1156,6 +1207,7 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
     protected function _pagefoot(&$pdf, $object, $outputlangs, $hidefreetext = 0)
     {
         global $conf;
+        return $pdf->getY();
         $showdetails = !getDolGlobalInt('MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS') ? 0 : getDolGlobalInt('MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS');
         return pdf_pagefoot($pdf, $outputlangs, 'INVOICE_FREE_TEXT', $this->emetteur, $this->marge_basse, $this->marge_gauche, $this->page_hauteur, $object, $showdetails, $hidefreetext);
     }
@@ -1204,8 +1256,8 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
           );
          */
 
-        $rank               = 0; // do not use negative rank
-        $this->cols['desc'] = array(
+        $rank                = 0; // do not use negative rank
+        $this->cols['label'] = array(
             'rank' => $rank,
             'width' => false, // only for desc
             'status' => true,
@@ -1233,10 +1285,6 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
             'border-left' => true, // add left line separator
         );
 
-
-
-
-
         $rank              = $rank + 10;
         $this->cols['vat'] = array(
             'rank' => $rank,
@@ -1248,20 +1296,22 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
             'border-left' => true, // add left line separator
         );
 
-
-
-        $rank              = $rank + 10;
+        $rank                    = $rank + 10;
         $this->cols['condition'] = array(
             'rank' => $rank,
             'status' => true,
             'width' => 32, // in mm
             'title' => array(
+                'align' => 'C',
                 'textkey' => 'Condition'
             ),
             'border-left' => true, // add left line separator
+            'content' => array(
+                'align' => 'C',
+            )
         );
-        
-        $rank                   = $rank + 10;
+
+        $rank                      = $rank + 10;
         $this->cols['description'] = array(
             'rank' => $rank,
             'width' => 90, // in mm
@@ -1271,8 +1321,6 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
             ),
             'border-left' => true, // add left line separator
         );
-
-
 
         // Add extrafields cols
         if (!empty($object->lines)) {
@@ -1297,13 +1345,141 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
             $this->cols = $hookmanager->resArray;
         }
     }
+
+    function pdf_getlineCondition($object, $i, $outputlangs, $hidedetails)
+    {
+        $val = $object->lines[$i]->condition;
+        if (in_array($val, array_keys(Conditionreportroom::CONDITION))) {
+            return $outputlangs->trans(Conditionreportroom::CONDITION[$val]);
+        }
+        return '';
+    }
+
+    function pdf_getlineLabel($object, $i, $outputlangs, $hidedetails)
+    {
+        return $object->lines[$i]->label;
+    }
+
+    /**
+     *  print description column content
+     *
+     *  @param	TCPDF		$pdf    	pdf object
+     *  @param	float		$curY    	curent Y position
+     *  @param	string		$colKey    	the column key
+     *  @param  object      $object CommonObject
+     *  @param  int         $i  the $object->lines array key
+     *  @param  Translate $outputlangs    Output language
+     *  @param  int $hideref hide ref
+     *  @param  int $hidedesc hide desc
+     *  @param  int $issupplierline if object need supplier product
+     *  @return null
+     */
+    public function printColDescContent($pdf, &$curY, $colKey, $object, $i, $outputlangs, $hideref = 0, $hidedesc = 0, $issupplierline = 0)
+    {
+        // load desc col params
+        $colDef             = $this->cols[$colKey];
+        // save curent cell padding
+        $curentCellPaddinds = $pdf->getCellPaddings();
+        // set cell padding with column content definition
+        $pdf->setCellPaddings($colDef['content']['padding'][3], $colDef['content']['padding'][0], $colDef['content']['padding'][1], $colDef['content']['padding'][2]);
+
+        // line description
+        $this->pdf_writelinedesc($pdf, $object, $i, $outputlangs, $colDef['width'], 3, $colDef['xStartPos'], $curY, $hideref, $hidedesc, $issupplierline);
+        $posYAfterDescription = $pdf->GetY() - $colDef['content']['padding'][0];
+
+        // restore cell padding
+        $pdf->setCellPaddings($curentCellPaddinds['L'], $curentCellPaddinds['T'], $curentCellPaddinds['R'], $curentCellPaddinds['B']);
+
+        // Display extrafield if needed
+        $params         = array(
+            'display' => 'list',
+            'printableEnable' => array(3),
+            'printableEnableNotEmpty' => array(4)
+        );
+        $extrafieldDesc = $this->getExtrafieldsInHtml($object->lines[$i], $outputlangs, $params);
+        if (!empty($extrafieldDesc)) {
+            $this->printStdColumnContent($pdf, $posYAfterDescription, $colKey, $extrafieldDesc);
+        }
+    }
+
+    /**
+     * 	Output line description into PDF
+     *
+     *  @param  TCPDF			$pdf               	PDF object
+     * 	@param	Object			$object				Object
+     * 	@param	int				$i					Current line number
+     *  @param  Translate		$outputlangs		Object lang for output
+     *  @param  int				$w					Width
+     *  @param  int				$h					Height
+     *  @param  int				$posx				Pos x
+     *  @param  int				$posy				Pos y
+     *  @param  int				$hideref       		Hide reference
+     *  @param  int				$hidedesc           Hide description
+     * 	@param	int				$issupplierline		Is it a line for a supplier object ?
+     * 	@return	string
+     */
+    function pdf_writelinedesc(&$pdf, $object, $i, $outputlangs, $w, $h, $posx, $posy, $hideref = 0, $hidedesc = 0, $issupplierline = 0)
+    {
+        global $db, $conf, $langs, $hookmanager;
+
+        $reshook = 0;
+        $result  = '';
+        //if (is_object($hookmanager) && ( (isset($object->lines[$i]->product_type) && $object->lines[$i]->product_type == 9 && !empty($object->lines[$i]->special_code)) || !empty($object->lines[$i]->fk_parent_line) ) )
+        if (is_object($hookmanager)) {   // Old code is commented on preceding line. Reproduct this test in the pdf_xxx function if you don't want your hook to run
+            $special_code = empty($object->lines[$i]->special_code) ? '' : $object->lines[$i]->special_code;
+            if (!empty($object->lines[$i]->fk_parent_line) && $object->lines[$i]->fk_parent_line > 0) {
+                $special_code = $object->getSpecialCode($object->lines[$i]->fk_parent_line);
+            }
+            $parameters = array('pdf' => $pdf, 'i' => $i, 'outputlangs' => $outputlangs, 'w' => $w, 'h' => $h, 'posx' => $posx, 'posy' => $posy, 'hideref' => $hideref, 'hidedesc' => $hidedesc, 'issupplierline' => $issupplierline, 'special_code' => $special_code);
+            $action     = '';
+            $reshook    = $hookmanager->executeHooks('pdf_writelinedesc', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
+
+            if (!empty($hookmanager->resPrint)) {
+                $result .= $hookmanager->resPrint;
+            }
+        }
+        if (empty($reshook)) {
+            $labelproductservice = $object->lines[$i]->description;
+
+//            var_dump($labelproductservice);exit;
+            // Fix bug of some HTML editors that replace links <img src="http://localhostgit/viewimage.php?modulepart=medias&file=image/efd.png" into <img src="http://localhostgit/viewimage.php?modulepart=medias&amp;file=image/efd.png"
+            // We make the reverse, so PDF generation has the real URL.
+            $nbrep               = 0;
+            $labelproductservice = preg_replace('/(<img[^>]*src=")([^"]*)(&amp;)([^"]*")/', '\1\2&\4', $labelproductservice, -1, $nbrep);
+
+            //var_dump($labelproductservice);exit;
+            // Description
+            $pdf->writeHTMLCell($w, $h, $posx, $posy, $outputlangs->convToOutputCharset($labelproductservice), 0, 1, false, true, 'J', true);
+            $result .= $labelproductservice;
+        }
+        return $result;
+    }
+
+    // Fonction pour redimensionner une image avec GD
+    function resizeImage($imagePath, $newWidth)
+    {
+        list($width, $height) = getimagesize($imagePath);
+        $ratio     = $width / $newWidth/10;
+        $newHeight = $height / $ratio;
+
+        $imageResized = imagecreatetruecolor($newWidth, $newHeight);
+        $imageSource  = imagecreatefromjpeg($imagePath);
+        imagecopyresampled($imageResized, $imageSource, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+        ob_start(); // Commencer la capture de sortie
+        imagejpeg($imageResized); // Convertir l'image redimensionnée en jpeg et la mettre en mémoire tampon
+        $imageData = ob_get_clean(); // Récupérer les données de l'image redimensionnée depuis la mémoire tampon
+        imagedestroy($imageResized); // Libérer la mémoire utilisée par l'image redimensionnée
+
+        return $imageData; // Retourner les données de l'image redimensionnée
+    }
 }
 
 if (!function_exists('getMultidirOutput')) {
 
     function getMultidirOutput()
     {
-        return DOL_DATA_ROOT . '/conditionreport/conditionreportroom/';
+        return DOL_DATA_ROOT . '/conditionreport/conditionreportroom';
     }
 }
 if (!function_exists('dolChmod')) {/**
