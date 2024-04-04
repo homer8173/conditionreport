@@ -179,9 +179,7 @@ $coldisplay = 0;
             // Edit picto
             print '<td class="linecoledit center">';
             $coldisplay++;
-            if (($line->info_bits & 2) == 2 || !empty($disableedit)) {
-                
-            } else {
+            if ($object->status == Conditionreportroom::STATUS_DRAFT) {
 
                 ?>
                 <a class="editfielda reposition" href="<?php print $_SERVER["PHP_SELF"] . '?id=' . $this->id . '&action=editline&token=' . newToken() . '&lineid=' . $line->id; ?>">
@@ -193,7 +191,7 @@ $coldisplay = 0;
                 // Delete picto
                 print '<td class="linecoldelete center">';
                 $coldisplay++;
-                if (!$situationinvoicelinewithparent && empty($disableremove)) { // For situation invoice, deletion is not possible if there is a parent company.
+                if ($object->status == Conditionreportroom::STATUS_DRAFT) {
                     print '<a class="reposition" href="' . $_SERVER["PHP_SELF"] . '?id=' . $this->id . '&action=deleteline&token=' . newToken() . '&lineid=' . $line->id . '">';
                     print img_delete();
                     print '</a>';
@@ -203,23 +201,6 @@ $coldisplay = 0;
                 // Move up-down picto
                 if ($num > 1 && $conf->browser->layout != 'phone' && ($this->situation_counter == 1 || !$this->situation_cycle_ref) && empty($disablemove)) {
                     print '<td class="linecolmove tdlineupdown center">';
-                    $coldisplay++;
-                    if ($i > 0) {
-
-                        ?>
-                        <a class="lineupdown" href="<?php print $_SERVER["PHP_SELF"] . '?id=' . $this->id . '&action=up&token=' . newToken() . '&rowid=' . $line->id; ?>">
-                            <?php print img_up('default', 0, 'imgupforline'); ?>
-                        </a>
-                        <?php
-                    }
-                    if ($i < $num - 1) {
-
-                        ?>
-                        <a class="lineupdown" href="<?php print $_SERVER["PHP_SELF"] . '?id=' . $this->id . '&action=down&token=' . newToken() . '&rowid=' . $line->id; ?>">
-                            <?php print img_down('default', 0, 'imgdownforline'); ?>
-                        </a>
-                        <?php
-                    }
                     print '</td>';
                 } else {
                     print '<td ' . (($conf->browser->layout != 'phone' && empty($disablemove)) ? ' class="linecolmove tdlineupdown center"' : ' class="linecolmove center"') . '></td>';

@@ -524,22 +524,24 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
       }
       }
      */
-    $morehtmlref .= '<form name="formuserfile" id="formuserfile" action="' . dol_buildpath('/conditionreport/conditionreportroom_document.php', 2) . '?id=' . $object->id . '&amp;uploadform=1" enctype="multipart/form-data" method="POST">
+    if ($object->status == Conditionreportroom::STATUS_DRAFT) {
+        $morehtmlref .= '<form name="formuserfile" id="formuserfile" action="' . dol_buildpath('/conditionreport/conditionreportroom_document.php', 2) . '?id=' . $object->id . '&amp;uploadform=1" enctype="multipart/form-data" method="POST">
         <input type="hidden" name="token" value="' . newToken() . '">            
         <input type="hidden" name="backtopage" value="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '">
-        <input type="hidden" name="sendit" value="'.$langs->trans("Upload").'">
+        <input type="hidden" name="sendit" value="' . $langs->trans("Upload") . '">
         ';
 
-    $maxfilesizearray = getMaxFileSizeArray();
-    $maxmin           = $maxfilesizearray['maxmin'];
-    if ($maxmin > 0) {
-        $morehtmlref .= '<input type="hidden" name="MAX_FILE_SIZE" value="' . ($maxmin * 1024) . '">'; // MAX_FILE_SIZE must precede the field type=file
-    }
-    $morehtmlref .= '<label class="custom-file-upload">
+        $maxfilesizearray = getMaxFileSizeArray();
+        $maxmin           = $maxfilesizearray['maxmin'];
+        if ($maxmin > 0) {
+            $morehtmlref .= '<input type="hidden" name="MAX_FILE_SIZE" value="' . ($maxmin * 1024) . '">'; // MAX_FILE_SIZE must precede the field type=file
+        }
+        $morehtmlref .= '<label class="custom-file-upload">
     <input type="file" class="quickUpload" name="userfile[]" id="userfile" multiple="" accept="image/*" capture="environment">
     <i class="fa fa-camera-retro" aria-hidden="true" style="font-size:60px;"></i>
 </label>
-</form>';
+    </form>';
+    }
 
     $morehtmlref .= '</div>';
 
