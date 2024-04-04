@@ -238,7 +238,7 @@ if ($action == 'create') {
 }
 $help_url = '';
 
-llxHeader('', $title, $help_url, '', 0, 0,  [dol_buildpath('/conditionreport/js/conditionreport.js.php', 2)], [dol_buildpath('/conditionreport/css/conditionreport.css.php', 2)], '', 'mod-conditionreport page-card');
+llxHeader('', $title, $help_url, '', 0, 0, [dol_buildpath('/conditionreport/js/conditionreport.js.php', 2)], [dol_buildpath('/conditionreport/css/conditionreport.css.php', 2)], '', 'mod-conditionreport page-card');
 
 // Example : Adding jquery code
 // print '<script type="text/javascript">
@@ -486,8 +486,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     if (!empty($object->table_element_line)) {
         // Show object lines
         $result = $object->getLinesArray();
-        var_dump($result);
-        die('in');
 
         print '	<form name="addproduct" id="addproduct" action="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . (($action != 'editline') ? '' : '#line_' . GETPOST('lineid', 'int')) . '" method="POST">
 		<input type="hidden" name="token" value="' . newToken() . '">
@@ -506,8 +504,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             print '<table id="tablelines" class="noborder noshadow" width="100%">';
         }
 
+        $dir = '/conditionreport/tplCR';
+        // is module in custom ?
+        if (!is_dir(DOL_DOCUMENT_ROOT . $dir)) {
+            $dir = '/custom' . $dir;
+        }
         if (!empty($object->lines)) {
-            $object->printObjectLines($action, $mysoc, null, GETPOST('lineid', 'int'), 1);
+            $object->printObjectLines($action, $mysoc, null, GETPOST('lineid', 'int'), 1,$dir);
         }
 
         // Form to add new line

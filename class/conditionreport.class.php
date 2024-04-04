@@ -1067,7 +1067,7 @@ class Conditionreport extends CommonObject
         $this->lines = array();
 
         $objectline = new ConditionreportLine($this->db);
-        $result     = $objectline->fetchAll('ASC', 'position', 0, 0, array('customsql' => 'fk_conditionreport = ' . ((int) $this->id)));
+        $result     = $objectline->fetchAll('ASC', 'rang', 0, 0, array('customsql' => 'fk_conditionreport = ' . ((int) $this->id)));
 
         if (is_numeric($result)) {
             $this->setErrorsFromObject($objectline);
@@ -1264,6 +1264,7 @@ class Conditionreport extends CommonObject
                 if (isset($model->name)) {
                     $crr->ref   = uniqid();
                     $crr->label = $model->name;
+                    $crr->fk_conditionreport = $this->id;
                     $result     = $crr->create($user);
                     if ($result > 0 && isset($model->elements)) {
                         $crr->fetch($result);
