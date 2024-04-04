@@ -103,19 +103,35 @@ ob_start();
 
     $(document).ready(function () {
         let editable = ".editable";
+
         $(editable).on('click', function () {
-            console.log('c', $(this))
             $(this).off('click').children('div.view, div.edit').toggle();
         });
 
         $("#userfile").on("change", function () {
-            console.log($(this).val())
-            console.log($("form#formuserfile"))
             $("form#formuserfile").submit();
         });
 
 
-
-
+        $('.crrSaveButton').on('click', function (event) {
+            event.preventDefault();
+            let button = $(this);
+            let targetID = $(this).data('targetid'); // the line ID
+            let target = $(this).data('target');
+            let val = $('[data-id="' + target + '_' + targetID + '"]').val(); // the value of the field
+            // Requête AJAX POST
+            $.post('<?php print dol_buildpath('/conditionreport/ajax/conditionreport.php', 1); ?>',
+                    {action: 'updateLine', id: targetID, target: target, value: val},
+                    function (response) {
+                        // Traitement de la réponse
+                        $('[data-idview="' + target + '_' + targetID + '"]').html(response);
+                        button.closest(editable).on('click', function () {
+                            $(this).off('click').children('div.view, div.edit').toggle();
+                        }).children('div.view, div.edit').toggle();
+                    }).fail(function (xhr, status, error) {
+                // Gestion des erreurs
+                console.error(status, error);
+            });
+        });
     });
 

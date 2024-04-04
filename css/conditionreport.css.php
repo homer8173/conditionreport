@@ -127,13 +127,13 @@ ob_start();
     .editable .view{
         display: block;
     }
-    
+
 
     /* Cacher l\'input de type file */
     input.quickUpload {
         display: none;
     }
-    
+
     /* Styles pour le bouton label */
     .custom-file-upload {
         display: inline-block;
@@ -153,4 +153,11 @@ ob_start();
         height: 100%;
         opacity: 0;
         cursor: pointer;
+    }
+
+    .crrSaveButton {
+        margin-left: 0 !important;
+        border-bottom-left-radius:0;
+        border-top-left-radius:0;
+        padding: 4px !important;
     }

@@ -173,7 +173,7 @@ class Conditionreportroom extends CommonObject
     /**
      * @var array	List of child tables. To test if we can delete object.
      */
-    protected $childtables = array('mychildtable' => array('name' => 'Conditionreportroom', 'fk_element' => 'fk_conditionreportroom'));
+    protected $childtables =[]; //array('conditionreport_conditionreportroomdet' => array('name' => 'Conditionreportroom', 'fk_element' => 'fk_conditionreportroom'));
 
     /**
      * @var array    List of child tables. To know object to delete on cascade.
@@ -1409,7 +1409,7 @@ class Conditionreportroom extends CommonObject
                     }
                 }
                 if (isset($model->name)) {
-                    $this->ref = $model->name;
+                    //$this->ref = $model->name;
                     $this->label = $model->name;
                     $result      = $this->update($user);
                 }
@@ -1475,7 +1475,7 @@ class ConditionreportroomLine extends CommonObjectLine
      */
     public function fetch($rowid)
     {
-        $sql    = 'SELECT cd.rowid, cd.fk_conditionreportroom, cd.label , cd.description  cd.qty, cd.condition';
+        $sql    = 'SELECT cd.rowid, cd.fk_conditionreportroom, cd.label , cd.description,  cd.qty, cd.condition';
         $sql    .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as cd';
         $sql    .= ' WHERE cd.rowid = ' . ((int) $rowid);
         $result = $this->db->query($sql);
@@ -1599,8 +1599,6 @@ class ConditionreportroomLine extends CommonObjectLine
     public function insert($user = null, $notrigger = 0)
     {
         $error = 0;
-
-        $pa_ht_isemptystring = (empty($this->pa_ht) && $this->pa_ht == ''); // If true, we can use a default value. If this->pa_ht = '0', we must use '0'.
 
         dol_syslog(get_class($this) . "::insert rang=" . $this->rang);
 

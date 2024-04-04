@@ -355,9 +355,9 @@ if ($action == 'create') {
     print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
     print '<input type="hidden" name="token" value="' . newToken() . '">';
     print '<input type="hidden" name="action" value="add">';
-    if ($backtopage) {
-        print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
-    }
+//    if ($backtopage) {
+//        print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
+//    }
     if ($backtopageforcancel) {
         print '<input type="hidden" name="backtopageforcancel" value="' . $backtopageforcancel . '">';
     }
@@ -562,7 +562,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_view.tpl.php';
 
     if ($object->status == $object::STATUS_DRAFT) {
-        print '<td>';
+        print '<td colspan="2">';
         print $langs->trans("LoadRoomModele") . " :<br />";
         $files = glob(dol_buildpath('/conditionreport/room_models/fr/') . "*.json");
         if (count($files)) {
