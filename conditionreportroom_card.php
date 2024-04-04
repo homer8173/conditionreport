@@ -524,9 +524,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
       }
       }
      */
-    $morehtmlref .= '<form name="formuserfile" id="formuserfile" action="' . dol_buildpath('/conditionreport/conditionreportroom_document.php', 2) . '?id=' . $object->id . '&amp;uploadform=1&back" enctype="multipart/form-data" method="POST">
-        <input type="hidden" name="token" value="' . newToken() . '">
-<input type="hidden" name="sendit" value="Envoyer fichier">
+    $morehtmlref .= '<form name="formuserfile" id="formuserfile" action="' . dol_buildpath('/conditionreport/conditionreportroom_document.php', 2) . '?id=' . $object->id . '&amp;uploadform=1" enctype="multipart/form-data" method="POST">
+        <input type="hidden" name="token" value="' . newToken() . '">            
+        <input type="hidden" name="backtopage" value="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '">
+        <input type="hidden" name="sendit" value="'.$langs->trans("Upload").'">
         ';
 
     $maxfilesizearray = getMaxFileSizeArray();
