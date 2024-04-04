@@ -378,15 +378,61 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
                 if (!empty($extranote)) {
                     $notetoshow = dol_concatdesc($notetoshow, $extranote);
                 }
-                $withImages = false;
+
+
+
                 //search jpg to add in notes
-                foreach (glob($dir . '/*.jpg') as $img) {
-                    $withImages = true;
+                $fileList = glob($dir . '/*.jpg');
+                if (is_array($fileList) && count($fileList)) {
+                    
+                // Définition de la police et de la taille du texte pour le titre
+                $pdf->SetFont('', 'B', $default_font_size +3);
+
+                // Titre centré
+                $pdf->Cell(0, 10, $outputlangs->trans('Images').' :', 0, 1, 'L');
+                    $x            = $this->marge_gauche;
+                    $y            = $pdf->getY();
+                    $fitbox       = 'CM';
+                    // Nombre d'images par ligne
+                    $imagesPerRow = 4;
+                    $padding      = 3;
+                    $imageWidth   = ($this->page_largeur - $this->marge_gauche - $this->marge_droite - ($imagesPerRow - 1) * $padding) / $imagesPerRow;
+
+                    // Diviser le tableau d'images en sous-tableaux avec trois images par sous-tableau
+                    $imageChunks = array_chunk($fileList, $imagesPerRow);
+                    //search jpg to add in section
+                    foreach ($imageChunks as $imgs) {
+                        $imgTmp    = [];
+                        $x         = $this->marge_gauche;
+                        $maxHeight = 0;
+                        // Parcours des images dans la ligne actuelle
+                        foreach ($imgs as $i => $imagePath) {
+                            // Redimensionner l'image 
+                            $tmpName      = $dir . '/tmp' . uniqid() . '.jpg';
+                            $resizedImage = dol_imageResizeOrCrop($imagePath, 0, $imageWidth * 2, 0, 0, 0, $tmpName, 100);  // *2 for better quality
+                            $imgInfo      = dol_getImageSize($tmpName);
+                            if (filesize($resizedImage) > 0) {
+                                $maxHeight = max($maxHeight, $imgInfo['height'] / 2); // /2 for better quality
+                            }
+                            $imgTmp[$i] = $tmpName;
+                        }
+                        // insertion des images
+                        foreach ($imgs as $i => $imagePath) {
+                            //$pdf->Rect($x, $y, $imageWidth, $maxHeight, 'F', array(), array(255, 255, 255)); // background
+                            $pdf->Image($imgTmp[$i], $x, $y, $imageWidth, $maxHeight, 'JPG', '', '', false, 300, '', false, false, 0, $fitbox, false, false);
+                            if (filesize($imgTmp[$i]) > 0) {
+                                
+                            } $x += $imageWidth + $padding; // new column
+                            unlink($imgTmp[$i]);
+                        }
+                        $y += $maxHeight + $padding; // new row
+                    }
+                    $tab_top = $y + $padding;
                 }
 
                 $pagenb = $pdf->getPage();
-                if ($notetoshow || $withImages) {
-                    $tab_top -= 2;
+                if ($notetoshow) {
+//                    $tab_top -= 2;
 
                     $tab_width         = $this->page_largeur - $this->marge_gauche - $this->marge_droite;
                     $pageposbeforenote = $pagenb;
@@ -402,37 +448,10 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
 
                     $pdf->writeHTMLCell(190, 3, $this->posxdesc - 1, $tab_top, dol_htmlentitiesbr($notetoshow), 0, 1);
 
-                    //search jpg to add in notes
-                    // Taille des images redimensionnées (en pixels)
-                    $imageWidth  = 100;
-                    $imageHeight = 100;
-
-                    // Nombre d'images par ligne
-                    $imagesPerRow = 2;
-
-                    // Diviser le tableau d'images en sous-tableaux avec trois images par sous-tableau
-                    $imageChunks = array_chunk(glob($dir . '/*.jpg'), $imagesPerRow);
-                    //search jpg to add in notes
-                    $maxHeight   = 0;
-                    foreach ($imageChunks as $imgs) {
-
-                        // Parcours des images dans la ligne actuelle
-                        foreach ($imgs as $imagePath) {
-                            // Redimensionner l'image 
-                            $tmpName      = $dir . '/tmp'. uniqid() . '.jpg';
-                            $resizedImage = dol_imageResizeOrCrop($imagePath, 0, $imageWidth*2, 0, 0, 0, $tmpName);
-                            $imgInfo      = dol_getImageSize($tmpName);
-                            if (filesize($resizedImage) > 0) {
-                                // Insérer l'image dans une cellule
-                                $pdf->Cell($imgInfo['width']/4, $imgInfo['height']/4, $pdf->Image($tmpName, $pdf->GetX(), $pdf->GetY(), $imgInfo['width']/4, $imgInfo['height']/4));
-                            }
-                            unlink($tmpName);
-                        }
-                    }
                     // Description
                     $pageposafternote = $pdf->getPage();
 //                    var_dump($pdf->GetY(),$imgInfo['height']/2);die();
-                    $posyafter        = $pdf->GetY()+$imgInfo['height']/4 ;
+                    $posyafter        = $pdf->GetY() + $imgInfo['height'] / 4;
 
                     if ($pageposafternote > $pageposbeforenote) {
                         $pdf->rollbackTransaction(true);
@@ -483,10 +502,10 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
                             // Draw note frame
                             if ($i > $pageposbeforenote) {
                                 $height_note = $this->page_hauteur - ($tab_top_newpage + $heightforfooter);
-                                $pdf->Rect($this->marge_gauche, $tab_top_newpage - 1, $tab_width, $height_note + 1+ 70);
+                                $pdf->Rect($this->marge_gauche, $tab_top_newpage - 1, $tab_width, $height_note + 1);
                             } else {
                                 $height_note = $this->page_hauteur - ($tab_top + $heightforfooter);
-                                $pdf->Rect($this->marge_gauche, $tab_top - 1, $tab_width, $height_note + 1+ 70);
+                                $pdf->Rect($this->marge_gauche, $tab_top - 1, $tab_width, $height_note + 1);
                             }
 
                             // Add footer
@@ -505,13 +524,13 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
                             $this->_pagehead($pdf, $object, 0, $outputlangs);
                         }
                         $height_note = $posyafter - $tab_top_newpage;
-                        $pdf->Rect($this->marge_gauche, $tab_top_newpage - 1, $tab_width, $height_note + 1 + 70);
+                        $pdf->Rect($this->marge_gauche, $tab_top_newpage - 1, $tab_width, $height_note + 1);
                     } else {
                         // No pagebreak
                         $pdf->commitTransaction();
                         $posyafter   = $pdf->GetY();
                         $height_note = $posyafter - $tab_top;
-                        $pdf->Rect($this->marge_gauche, $tab_top - 1, $tab_width, $height_note + 1 +70);
+                        $pdf->Rect($this->marge_gauche, $tab_top - 1, $tab_width, $height_note + 1);
 
                         if ($posyafter > ($this->page_hauteur - ($heightforfooter + $heightforfreetext + 20))) {
                             // not enough space, need to add page
@@ -531,7 +550,7 @@ class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
                     }
 
                     $tab_height = $tab_height - $height_note;
-                    $tab_top    = $posyafter + 6 + 70;
+                    $tab_top    = $posyafter + 6;
                 } else {
                     $height_note = 0;
                 }
