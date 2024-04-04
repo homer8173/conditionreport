@@ -93,3 +93,4 @@ PoorCondition=État moyen
 GoodCondition=Bon état
 ExcellentCondition=Très bon état
 Observations=Observation et date pour les clés
+createRoomModele = Ajouter une pièce

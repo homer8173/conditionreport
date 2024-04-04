@@ -26,6 +26,7 @@
 require_once DOL_DOCUMENT_ROOT . '/core/class/commonobject.class.php';
 //require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
 //require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
+dol_include_once('/conditionreport/class/conditionreportroom.class.php');
 
 /**
  * Class for Conditionreport
@@ -163,22 +164,22 @@ class Conditionreport extends CommonObject
     /**
      * @var string    Name of subtable line
      */
-    public $table_element_line      = 'conditionreport_conditionreportline';
+    public $table_element_line = 'conditionreport_conditionreportroom';
 
     /**
      * @var string    Field with ID of parent key if this object has a parent
      */
-    public $fk_element              = 'fk_conditionreport';
+    public $fk_element = 'fk_conditionreport';
 
     /**
      * @var string    Name of subtable class that manage subtable lines
      */
-    public $class_element_line      = 'Conditionreportline';
+    public $class_element_line = 'Conditionreportline';
 
     /**
      * @var array	List of child tables. To test if we can delete object.
      */
-    protected $childtables          = array('mychildtable' => array('name' => 'Conditionreport', 'fk_element' => 'fk_conditionreport'));
+    protected $childtables = array('mychildtable' => array('name' => 'Conditionreport', 'fk_element' => 'fk_conditionreport'));
 
     /**
      * @var array    List of child tables. To know object to delete on cascade.
@@ -190,7 +191,7 @@ class Conditionreport extends CommonObject
     /**
      * @var ConditionreportLine[]     Array of subtable lines
      */
-    public $lines                   = array();
+    public $lines = array();
 
     /**
      * Constructor
@@ -1202,15 +1203,87 @@ class Conditionreport extends CommonObject
         return $error;
     }
 
-
     public function setErrorsFromObject($object)
     {
-		if (!empty($object->error)) {
-			$this->error = $object->error;
-		}
-		if (!empty($object->errors)) {
-			$this->errors = array_merge($this->errors, $object->errors);
-		}
+        if (!empty($object->error)) {
+            $this->error = $object->error;
+        }
+        if (!empty($object->errors)) {
+            $this->errors = array_merge($this->errors, $object->errors);
+        }
+    }
+    // --------------------
+    // TODO: All functions here must be redesigned and moved as they are not business functions but output functions
+    // --------------------
+
+    /* This is to show add lines */
+
+    /**
+     * 	Show add free and predefined products/services form
+     *
+     *  @param	int		        $dateSelector       1=Show also date range input fields
+     *  @param	Societe			$seller				Object thirdparty who sell
+     *  @param	Societe			$buyer				Object thirdparty who buy
+     *  @param	string			$defaulttpldir		Directory where to find the template
+     * 	@return	void
+     */
+    public function formAddObjectLine($dateSelector, $seller, $buyer, $defaulttpldir = '/core/tpl')
+    {
+        global $conf, $user, $langs, $object, $hookmanager, $extrafields, $form;
+
+        // Line extrafield
+        if (!is_object($extrafields)) {
+            require_once DOL_DOCUMENT_ROOT . '/core/class/extrafields.class.php';
+            $extrafields = new ExtraFields($this->db);
+        }
+        $extrafields->fetch_name_optionals_label($this->table_element_line);
+        $tpl = dol_buildpath('/conditionreport/tplCR/objectline_create.tpl.php');
+        if (empty($conf->file->strict_mode)) {
+            $res = @include $tpl;
+        } else {
+            $res = include $tpl; // for debug
+        }
+    }
+
+    /**
+     * 	Load a Room from model
+     *
+     *  @param		User            $user               the user
+     *  @param		string			$model				the model file name     *  @return     int             					>0 if OK, <0 if KO
+     *
+     */
+    function loadModel($user, $model)
+    {
+
+        $filename = dol_buildpath('/conditionreport/room_models/fr/') . $model;
+        if (file_exists($filename)) {
+            try {
+                $crr    = new Conditionreportroom($this->db);
+                $model  = json_decode(file_get_contents($filename));
+                $result = 0;
+                if (isset($model->name)) {
+                    $crr->ref   = uniqid();
+                    $crr->label = $model->name;
+                    $result     = $crr->create($user);
+                    if ($result > 0 && isset($model->elements)) {
+                        $crr->fetch($result);
+                        foreach ($model->elements as $value) {
+                            $crr->line                         = new ConditionreportroomLine($this->db);
+                            $crr->line->fk_conditionreportroom = $crr->id;
+                            $crr->line->label                  = $value;
+                            $crr->line->qty                    = 1;
+                            $crr->line->condition              = 3;
+                            $result                            = $crr->line->insert($user);
+                        }
+                    }
+                }
+                return $result;
+            } catch (Exception $exc) {
+                return -1;
+            }
+        } else {
+            return -2;
+        }
     }
 }
 
@@ -1219,12 +1292,13 @@ require_once DOL_DOCUMENT_ROOT . '/core/class/commonobjectline.class.php';
 /**
  * Class ConditionreportLine. You can also remove this and generate a CRUD class for lines objects.
  */
-class ConditionreportLine extends CommonObjectLine
+class ConditionreportLine extends Conditionreportroom
 {
 
+    public $table_element = 'conditionreport_conditionreportroom';
     // To complete with content of an object ConditionreportLine
     // We should have a field rowid, fk_conditionreport and position
-    public $fields              = array(
+    public $fields = array(
         'rowid' => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "Id"),
         'fk_conditionreport' => array('type' => 'integer', 'label' => 'Ref', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'validate' => '1', 'comment' => "Reference of object"),
     );
