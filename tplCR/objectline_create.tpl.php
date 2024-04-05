@@ -76,8 +76,6 @@ if ($nolinesbefore) {
         <td class="linecollabel minwidth400imp">
             <div id="add"></div><span class="hideonsmartphone"><?php echo $langs->trans('AddNewElement'); ?></span>
         </td>
-        <td class="linecolqty right"><?php echo $langs->trans('Qty'); ?></td>
-        <td class="linecolcondition right"><?php echo $langs->trans('Condition'); ?></td>
         <td class="linecoldescription center"><?php echo $langs->trans('Observations'); ?></td>
         <td class="linecoledit" colspan="<?php echo $colspan; ?>">&nbsp;</td>
     </tr>
@@ -98,21 +96,6 @@ if ($nolinesbefore) {
     ?>
     <td class="nobottom linecolelement minwidth400imp">
         <input type="text" required="required" name="label" id="label" class="flat" style="width: 100%; " value="<?php echo (GETPOSTISSET("label") ? GETPOST("label", 'alpha', 2) : ''); ?>">
-    </td>
-    <td class="nobottom linecolqty right">
-        <input type="text" name="qty" id="qty" class="flat width40 right" value="<?php echo (GETPOSTISSET("qty") ? GETPOST("qty", 'int', 2) : 1); ?>">
-    </td>
-    <td class="nobottom linecolqty right">
-        <select id="condition" name="condition" class="flat minwidth75imp maxwidth150">
-            <?php
-            foreach (Conditionreportroom::CONDITION as $key => $value) {
-                print '<option value="' . $key . '">';
-                print $langs->trans($value);
-                print '</option>';
-            }
-
-            ?>
-        </select>
     </td>
     <td class="nobottom linecoldescription minwidth400imp">
         <?php

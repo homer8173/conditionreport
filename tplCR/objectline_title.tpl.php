@@ -54,11 +54,9 @@ if (!empty($conf->global->MAIN_VIEW_LINE_NUMBER)) {
 ?>
 
         <th class="linecollabel minwidth400imp">
-            <div id="add"></div><span class="hideonsmartphone"><?php echo $langs->trans('Element'); ?></span>
+            <div id="add"></div><span class="hideonsmartphone"><?php echo $langs->trans('RoomCR'); ?></span>
         </th>
-        <th class="linecolqty right"><?php echo $langs->trans('Qty'); ?></th>
-        <th class="linecolcondition right"><?php echo $langs->trans('Condition'); ?></th>
-        <th class="linecoldescription center"><?php echo $langs->trans('Observations'); ?></th>
+        <th class="linecoldescription center"><?php echo $langs->trans('Description'); ?></th>
         <th class="linecoledit" colspan="<?php echo $colspan; ?>">&nbsp;</th>
 <?php
 

@@ -116,9 +116,9 @@ class Conditionreport extends CommonObject
         'rowid' => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "Id"),
         'ref' => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'validate' => '1', 'comment' => "Reference of object"),
         'label' => array('type' => 'varchar(255)', 'label' => 'Label', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth300', 'cssview' => 'wordbreak', 'help' => "Help text", 'validate' => '1',),
-        'fk_property' => array('type' => 'integer:ImmoProperty:custom/ultimateimmo/class/immoproperty.class.php:1:(status:=:1)', 'label' => 'RealEstate', 'picto' => 'company', 'enabled' => '1', 'position' => 51, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "OrganizationEventLinkToThirdParty", 'validate' => '1',),
-        'fk_lessor' => array('type' => 'integer:ImmoOwner:custom/ultimateimmo/class/immoowner.class.php:1:(status:=:1)', 'label' => 'Lessor', 'picto' => 'company', 'enabled' => '1', 'position' => 51, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "OrganizationEventLinkToThirdParty", 'validate' => '1',),
-        'fk_tenant' => array('type' => 'integer:ImmoRenter:custom/ultimateimmo/class/immorenter.class.php:1:(status:=:1)', 'label' => 'Tenant', 'picto' => 'company', 'enabled' => '1', 'position' => 52, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "OrganizationEventLinkToThirdParty", 'validate' => '1',),
+        'fk_property' => array('type' => 'integer:ImmoProperty:custom/ultimateimmo/class/immoproperty.class.php:1:(status:=:1)', 'label' => 'RealEstate', 'picto' => 'company', 'enabled' => '1', 'position' => 51, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToProperty", 'validate' => '1',),
+        'fk_lessor' => array('type' => 'integer:ImmoOwner:custom/ultimateimmo/class/immoowner.class.php:1:(status:=:1)', 'label' => 'Lessor', 'picto' => 'company', 'enabled' => '1', 'position' => 51, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToLessor", 'validate' => '1',),
+        'fk_tenant' => array('type' => 'integer:ImmoRenter:custom/ultimateimmo/class/immorenter.class.php:1:(status:=:1)', 'label' => 'Tenant', 'picto' => 'company', 'enabled' => '1', 'position' => 52, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToTenant", 'validate' => '1',),
         'description' => array('type' => 'text', 'label' => 'Description', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 3, 'validate' => '1',),
         'note_public' => array('type' => 'html', 'label' => 'NotePublic', 'enabled' => '1', 'position' => 61, 'notnull' => 0, 'visible' => 0, 'cssview' => 'wordbreak', 'validate' => '1',),
         'note_private' => array('type' => 'html', 'label' => 'NotePrivate', 'enabled' => '1', 'position' => 62, 'notnull' => 0, 'visible' => 0, 'cssview' => 'wordbreak', 'validate' => '1',),
@@ -246,7 +246,18 @@ class Conditionreport extends CommonObject
     public function create(User $user, $notrigger = false)
     {
         $resultcreate = $this->createCommon($user, $notrigger);
-
+        if ($resultcreate > 0 && $this->room_qty > 0) {
+            $json  = file_get_contents(dol_buildpath('/conditionreport/lodgment_model/model.json'));
+            $model = json_decode($json, true);
+            $rooms = (int) $this->room_qty;
+            if ($rooms > 8)
+                $rooms = 8;
+            if (array_key_exists($rooms, $model)) {
+                foreach ($model[$rooms] as $roomModel) {
+                    
+                }
+            }
+        }
         //$resultvalidate = $this->validate($user, $notrigger);
 
         return $resultcreate;
@@ -379,6 +390,11 @@ class Conditionreport extends CommonObject
         $this->lines = array();
 
         $result = $this->fetchLinesCommon('', $noextrafields);
+        foreach ($this->lines as $key => $value) {
+            $tmpCRR            = new Conditionreportroom($this->db);
+            if ($tmpCRR->fetch($value->id) > 0)
+                $this->lines[$key] = $tmpCRR;
+        }
         return $result;
     }
 
@@ -1074,6 +1090,11 @@ class Conditionreport extends CommonObject
             return $result;
         } else {
             $this->lines = $result;
+            foreach ($this->lines as $key => $value) {
+                $tmpCRR            = new Conditionreportroom($this->db);
+                if ($tmpCRR->fetch($value->id) > 0)
+                    $this->lines[$key] = $tmpCRR;
+            }
             return $this->lines;
         }
     }
@@ -1262,10 +1283,10 @@ class Conditionreport extends CommonObject
                 $model  = json_decode(file_get_contents($filename));
                 $result = 0;
                 if (isset($model->name)) {
-                    $crr->ref   = uniqid();
-                    $crr->label = $model->name;
+                    $crr->ref                = uniqid();
+                    $crr->label              = $model->name;
                     $crr->fk_conditionreport = $this->id;
-                    $result     = $crr->create($user);
+                    $result                  = $crr->create($user);
                     if ($result > 0 && isset($model->elements)) {
                         $crr->fetch($result);
                         foreach ($model->elements as $value) {
@@ -1299,7 +1320,7 @@ class ConditionreportLine extends Conditionreportroom
     public $table_element = 'conditionreport_conditionreportroom';
     // To complete with content of an object ConditionreportLine
     // We should have a field rowid, fk_conditionreport and position
-    public $fields = array(
+    public $fields        = array(
         'rowid' => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "Id"),
         'fk_conditionreport' => array('type' => 'integer', 'label' => 'Ref', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'validate' => '1', 'comment' => "Reference of object"),
     );

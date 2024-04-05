@@ -88,7 +88,7 @@ $coldisplay = 0;
     <td class="linecollabel minwidth300imp"><?php $coldisplay++; ?><div id="line_<?php print $line->id; ?>"></div>
         <?php
         $coldisplay++;
-        $text = img_object($langs->trans('Product'), 'product');
+        $text = img_object($langs->trans('Element'), 'product');
         $text .= ' <strong>' . $line->label . '</strong>';
         print $form->textwithtooltip($text, dol_htmlentitiesbr($line->description), 3, 0, '', $i);
 

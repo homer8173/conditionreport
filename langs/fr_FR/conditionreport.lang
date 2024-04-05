@@ -68,8 +68,8 @@ ExtraFieldsConditionreportroom=Champs complémentaire état des lieux d'une piè
 RealEstate=Logement
 Lessor=Bailleur
 Tenant=Locataire
-RoomQty=Nombre de pièces
-RoomQtyDetails=Nombre de pièces dans le logement
+RoomQty=Nombre de pièces principales
+RoomQtyDetails=Correspond au type du logement : nombre de pièces principales dans le logement (pièces à déclarer uniquement)
 DateEnter=Date d'entrée
 DateEnterDetails=Date d'entrée dans le logement
 DateExit=Date de sortie
@@ -79,6 +79,9 @@ type_water_heater=Type de chauffage d'eau chaude
 type_cooker=Type d'appareil de cuisson 
 DateSignatureLessor=Date de la signature du bailleur
 DateSignatureTenant=Date de la signature du locataire
+linkToProperty=Choisir ou créer un logement
+linkToLessor=Choisir ou créer un bailleur
+linkToTenant=Choisir ou créer un locataire
 
 # room fields name :
 RoomName=Nom de la pièce
@@ -94,3 +97,5 @@ GoodCondition=Bon état
 ExcellentCondition=Très bon état
 Observations=Observation et date pour les clés
 createRoomModele = Ajouter une pièce
+
+RoomCR=Pièce

@@ -88,44 +88,10 @@ $coldisplay = 0;
     <td class="linecollabel minwidth300imp"><?php $coldisplay++; ?><div id="line_<?php print $line->id; ?>"></div>
         <?php
         $coldisplay++;
-        $text = img_object($langs->trans('Product'), 'product');
-        $text .= ' <strong>' . $line->label . '</strong>';
+//        $text = img_object($langs->trans('RoomCR'), 'square');
+        $text = ' <strong>' . $line->getNomUrl(1) . '</strong>';
         print $form->textwithtooltip($text, dol_htmlentitiesbr($line->description), 3, 0, '', $i);
 
-        print '</td>';
-
-        print '<td class="linecolqty nowraponall right ' . ($object->status == $object::STATUS_DRAFT ? ' editable' : '') . '">';
-        $coldisplay++;
-        print '<div class="view" data-idview="qty_'. $line->id.'">';
-        print price($line->qty, 0, '', 0, 0); // Yes, it is a quantity, not a price, but we just want the formating role of function price               
-        print '</div>';
-        if ($object->status == $object::STATUS_DRAFT) {
-            print '<div class="edit">';
-            print '<input size="3" type="text" class="flat right" name="qty" id="qty'. $line->id.'" data-id="qty_'. $line->id.'" value="' . $line->qty . '" />';
-            print '<a href="" class="butAction small crrSaveButton" data-targetid="'. $line->id.'" data-target="qty">Save</a>';
-            print '</div>';
-        }
-        print '</td>';
-
-        print '<td class="linecolcondition nowraponall right ' . ($object->status == $object::STATUS_DRAFT ? ' editable' : '') . '">';
-        $coldisplay++;
-        print '<div class="view" data-idview="condition_'. $line->id.'">';
-        if (in_array($line->condition, array_keys(Conditionreportroom::CONDITION))) {
-            print $langs->trans(Conditionreportroom::CONDITION[$line->condition]);
-        } else {
-            print 'Condition not found in list ???';
-        }
-        print '</div>';
-        if ($object->status == $object::STATUS_DRAFT) {
-            print '<div class="edit">';
-            $conditions = [];
-            foreach (Conditionreportroom::CONDITION as $key => $value) {
-                $conditions[$key] = $langs->trans($value);
-            }
-            print $form->selectarray('condition', $conditions, $line->condition, 0, 0, 0, ' data-id="condition_'. $line->id.'"', 0, 0, 0, '', 'minwidth75', 0);            
-            print '<a href="" class="butAction small crrSaveButton" data-targetid="'. $line->id.'" data-target="condition">Save</a>';
-            print '</div>';
-        }
         print '</td>';
 
         print '<td class="linecoldescription nowraponall left">';
