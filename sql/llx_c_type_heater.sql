@@ -20,7 +20,8 @@ INSERT INTO `llx_c_type_heater` (`rowid`, `code`, `label`, `active`) VALUES
 (3, 'GAZPROP', 'Gaz Propane', 1),
 (4, 'GAZBUT', 'Gaz Butane', 1),
 (5, 'COLLECT', 'Collectif', 1),
-(6, 'OTHER', 'Autre', 1);
+(6, 'FIOUL', 'Fioul', 1),
+(7, 'OTHER', 'Autre', 1);
 
 --
 -- Index pour les tables déchargées

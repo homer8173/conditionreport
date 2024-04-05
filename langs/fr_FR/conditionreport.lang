@@ -92,7 +92,7 @@ LoadRoomModele=Charger un modèle
 AddNewElement=Ajouter un nouvel élément
 Condition=État
 BadCondition=Mauvais état
-PoorCondition=État moyen
+PoorCondition=État Passable
 GoodCondition=Bon état
 ExcellentCondition=Très bon état
 Observations=Observation et date pour les clés
@@ -100,3 +100,5 @@ createRoomModele = Ajouter une pièce
 
 RoomCR=Pièce
 backToCR=Retour à l'état des lieux 
+
+Type_heater=Type de chauffage
