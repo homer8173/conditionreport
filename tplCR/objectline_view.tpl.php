@@ -150,7 +150,7 @@ $coldisplay = 0;
             if ($object->status == Conditionreportroom::STATUS_DRAFT) {
 
                 ?>
-                <a class="editfielda reposition" href="<?php print $_SERVER["PHP_SELF"] . '?id=' . $this->id . '&action=editline&token=' . newToken() . '&lineid=' . $line->id; ?>">
+                <a class="editfielda" href="<?php print dol_buildpath('/conditionreport/conditionreportroom_card.php', 1) . '?id=' . $line->id ; ?>">
                     <?php
                     print img_edit() . '</a>';
                 }
