@@ -66,4 +66,13 @@ abstract class ModelePDFConditionreport extends CommonDocGenerator
 abstract class ModeleNumRefConditionreport extends CommonNumRefGenerator
 {
     // No overload code
+    function getMultidirOutput()
+    {
+        return DOL_DATA_ROOT.'/conditionreport/conditionreport/';
+    }
 }
+
+    function getMultidirOutput()
+    {
+        return DOL_DATA_ROOT.'/conditionreport/conditionreport/';
+    }

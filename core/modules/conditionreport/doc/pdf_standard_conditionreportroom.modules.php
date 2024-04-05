@@ -40,7 +40,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/pdf.lib.php';
 /**
  * 	Class to manage PDF template standard_conditionreportroom
  */
-class doc_standard_conditionreportroom extends ModelePDFConditionreportroom
+class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
 {
 
     /**

@@ -50,7 +50,7 @@ abstract class ModelePDFConditionreportroom extends CommonDocGenerator
     public static function liste_modeles($db, $maxfilenamelength = 0)
     {
         // phpcs:enable
-        $type = 'conditionreport';
+        $type = 'conditionreportroom';
         $list = array();
 
         include_once DOL_DOCUMENT_ROOT . '/core/lib/functions2.lib.php';
@@ -72,3 +72,9 @@ abstract class ModeleNumRefConditionreportroom extends CommonNumRefGenerator
         return DOL_DATA_ROOT.'/conditionreport/conditionreportroom/';
     }
 }
+
+    
+    function getMultidirOutput()
+    {
+        return DOL_DATA_ROOT.'/conditionreport/conditionreportroom/';
+    }
