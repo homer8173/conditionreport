@@ -102,3 +102,13 @@ RoomCR=Pièce
 backToCR=Retour à l'état des lieux 
 
 Type_heater=Type de chauffage
+InputCR=État des lieux d'entrée
+OutputCR=État des lieux de sortie
+DirectionCR0=État des lieux d'entrée
+DirectionCR1=État des lieux de sortie
+
+BornAt=Né(e) à 
+TheLessor=Le bailleur (ou mandataire)
+TheTenant=Le(s) preneurs(s)
+
+texteLegalCR=L’état des lieux doit être établi de façon contradictoire entre les deux parties lors de la remise des clés au locataire et lors de leur restitution en fin de bail, conformément à l’article 3 de la Loi n°89-462 du 6 juillet 1989. Il fait partie du contrat de location, dont il ne peut être dissocié. Il est possible et recommandé de le compléter avec des photos signées des deux parties.

@@ -119,7 +119,8 @@ class Conditionreport extends CommonObject
         'fk_property' => array('type' => 'integer:ImmoProperty:custom/ultimateimmo/class/immoproperty.class.php:1:(status:=:1)', 'label' => 'RealEstate', 'picto' => 'company', 'enabled' => '1', 'position' => 51, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToProperty", 'validate' => '1',),
         'fk_lessor' => array('type' => 'integer:ImmoOwner:custom/ultimateimmo/class/immoowner.class.php:1:(status:=:1)', 'label' => 'Lessor', 'picto' => 'company', 'enabled' => '1', 'position' => 51, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToLessor", 'validate' => '1',),
         'fk_tenant' => array('type' => 'integer:ImmoRenter:custom/ultimateimmo/class/immorenter.class.php:1:(status:=:1)', 'label' => 'Tenant', 'picto' => 'company', 'enabled' => '1', 'position' => 52, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToTenant", 'validate' => '1',),
-        'description' => array('type' => 'text', 'label' => 'Description', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 3, 'validate' => '1',),
+        'description' => array('type' => 'html', 'label' => 'Description', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 3, 'validate' => '1',),
+        'direction' => array('type' => 'select', 'label' => 'Direction', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 1, 'arrayofkeyval' => ['0' => 'InputCR', '1' => 'OutputCR']),
         'note_public' => array('type' => 'html', 'label' => 'NotePublic', 'enabled' => '1', 'position' => 61, 'notnull' => 0, 'visible' => 0, 'cssview' => 'wordbreak', 'validate' => '1',),
         'note_private' => array('type' => 'html', 'label' => 'NotePrivate', 'enabled' => '1', 'position' => 62, 'notnull' => 0, 'visible' => 0, 'cssview' => 'wordbreak', 'validate' => '1',),
         'date_creation' => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 500, 'notnull' => 1, 'visible' => -2,),
@@ -1283,7 +1284,7 @@ class Conditionreport extends CommonObject
                 $model  = json_decode(file_get_contents($filename));
                 $result = 0;
                 if (isset($model->name)) {
-                    $crr->ref                = "ROOM".uniqid();
+                    $crr->ref                = "ROOM" . uniqid();
                     $crr->label              = $model->name;
                     $crr->fk_conditionreport = $this->id;
                     $result                  = $crr->create($user);
@@ -1342,7 +1343,7 @@ class Conditionreport extends CommonObject
             // Insert line
             $this->line = new ConditionreportLine($this->db);
 
-            $this->line->ref = "ROOM".uniqid();
+            $this->line->ref                = "ROOM" . uniqid();
             $this->line->fk_conditionreport = $this->id;
             $this->line->label              = $label;
             $this->line->description        = $desc;
@@ -1352,7 +1353,7 @@ class Conditionreport extends CommonObject
             }
 
             $result = $this->line->insert($user);
-            
+
             if ($result > 0) {
                 $this->db->commit();
                 return $this->line->id;
@@ -1382,7 +1383,7 @@ class ConditionreportLine extends Conditionreportroom
     // We should have a field rowid, fk_conditionreport and position
     public $fields        = array(
         'rowid' => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "Id"),
-          'fk_conditionreport' => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 0, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "fkId"),
+        'fk_conditionreport' => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 0, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "fkId"),
         'ref' => array('type' => 'varchar(255)', 'label' => 'Ref', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'validate' => '1', 'comment' => "Reference of object"),
         'label' => array('type' => 'varchar(255)', 'label' => 'RoomName', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 1, 'alwayseditable' => '1', 'searchall' => 1, 'css' => 'minwidth300', 'cssview' => 'wordbreak', 'help' => "RoomNameDetails", 'showoncombobox' => '2', 'validate' => '1',),
         'description' => array('type' => 'text', 'label' => 'Description', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 3, 'validate' => '1',),
@@ -1396,7 +1397,7 @@ class ConditionreportLine extends Conditionreportroom
         'import_key' => array('type' => 'varchar(14)', 'label' => 'ImportId', 'enabled' => '1', 'position' => 1000, 'notnull' => -1, 'visible' => -2,),
         'model_pdf' => array('type' => 'varchar(255)', 'label' => 'Model pdf', 'enabled' => '1', 'position' => 1010, 'notnull' => -1, 'visible' => 0, 'default' => 'standard'),
         'status' => array('type' => 'integer', 'label' => 'Status', 'enabled' => '1', 'position' => 2000, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'arrayofkeyval' => array('0' => 'Brouillon', '1' => 'Valid&eacute;', '9' => 'Annul&eacute;'), 'validate' => '1',),
-   );
+    );
 
     /**
      * @var int  Does object support extrafields ? 0=No, 1=Yes

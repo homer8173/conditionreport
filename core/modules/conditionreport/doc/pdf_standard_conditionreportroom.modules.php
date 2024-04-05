@@ -368,8 +368,10 @@ class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
                 $pdf->SetFont('', 'B', $default_font_size + 5);
 
                 // Titre centré
+                $pdf->SetTextColor(0, 0, 60);
                 $pdf->Cell(0, 10, $object->label, 0, 1, 'C');
                 $tab_top = $pdf->getY() + 5;
+                $pdf->SetTextColor(0, 0, 0);
 
                 // Display notes
                 $notetoshow = empty($object->note_public) ? '' : $object->note_public;
@@ -571,7 +573,7 @@ class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
                 for ($i = 0; $i < $nblines; $i++) {
                     $curY = $nexY;
                     $pdf->SetFont('', '', $default_font_size - 1); // Into loop to work with multipage
-                    $pdf->SetTextColor(0, 0, 0);
+                    $pdf->SetTextColor(0, 0, 60);
 
                     // Define size of image if we need it
                     $imglinesize = array();
@@ -825,6 +827,7 @@ class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
                         }
                     }
                 }
+                    $pdf->SetTextColor(0, 0, 0);
 
                 // Show square
                 if ($pagenb == $pageposbeforeprintlines) {

@@ -30,11 +30,14 @@
  *  \ingroup    conditionreport
  *  \brief      File of class to generate document from standard template
  */
-dol_include_once('/conditionreport/core/modules/conditionreport/modules_conditionreport.php');
 require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/functions2.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/pdf.lib.php';
+
+dol_include_once('/conditionreport/core/modules/conditionreport/modules_conditionreport.php');
+dol_include_once('/custom/ultimateimmo/class/immorenter.class.php');
+dol_include_once('/custom/ultimateimmo/class/immoowner.class.php');
 
 /**
  * 	Class to manage PDF template standard_conditionreport
@@ -112,15 +115,15 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
         $this->description           = $langs->trans('DocumentModelStandardPDF');
         $this->update_main_doc_field = 1; // Save the name of generated file as the main doc when generating a doc with this template
         // Dimension page
-        $this->type         = 'pdf';
-        $formatarray        = pdf_getFormat();
-        $this->page_largeur = $formatarray['width'];
-        $this->page_hauteur = $formatarray['height'];
-        $this->format       = array($this->page_largeur, $this->page_hauteur);
-        $this->marge_gauche = getDolGlobalInt('MAIN_PDF_MARGIN_LEFT', 10);
-        $this->marge_droite = getDolGlobalInt('MAIN_PDF_MARGIN_RIGHT', 10);
-        $this->marge_haute  = getDolGlobalInt('MAIN_PDF_MARGIN_TOP', 10);
-        $this->marge_basse  = getDolGlobalInt('MAIN_PDF_MARGIN_BOTTOM', 10);
+        $this->type                  = 'pdf';
+        $formatarray                 = pdf_getFormat();
+        $this->page_largeur          = $formatarray['width'];
+        $this->page_hauteur          = $formatarray['height'];
+        $this->format                = array($this->page_largeur, $this->page_hauteur);
+        $this->marge_gauche          = getDolGlobalInt('MAIN_PDF_MARGIN_LEFT', 10);
+        $this->marge_droite          = getDolGlobalInt('MAIN_PDF_MARGIN_RIGHT', 10);
+        $this->marge_haute           = getDolGlobalInt('MAIN_PDF_MARGIN_TOP', 10);
+        $this->marge_basse           = getDolGlobalInt('MAIN_PDF_MARGIN_BOTTOM', 10);
 
         // Get source company
         $this->emetteur = $mysoc;
@@ -281,7 +284,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
                 global $action;
                 $reshook    = $hookmanager->executeHooks('beforePDFCreation', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
                 // Set nblines with the new lines content after hook
-                $nblines = (is_array($object->lines) ? count($object->lines) : 0);
+                $nblines    = (is_array($object->lines) ? count($object->lines) : 0);
 
                 // Create pdf instance
                 $pdf               = pdf_getInstance($this->format);
@@ -504,30 +507,33 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
                 $nexY = $tab_top + $this->tabTitleHeight;
 
                 // Loop on each lines
+                $this->_pagefoot($pdf, $object, $outputlangs);
                 $pageposbeforeprintlines = $pdf->getPage();
                 $pagenb                  = $pageposbeforeprintlines;
                 for ($i = 0; $i < $nblines; $i++) {
-                    
-//                    // Ouvrir le PDF source
-//                    $pdfDoc    = new \setasign\Fpdi\Tcpdf\Fpdi();
-//                    $pageCount = $pdfDoc->setSourceFile($sourcePdf);
-//
-//                    // Boucle pour importer chaque page du PDF source
-//                    for ($pageNumber = 1; $pageNumber <= $pageCount; $pageNumber++) {
-//                        // Ajouter une nouvelle page au PDF TCPDF
-//                        $pdf->AddPage();
-//
-//                        // Importer la page du PDF source
-//                        $templateId = $pdf->importPage($pageNumber);
-//
-//                        // Utiliser la page importée dans le PDF TCPDF
-//                        $pdf->useTemplate($templateId);
-//
-//                        // Ajouter le numéro de page en bas de chaque page
-//                        $pdf->SetY(-15);
-//                        $pdf->SetFont('helvetica', 'I', 8);
-//                        $pdf->Cell(0, 10, 'Page ' . $pdf->getPageNumGroupAlias(), 0, false, 'C');
-//                    }
+                    $crr        = $object->lines[$i];
+                    $pdfExterne = DOL_DATA_ROOT . '/' . $crr->last_main_doc;
+                    if (file_exists($pdfExterne) && mime_content_type($pdfExterne) == 'application/pdf') {
+                        // Ouvrir le PDF source
+                        $pageCount = $pdf->setSourceFile($pdfExterne);
+                        // Boucle pour importer chaque page du PDF source
+                        for ($pageNumber = 1; $pageNumber <= $pageCount; $pageNumber++) {
+                            // Ajouter une nouvelle page au PDF TCPDF
+                            $pdf->AddPage();
+                            $pagenb++;
+                            // Importer la page du PDF source
+                            $templateIdCR = $pdf->importPage($pageNumber, '/MediaBox');
+
+                            // Utiliser la page importée dans le PDF TCPDF
+                            $pdf->useTemplate($templateIdCR);
+                            $this->_pagefoot($pdf, $object, $outputlangs);
+                        }
+                    }
+                }
+                $pdf->AddPage();
+                $pagenb++;
+                if (!empty($tplidx)) {
+                    $pdf->useTemplate($tplidx);
                 }
 
                 // Show square
@@ -557,7 +563,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
 
                 $pdf->Close();
 
-                $pdf->Output($file, 'F');
+                $pdf->Output($file, 'I');
 
                 // Add pdfgeneration hook
                 $hookmanager->initHooks(array('pdfgeneration'));
@@ -703,7 +709,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
         $pdf->SetXY($this->marge_gauche, $posy);
 
         // Logo
-        if (!getDolGlobalInt('PDF_DISABLE_MYCOMPANY_LOGO')) {
+        if (!getDolGlobalInt('PDF_DISABLE_MYCOMPANY_LOGO') && false) {
             if ($this->emetteur->logo) {
                 $logodir = $conf->mycompany->dir_output;
                 if (!empty(getMultidirOutput($object, 'mycompany'))) {
@@ -729,10 +735,10 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
             }
         }
 
-        $pdf->SetFont('', 'B', $default_font_size + 3);
+        $pdf->SetFont('', 'B', $default_font_size + 10);
         $pdf->SetXY($posx, $posy);
         $pdf->SetTextColor(0, 0, 60);
-        $title = $outputlangs->transnoentities("PdfTitle");
+        $title = $outputlangs->transnoentities("DirectionCR$object->direction");
         if (getDolGlobalInt('PDF_USE_ALSO_LANGUAGE_CODE') && is_object($outputlangsbis)) {
             $title .= ' - ';
             $title .= $outputlangsbis->transnoentities("PdfTitle");
@@ -741,7 +747,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
 
         $pdf->SetFont('', 'B', $default_font_size);
 
-        $posy    += 5;
+        $posy    += 10;
         $pdf->SetXY($posx, $posy);
         $pdf->SetTextColor(0, 0, 60);
         $textref = $outputlangs->transnoentities("Ref") . " : " . $outputlangs->convToOutputCharset($object->ref);
@@ -786,11 +792,15 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
         $pdf->SetXY($posx, $posy);
         $pdf->SetTextColor(0, 0, 60);
 
-        $title = $outputlangs->transnoentities("Date");
-        if (getDolGlobalInt('PDF_USE_ALSO_LANGUAGE_CODE') && is_object($outputlangsbis)) {
-            $title .= ' - ' . $outputlangsbis->transnoentities("Date");
-        }
-        $pdf->MultiCell($w, 3, $title . " : " . dol_print_date($object->date, "day", false, $outputlangs, true), '', 'R');
+        $title = $outputlangs->transnoentities("DateEnter");
+        $pdf->MultiCell($w, 3, $title . " : " . dol_print_date($object->date_enter, "day", false, $outputlangs, true), '', 'R');
+
+        $posy += 4;
+        $pdf->SetXY($posx, $posy);
+        $pdf->SetTextColor(0, 0, 60);
+
+        $title = $outputlangs->transnoentities("DateExit");
+        $pdf->MultiCell($w, 3, $title . " : " . dol_print_date($object->date_exit, "day", false, $outputlangs, true), '', 'R');
 
         if (!getDolGlobalString('MAIN_PDF_HIDE_CUSTOMER_CODE') && !empty($object->thirdparty->code_client)) {
             $posy += 3;
@@ -822,10 +832,23 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
             $top_shift = $pdf->getY() - $current_y;
         }
 
+        // show legals
+        $pdf->SetTextColor(125, 125, 125);
+        $pdf->SetFont('', '', $default_font_size - 2);
+        $pdf->SetXY($this->marge_gauche, $posy + 10);
+        $pdf->MultiCell($this->largeur - $this->marge_gauche - $this->marge_droite, 5, $outputlangs->transnoentities("texteLegalCR"), 0, $ltrdirection);
+        $top_shift += 20;
+
         if ($showaddress) {
             // Sender properties
-            $carac_emetteur = pdf_build_address($outputlangs, $this->emetteur, $object->thirdparty, '', 0, 'source', $object);
 
+            $lessor = new ImmoOwner($this->db);
+            $r      = $lessor->fetch($object->fk_lessor);
+
+            if ($r > 0 && is_object($lessor)) {
+                $carac_emetteur_name = html_entity_decode($lessor->getCivilityLabel($lessor->civility_id) . " " . $lessor->lastname . " " . $lessor->firstname);
+                $carac_emetteur      = html_entity_decode($lessor->address . "\n" . $lessor->zip . " " . $lessor->town . "\n" . $lessor->getCountry($lessor->country_id));
+            }
             // Show sender
             $posy = getDolGlobalInt('MAIN_PDF_USE_ISO_LOCATION') ? 40 : 42;
             $posy += $top_shift;
@@ -842,10 +865,11 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
                 $pdf->SetTextColor(0, 0, 0);
                 $pdf->SetFont('', '', $default_font_size - 2);
                 $pdf->SetXY($posx, $posy - 5);
-                $pdf->MultiCell($widthrecbox, 5, $outputlangs->transnoentities("BillFrom") . ":", 0, $ltrdirection);
+                $pdf->MultiCell($widthrecbox, 5, $outputlangs->transnoentities("TheLessor") . ":", 0, $ltrdirection);
                 $pdf->SetXY($posx, $posy);
-                $pdf->SetFillColor(230, 230, 230);
+                $pdf->SetFillColor(255, 255, 255);
                 $pdf->MultiCell($widthrecbox, $hautcadre, "", 0, 'R', 1);
+                $pdf->Rect($posx, $posy, $widthrecbox, $hautcadre);
                 $pdf->SetTextColor(0, 0, 60);
             }
 
@@ -853,7 +877,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
             if (!getDolGlobalString('MAIN_PDF_HIDE_SENDER_NAME')) {
                 $pdf->SetXY($posx + 2, $posy + 3);
                 $pdf->SetFont('', 'B', $default_font_size);
-                $pdf->MultiCell($widthrecbox - 2, 4, $outputlangs->convToOutputCharset($this->emetteur->name), 0, $ltrdirection);
+                $pdf->MultiCell($widthrecbox - 2, 4, $outputlangs->convToOutputCharset($carac_emetteur_name), 0, $ltrdirection);
                 $posy = $pdf->getY();
             }
 
@@ -862,28 +886,16 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
             $pdf->SetFont('', '', $default_font_size - 1);
             $pdf->MultiCell($widthrecbox - 2, 4, $carac_emetteur, 0, $ltrdirection);
 
-            // If BILLING contact defined, we use it
-            $usecontact     = false;
-            $arrayidcontact = $object->getIdContact('external', 'BILLING');
-            if (count($arrayidcontact) > 0) {
-                $usecontact = true;
-                $result     = $object->fetch_contact($arrayidcontact[0]);
+            $tenant = new ImmoRenter($this->db);
+            $r      = $tenant->fetch($object->fk_tenant);
+
+            if ($r > 0 && is_object($tenant)) {
+                $carac_client_name = html_entity_decode($tenant->getCivilityLabel($tenant->civility_id) . " " . $tenant->lastname . " " . $tenant->firstname);
+                $carac_client      = html_entity_decode($outputlangs->trans("BornAt") . " " . $tenant->town . " " . $tenant->getCountry($tenant->country_id));
             }
 
-            // Recipient name
-            if ($usecontact && $object->contact->socid != $object->thirdparty->id && getDolGlobalInt('MAIN_USE_COMPANY_NAME_OF_CONTACT')) {
-                $thirdparty = $object->contact;
-            } else {
-                $thirdparty = $object->thirdparty;
-            }
-
-            if (is_object($thirdparty)) {
-                $carac_client_name = pdfBuildThirdpartyName($thirdparty, $outputlangs);
-            }
-
-            $mode         = 'target';
-            $carac_client = pdf_build_address($outputlangs, $this->emetteur, $object->thirdparty, ($usecontact ? $object->contact : ''), $usecontact, $mode, $object);
-
+//            $mode         = 'target';
+//            $carac_client = pdf_build_address($outputlangs, $this->emetteur, $object->thirdparty, ($usecontact ? $object->contact : ''), $usecontact, $mode, $object);
             // Show recipient
             $widthrecbox = getDolGlobalInt('MAIN_PDF_USE_ISO_LOCATION') ? 92 : 100;
             if ($this->page_largeur < 210) {
@@ -901,13 +913,14 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
                 $pdf->SetTextColor(0, 0, 0);
                 $pdf->SetFont('', '', $default_font_size - 2);
                 $pdf->SetXY($posx + 2, $posy - 5);
-                $pdf->MultiCell($widthrecbox, 5, $outputlangs->transnoentities("To") . ":", 0, $ltrdirection);
+                $pdf->MultiCell($widthrecbox, 5, $outputlangs->transnoentities("TheTenant") . ":", 0, $ltrdirection);
                 $pdf->Rect($posx, $posy, $widthrecbox, $hautcadre);
             }
 
             // Show recipient name
             $pdf->SetXY($posx + 2, $posy + 3);
             $pdf->SetFont('', 'B', $default_font_size);
+            $pdf->SetTextColor(0, 0, 60);
             $pdf->MultiCell($widthrecbox, 2, $carac_client_name, 0, $ltrdirection);
 
             $posy = $pdf->getY();
