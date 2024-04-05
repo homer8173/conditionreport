@@ -490,7 +490,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     // Object card
     // ------------------------------------------------------------
-    $linkback = '<a href="' . dol_buildpath('/conditionreport/conditionreportroom_list.php', 1) . '?restore_lastsearch_values=1' . (!empty($socid) ? '&socid=' . $socid : '') . '">' . $langs->trans("BackToList") . '</a>';
+    $linkback='';
+    if (isset($object->fk_conditionreport)) {
+        $linkback .= '<a href="' . dol_buildpath('/conditionreport/conditionreport_card.php', 2) . '?id=' . $object->fk_conditionreport . '">' . $langs->trans('backToCR') . '</a><br />';
+    }
+    $linkback .= '<a href="' . dol_buildpath('/conditionreport/conditionreportroom_list.php', 1) . '?restore_lastsearch_values=1' . (!empty($socid) ? '&socid=' . $socid : '') . '">' . $langs->trans("BackToList") . '</a>';
 
     $morehtmlref = '<div class="refidno">';
     /*
@@ -542,7 +546,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 </label>
     </form>';
     }
+    if (isset($object->fk_conditionreport)) {
 
+        $morehtmlref .= '<span class="backToCR"><a href="' . dol_buildpath('/conditionreport/conditionreport_card.php', 2) . '?id=' . $object->fk_conditionreport . '">' . $langs->trans('backToCR') . '</a></span>';
+    }
     $morehtmlref .= '</div>';
 
     dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);

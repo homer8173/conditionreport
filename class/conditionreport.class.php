@@ -254,7 +254,7 @@ class Conditionreport extends CommonObject
                 $rooms = 8;
             if (array_key_exists($rooms, $model)) {
                 foreach ($model[$rooms] as $roomModel) {
-                    
+                    $this->loadModel($user, $roomModel);
                 }
             }
         }

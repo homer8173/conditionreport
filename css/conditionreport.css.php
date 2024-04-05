@@ -161,3 +161,7 @@ ob_start();
         border-top-left-radius:0;
         padding: 4px !important;
     }
+    span.backToCR{
+        margin-left: 50px;
+        font-size: 120%;
+    }
