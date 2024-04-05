@@ -38,6 +38,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/pdf.lib.php';
 dol_include_once('/conditionreport/core/modules/conditionreport/modules_conditionreport.php');
 dol_include_once('/custom/ultimateimmo/class/immorenter.class.php');
 dol_include_once('/custom/ultimateimmo/class/immoowner.class.php');
+dol_include_once('/custom/ultimateimmo/class/immoproperty.class.php');
 
 /**
  * 	Class to manage PDF template standard_conditionreport
@@ -101,7 +102,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
     /**
      * 	Constructor
      *
-     *  @param		DoliDB		$db      Database handler
+     \n  @param		DoliDB		$db      Database handler
      */
     public function __construct($db)
     {
@@ -148,15 +149,15 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
     // phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 
     /**
-     *  Function to build pdf onto disk
+     \n  Function to build pdf onto disk
      *
-     *  @param		Conditionreport	$object				Object to generate
-     *  @param		Translate	$outputlangs		Lang output object
-     *  @param		string		$srctemplatepath	Full path of source filename for generator using a template file
-     *  @param		int			$hidedetails		Do not show line details
-     *  @param		int			$hidedesc			Do not show desc
-     *  @param		int			$hideref			Do not show ref
-     *  @return     int         	    			1=OK, 0=KO
+     \n  @param		Conditionreport	$object				Object to generate
+     \n  @param		Translate	$outputlangs		Lang output object
+     \n  @param		string		$srctemplatepath	Full path of source filename for generator using a template file
+     \n  @param		int			$hidedetails		Do not show line details
+     \n  @param		int			$hidedesc			Do not show desc
+     \n  @param		int			$hideref			Do not show ref
+     \n  @return     int         	    			1=OK, 0=KO
      */
     public function write_file($object, $outputlangs, $srctemplatepath = '', $hidedetails = 0, $hidedesc = 0, $hideref = 0)
     {
@@ -526,6 +527,9 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
 
                             // Utiliser la page importée dans le PDF TCPDF
                             $pdf->useTemplate($templateIdCR);
+                            if (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD')) {
+                                $this->_pagehead($pdf, $object, 0, $outputlangs);
+                            }
                             $this->_pagefoot($pdf, $object, $outputlangs);
                         }
                     }
@@ -534,6 +538,9 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
                 $pagenb++;
                 if (!empty($tplidx)) {
                     $pdf->useTemplate($tplidx);
+                }
+                if (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD')) {
+                    $this->_pagehead($pdf, $object, 0, $outputlangs);
                 }
 
                 // Show square
@@ -596,11 +603,11 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
     // phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 
     /**
-     *  Return list of active generation modules
+     \n  Return list of active generation modules
      *
-     *  @param	DoliDB	$db     			Database handler
-     *  @param  integer	$maxfilenamelength  Max length of value to show
-     *  @return	array						List of templates
+     \n  @param	DoliDB	$db     			Database handler
+     \n  @param  integer	$maxfilenamelength  Max length of value to show
+     \n  @return	array						List of templates
      */
     public static function liste_modeles($db, $maxfilenamelength = 0)
     {
@@ -610,18 +617,18 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
     // phpcs:disable PEAR.NamingConventions.ValidFunctionName.PublicUnderscore
 
     /**
-     *   Show table for lines
+     \n   Show table for lines
      *
-     *   @param		tcpdf		$pdf     		Object PDF
-     *   @param		string		$tab_top		Top position of table
-     *   @param		string		$tab_height		Height of table (rectangle)
-     *   @param		int			$nexY			Y (not used)
-     *   @param		Translate	$outputlangs	Langs object
-     *   @param		int			$hidetop		1=Hide top bar of array and title, 0=Hide nothing, -1=Hide only title
-     *   @param		int			$hidebottom		Hide bottom bar of array
-     *   @param		string		$currency		Currency code
-     *   @param		Translate	$outputlangsbis	Langs object bis
-     *   @return	void
+     \n   @param		tcpdf		$pdf     		Object PDF
+     \n   @param		string		$tab_top		Top position of table
+     \n   @param		string		$tab_height		Height of table (rectangle)
+     \n   @param		int			$nexY			Y (not used)
+     \n   @param		Translate	$outputlangs	Langs object
+     \n   @param		int			$hidetop		1=Hide top bar of array and title, 0=Hide nothing, -1=Hide only title
+     \n   @param		int			$hidebottom		Hide bottom bar of array
+     \n   @param		string		$currency		Currency code
+     \n   @param		Translate	$outputlangsbis	Langs object bis
+     \n   @return	void
      */
     protected function _tableau(&$pdf, $tab_top, $tab_height, $nexY, $outputlangs, $hidetop = 0, $hidebottom = 0, $currency = '', $outputlangsbis = null)
     {
@@ -671,14 +678,14 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
     // phpcs:disable PEAR.NamingConventions.ValidFunctionName.PublicUnderscore
 
     /**
-     *  Show top header of page.
+     \n  Show top header of page.
      *
-     *  @param	TCPDF		$pdf     		Object PDF
-     *  @param  Conditionreport	$object     	Object to show
-     *  @param  int	    	$showaddress    0=no, 1=yes
-     *  @param  Translate	$outputlangs	Object lang for output
-     *  @param  Translate	$outputlangsbis	Object lang for output bis
-     *  @return	float|int
+     \n  @param	TCPDF		$pdf     		Object PDF
+     \n  @param  Conditionreport	$object     	Object to show
+     \n  @param  int	    	$showaddress    0=no, 1=yes
+     \n  @param  Translate	$outputlangs	Object lang for output
+     \n  @param  Translate	$outputlangsbis	Object lang for output bis
+     \n  @return	float|int
      */
     protected function _pagehead(&$pdf, $object, $showaddress, $outputlangs, $outputlangsbis = null)
     {
@@ -739,24 +746,25 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
             }
         }
 
-        $pdf->SetFont('', 'B', $default_font_size + 10);
-        $pdf->SetXY($posx, $posy);
-        $pdf->SetTextColor(0, 0, 60);
-        $title = $outputlangs->transnoentities("DirectionCR$object->direction");
-        if (getDolGlobalInt('PDF_USE_ALSO_LANGUAGE_CODE') && is_object($outputlangsbis)) {
-            $title .= ' - ';
-            $title .= $outputlangsbis->transnoentities("PdfTitle");
+        if ($showaddress) {
+            $pdf->SetFont('', 'B', $default_font_size + 10);
+            $pdf->SetXY($posx, $posy);
+            $pdf->SetTextColor(0, 0, 60);
+            $title = $outputlangs->transnoentities("DirectionCR$object->direction");
+            if (getDolGlobalInt('PDF_USE_ALSO_LANGUAGE_CODE') && is_object($outputlangsbis)) {
+                $title .= ' - ';
+                $title .= $outputlangsbis->transnoentities("PdfTitle");
+            }
+            $pdf->SetXY($this->marge_gauche, $posy);
+            $pdf->MultiCell($this->page_largeur - $this->marge_droite - $this->marge_gauche, 3, $title, '', 'C');
+            $pdf->SetFont('', 'B', $default_font_size);
+            $posy += 10;
+            $pdf->SetXY($this->marge_gauche, $posy);
+            $pdf->MultiCell($this->page_largeur - $this->marge_droite - $this->marge_gauche, 3, $outputlangs->transnoentities("normeCR"), '', 'C');
+
+            $pdf->SetFont('', 'B', $default_font_size);
+            $posy += 10;
         }
-        $pdf->SetXY( $this->marge_gauche, $posy);
-        $pdf->MultiCell( $this->page_largeur - $this->marge_droite - $this->marge_gauche, 3, $title, '', 'C');
-        $pdf->SetFont('', 'B', $default_font_size );
-        $posy    += 10;
-        $pdf->SetXY( $this->marge_gauche, $posy);
-        $pdf->MultiCell($this->page_largeur - $this->marge_droite - $this->marge_gauche, 3, $outputlangs->transnoentities("normeCR"), '', 'C');
-
-        $pdf->SetFont('', 'B', $default_font_size);
-
-        $posy    += 10;
         $pdf->SetXY($posx, $posy);
         $pdf->SetTextColor(0, 0, 60);
         $textref = $outputlangs->transnoentities("Ref") . " : " . $outputlangs->convToOutputCharset($object->ref);
@@ -838,13 +846,14 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
         if ($current_y < $pdf->getY()) {
             $top_shift = $pdf->getY() - $current_y;
         }
-
-        // show legals
-        $pdf->SetTextColor(125, 125, 125);
-        $pdf->SetFont('', '', $default_font_size - 2);
-        $pdf->SetXY($this->marge_gauche, $posy + 10);
-        $pdf->MultiCell($this->largeur - $this->marge_gauche - $this->marge_droite, 5, $outputlangs->transnoentities("texteLegalCR"), 0, $ltrdirection);
-        $top_shift += 30;
+        if ($showaddress) {
+            // show legals
+            $pdf->SetTextColor(125, 125, 125);
+            $pdf->SetFont('', '', $default_font_size - 2);
+            $pdf->SetXY($this->marge_gauche, $posy + 10);
+            $pdf->MultiCell($this->largeur - $this->marge_gauche - $this->marge_droite, 5, $outputlangs->transnoentities("texteLegalCR"), 0, $ltrdirection);
+            $top_shift += 35;
+        }
 
         if ($showaddress) {
             // Sender properties
@@ -871,7 +880,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
             if (!getDolGlobalString('MAIN_PDF_NO_SENDER_FRAME')) {
                 $pdf->SetTextColor(0, 0, 0);
                 $pdf->SetFont('', '', $default_font_size - 2);
-                $pdf->SetXY($posx, $posy - 5);
+                $pdf->SetXY($posx + 2, $posy - 5);
                 $pdf->MultiCell($widthrecbox, 5, $outputlangs->transnoentities("TheLessor") . ":", 0, $ltrdirection);
                 $pdf->SetXY($posx, $posy);
                 $pdf->SetFillColor(255, 255, 255);
@@ -898,7 +907,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
 
             if ($r > 0 && is_object($tenant)) {
                 $carac_client_name = html_entity_decode($tenant->getCivilityLabel($tenant->civility_id) . " " . $tenant->lastname . " " . $tenant->firstname);
-                $carac_client      = html_entity_decode($outputlangs->trans("BornAt") . " " . $tenant->town . " " . $tenant->getCountry($tenant->country_id)) . "\n";
+                $carac_client      = html_entity_decode($outputlangs->trans("BornAt") . " " . $tenant->town . ", " . $tenant->getCountry($tenant->country_id)) . "\n";
             }
 
 //            $mode         = 'target';
@@ -937,20 +946,98 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
             $pdf->SetXY($posx + 2, $posy);
             $pdf->MultiCell($widthrecbox, 4, $carac_client, 0, $ltrdirection);
         }
+        // logement
+        if ($showaddress) {
+            //load lodgement
+            $prop        = new ImmoProperty($this->db);
+            $prop->fetch($object->fk_property);
+            
+            // show cadre
+            $posy        += $hautcadre + 10;
+            $posx        = $this->marge_gauche;
+            $widthrecbox = $this->page_largeur - $this->marge_droite - $this->marge_gauche;
+            $pdf->SetTextColor(0, 0, 0);
+            $pdf->SetFont('', '', $default_font_size - 2);
+            $pdf->SetXY($posx + 2, $posy - 5);
+            $pdf->MultiCell($widthrecbox, 5, $outputlangs->transnoentities("TheLodgement") . ":", 0, $ltrdirection);
+            $pdf->Rect($posx, $posy, $widthrecbox, $hautcadre*1.55);
+            
+            
+            // show lodgement
+            $lodgement_carac = $prop->label . " " . $prop->type . " ID" . $prop->ref;
+            $lodgement_carac .= ", " . $prop->address . " " . $prop->zip . " " . $prop->town.", ".$prop->getCountry($prop->country_id);
+            $pdf->SetXY($posx + 2, $posy + 3);
+            $pdf->SetFont('', 'B', $default_font_size);
+            $pdf->SetTextColor(0, 0, 60);
+            $pdf->MultiCell($widthrecbox, 2, $lodgement_carac, 0, $ltrdirection);
 
+            $posy                    = $pdf->getY();
+            $lodgement_carac_details = '  ';
+            $lodgement_carac_details .= $outputlangs->transnoentities("Juridique") . ": " . html_entity_decode($prop->fields['juridique_id']['arrayofkeyval'][$prop->juridique_id]) . "  \n  ";
+            $lodgement_carac_details .= $outputlangs->transnoentities("DateBuilt") . ": " . html_entity_decode($prop->fields['datebuilt']['arrayofkeyval'][$prop->datebuilt]) . "  \n  ";
+            $lodgement_carac_details .= $outputlangs->transnoentities("Area") . ": " . html_entity_decode($prop->area) . " m²  \n  ";
+            $lodgement_carac_details .= $outputlangs->transnoentities("NumberOfRoom") . ": " . html_entity_decode($prop->numroom) . "  \n  ";
+            $lodgement_carac_details .= $outputlangs->transnoentities("NumFlat") . ": " . html_entity_decode($prop->numflat) . "  \n  ";
+            $lodgement_carac_details .= $outputlangs->transnoentities("NumDoor") . ": " . html_entity_decode($prop->numdoor) . "  \n  ";
+            $lodgement_carac_details .= $outputlangs->transnoentities("NumFloor") . ": " . html_entity_decode($prop->numfloor) . "  \n  ";
+            $lodgement_carac_details .= $outputlangs->transnoentities("Staircase") . ": " . html_entity_decode($prop->staircase) . "  \n  ";
+            $lodgement_carac_details .= $outputlangs->transnoentities("Building") . ": " . html_entity_decode($prop->building) . "  \n  ";
+            $lodgement_carac_details .= $outputlangs->transnoentities("UISectioncadastrale") . ": " . html_entity_decode($prop->section_cadastrale) . "  \n  ";
+            $lodgement_carac_details .= $outputlangs->transnoentities("UIParcellecadastrale") . ": " . html_entity_decode($prop->parcelle_cadastrale) . "  \n  ";
+            $lodgement_carac_details .= $outputlangs->transnoentities("UINumPrmEdf") . ": " . html_entity_decode($prop->num_prm_edf) . "  \n  ";
+            $lodgement_carac_details .= $outputlangs->transnoentities("UINumLigneNet") . ": " . html_entity_decode($prop->num_internet_line);
+
+            // Show lodgement details
+            $pdf->SetFont('', '', $default_font_size - 1);
+            $pdf->SetXY($posx + 2, $posy);
+            $pdf->MultiCell($widthrecbox, 4, $lodgement_carac_details, 0, $ltrdirection);
+        }
+        // compteurs
+        if ($showaddress) {
+            //load lodgement
+            $prop        = new ImmoProperty($this->db);
+            $prop->fetch($object->fk_property);
+            
+            // show cadre
+            $posy        += $hautcadre*1.55 + 10;
+            $posx        = $this->marge_gauche;
+            $widthrecbox = $this->page_largeur - $this->marge_droite - $this->marge_gauche;
+            $pdf->SetTextColor(0, 0, 0);
+            $pdf->SetFont('', '', $default_font_size - 2);
+            $pdf->SetXY($posx + 2, $posy - 5);
+            $pdf->MultiCell($widthrecbox, 5, $outputlangs->transnoentities("TheCompteurs") . ":", 0, $ltrdirection);
+            $pdf->Rect($posx, $posy, $widthrecbox, $hautcadre);
+            
+            
+            // show lodgement
+            $lodgement_carac = $prop->label . " " . $prop->type . " ID" . $prop->ref;
+            $lodgement_carac .= ", " . $prop->address . " " . $prop->zip . " " . $prop->town.", ".$prop->getCountry($prop->country_id);
+            $pdf->SetXY($posx + 2, $posy + 3);
+            $pdf->SetFont('', 'B', $default_font_size);
+            $pdf->SetTextColor(0, 0, 60);
+            $pdf->MultiCell($widthrecbox, 2, $lodgement_carac, 0, $ltrdirection);
+
+            $posy                    = $pdf->getY();
+            $lodgement_carac_details = '  ';
+
+            // Show lodgement details
+            $pdf->SetFont('', '', $default_font_size - 1);
+            $pdf->SetXY($posx + 2, $posy);
+            $pdf->MultiCell($widthrecbox, 4, $lodgement_carac_details, 0, $ltrdirection);
+        }
         $pdf->SetTextColor(0, 0, 0);
         return $top_shift;
     }
     // phpcs:disable PEAR.NamingConventions.ValidFunctionName.PublicUnderscore
 
     /**
-     *   	Show footer of page. Need this->emetteur object
+     \n   	Show footer of page. Need this->emetteur object
      *
-     *   	@param	TCPDF		$pdf     			PDF
+     \n   	@param	TCPDF		$pdf     			PDF
      * 		@param	Object		$object				Object to show
-     *      @param	Translate	$outputlangs		Object lang for output
-     *      @param	int			$hidefreetext		1=Hide free text
-     *      @return	int								Return height of bottom margin including footer text
+     \n      @param	Translate	$outputlangs		Object lang for output
+     \n      @param	int			$hidefreetext		1=Hide free text
+     \n      @return	int								Return height of bottom margin including footer text
      */
     protected function _pagefoot(&$pdf, $object, $outputlangs, $hidefreetext = 0)
     {
@@ -960,14 +1047,14 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
     }
 
     /**
-     *  Define Array Column Field
+     \n  Define Array Column Field
      *
-     *  @param	object			$object    		common object
-     *  @param	Translate		$outputlangs    langs
-     *  @param	int			   $hidedetails		Do not show line details
-     *  @param	int			   $hidedesc		Do not show desc
-     *  @param	int			   $hideref			Do not show ref
-     *  @return	void
+     \n  @param	object			$object    		common object
+     \n  @param	Translate		$outputlangs    langs
+     \n  @param	int			   $hidedetails		Do not show line details
+     \n  @param	int			   $hidedesc		Do not show desc
+     \n  @param	int			   $hideref			Do not show ref
+     \n  @return	void
      */
     public function defineColumnField($object, $outputlangs, $hidedetails = 0, $hidedesc = 0, $hideref = 0)
     {
