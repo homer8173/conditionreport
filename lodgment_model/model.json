@@ -4,11 +4,11 @@
         "03cuisine.json",
         "05chambre.json",
         "06salledebain.json",
-        "07WC.json",
+        "07wc.json",
         "08dependances.json",
         "09divers.json",
         "10cles.json",
-        "11Chauffage.json"
+        "11chauffage.json"
     ],
     "2": [
         "01entree.json",
@@ -17,10 +17,10 @@
         "05chambre.json",
         "06salledebain.json",
         "08dependances.json",
-        "07WC.json",
+        "07wc.json",
         "09divers.json",
         "10cles.json",
-        "11Chauffage.json"
+        "11chauffage.json"
     ],
     "3": [
         "01entree.json",
@@ -30,10 +30,10 @@
         "05chambre.json",
         "06salledebain.json",
         "08dependances.json",
-        "07WC.json",
+        "07wc.json",
         "09divers.json",
         "10cles.json",
-        "11Chauffage.json"
+        "11chauffage.json"
     ],
     "4": [
         "01entree.json",
@@ -44,10 +44,10 @@
         "05chambre.json",
         "06salledebain.json",
         "08dependances.json",
-        "07WC.json",
+        "07wc.json",
         "09divers.json",
         "10cles.json",
-        "11Chauffage.json"
+        "11chauffage.json"
     ],
     "5": [
         "01entree.json",
@@ -59,10 +59,10 @@
         "05chambre.json",
         "06salledebain.json",
         "08dependances.json",
-        "07WC.json",
+        "07wc.json",
         "09divers.json",
         "10cles.json",
-        "11Chauffage.json"
+        "11chauffage.json"
     ],
     "6": [
         "01entree.json",
@@ -75,10 +75,10 @@
         "05bureau.json",
         "06salledebain.json",
         "08dependances.json",
-        "07WC.json",
+        "07wc.json",
         "09divers.json",
         "10cles.json",
-        "11Chauffage.json"
+        "11chauffage.json"
     ],
     "7": [
         "01entree.json",
@@ -92,10 +92,10 @@
         "05bureau.json",
         "06salledebain.json",
         "08dependances.json",
-        "07WC.json",
+        "07wc.json",
         "09divers.json",
         "10cles.json",
-        "11Chauffage.json"
+        "11chauffage.json"
     ],
     "8": [
         "01entree.json",
@@ -110,9 +110,9 @@
         "05bureau.json",
         "06salledebain.json",
         "08dependances.json",
-        "07WC.json",
+        "07wc.json",
         "09divers.json",
         "10cles.json",
-        "11Chauffage.json"
+        "11chauffage.json"
     ]
 }
