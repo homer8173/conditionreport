@@ -1283,7 +1283,7 @@ class Conditionreport extends CommonObject
                 $model  = json_decode(file_get_contents($filename));
                 $result = 0;
                 if (isset($model->name)) {
-                    $crr->ref                = uniqid();
+                    $crr->ref                = "ROOM".uniqid();
                     $crr->label              = $model->name;
                     $crr->fk_conditionreport = $this->id;
                     $result                  = $crr->create($user);
@@ -1307,6 +1307,66 @@ class Conditionreport extends CommonObject
             return -2;
         }
     }
+
+    /**
+     * 	Add an order line into database (linked to product/service or not)
+     *
+     *  @param		string			$label				Label
+     * 	@param      string			$desc            	Description of line
+     *  @param		array			$array_options		extrafields array. Example array('options_codeforfield1'=>'valueforfield1', 'options_codeforfield2'=>'valueforfield2', ...)
+     *  @return     int             					>0 if OK, <0 if KO
+     *
+     * 	@see        add_product()
+     *
+     * 	Les parametres sont deja cense etre juste et avec valeurs finales a l'appel
+     * 	de cette methode. Aussi, pour le taux tva, il doit deja avoir ete defini
+     * 	par l'appelant par la methode get_default_tva(societe_vendeuse,societe_acheteuse,produit)
+     * 	et le desc doit deja avoir la bonne valeur (a l'appelant de gerer le multilangue)
+     */
+    public function addline($label, $desc, $array_options = [])
+    {
+        global $mysoc, $conf, $langs, $user;
+
+        $logtext = "::addline id=$this->id, label=$label, desc=$desc";
+        dol_syslog(get_class($this) . $logtext, LOG_DEBUG);
+
+        if ($this->statut == self::STATUS_DRAFT) {
+
+            // Clean parameters
+
+            $label = trim($label);
+            $desc  = trim($desc);
+
+            $this->db->begin();
+
+            // Insert line
+            $this->line = new ConditionreportLine($this->db);
+
+            $this->line->ref = "ROOM".uniqid();
+            $this->line->fk_conditionreport = $this->id;
+            $this->line->label              = $label;
+            $this->line->description        = $desc;
+
+            if (is_array($array_options) && count($array_options) > 0) {
+                $this->line->array_options = $array_options;
+            }
+
+            $result = $this->line->insert($user);
+            
+            if ($result > 0) {
+                $this->db->commit();
+                return $this->line->id;
+            } else {
+                $this->error = $this->line->error;
+                dol_syslog(get_class($this) . "::addline error=" . $this->error, LOG_ERR);
+                $this->db->rollback();
+                return -1;
+            }
+        } else {
+            dol_syslog(get_class($this) . "::addline status of condtionreportroom must be Draft to allow use of ->addline()", LOG_ERR);
+            return -2;
+        }
+    }
 }
 
 require_once DOL_DOCUMENT_ROOT . '/core/class/commonobjectline.class.php';
@@ -1322,13 +1382,26 @@ class ConditionreportLine extends Conditionreportroom
     // We should have a field rowid, fk_conditionreport and position
     public $fields        = array(
         'rowid' => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "Id"),
-        'fk_conditionreport' => array('type' => 'integer', 'label' => 'Ref', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'validate' => '1', 'comment' => "Reference of object"),
-    );
+          'fk_conditionreport' => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 0, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "fkId"),
+        'ref' => array('type' => 'varchar(255)', 'label' => 'Ref', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'validate' => '1', 'comment' => "Reference of object"),
+        'label' => array('type' => 'varchar(255)', 'label' => 'RoomName', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 1, 'alwayseditable' => '1', 'searchall' => 1, 'css' => 'minwidth300', 'cssview' => 'wordbreak', 'help' => "RoomNameDetails", 'showoncombobox' => '2', 'validate' => '1',),
+        'description' => array('type' => 'text', 'label' => 'Description', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 3, 'validate' => '1',),
+        'note_public' => array('type' => 'html', 'label' => 'NotePublic', 'enabled' => '1', 'position' => 61, 'notnull' => 0, 'visible' => 0, 'cssview' => 'wordbreak', 'validate' => '1',),
+        'note_private' => array('type' => 'html', 'label' => 'NotePrivate', 'enabled' => '1', 'position' => 62, 'notnull' => 0, 'visible' => 0, 'cssview' => 'wordbreak', 'validate' => '1',),
+        'date_creation' => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 500, 'notnull' => 1, 'visible' => -2,),
+        'tms' => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 501, 'notnull' => 0, 'visible' => -2,),
+        'fk_user_creat' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'picto' => 'user', 'enabled' => '1', 'position' => 510, 'notnull' => 1, 'visible' => -2, 'csslist' => 'tdoverflowmax150',),
+        'fk_user_modif' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'picto' => 'user', 'enabled' => '1', 'position' => 511, 'notnull' => -1, 'visible' => -2, 'csslist' => 'tdoverflowmax150',),
+        'last_main_doc' => array('type' => 'varchar(255)', 'label' => 'LastMainDoc', 'enabled' => '1', 'position' => 600, 'notnull' => 0, 'visible' => 0,),
+        'import_key' => array('type' => 'varchar(14)', 'label' => 'ImportId', 'enabled' => '1', 'position' => 1000, 'notnull' => -1, 'visible' => -2,),
+        'model_pdf' => array('type' => 'varchar(255)', 'label' => 'Model pdf', 'enabled' => '1', 'position' => 1010, 'notnull' => -1, 'visible' => 0, 'default' => 'standard'),
+        'status' => array('type' => 'integer', 'label' => 'Status', 'enabled' => '1', 'position' => 2000, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'arrayofkeyval' => array('0' => 'Brouillon', '1' => 'Valid&eacute;', '9' => 'Annul&eacute;'), 'validate' => '1',),
+   );
 
     /**
      * @var int  Does object support extrafields ? 0=No, 1=Yes
      */
-    public $isextrafieldmanaged = 0;
+    public $isextrafieldmanaged = 1;
 
     /**
      * Constructor
@@ -1338,5 +1411,10 @@ class ConditionreportLine extends Conditionreportroom
     public function __construct(DoliDB $db)
     {
         $this->db = $db;
+    }
+
+    function insert(User $user, $notrigger = false)
+    {
+        return parent::create($user, $notrigger);
     }
 }

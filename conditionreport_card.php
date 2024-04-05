@@ -217,6 +217,50 @@ if (empty($reshook)) {
     if ($action == 'load_model' && GETPOSTISSET('model_name') && $object->status == Conditionreport::STATUS_DRAFT) {
         // load model from json
         $object->loadModel($user, GETPOST('model_name', 'alpha'));
+    } elseif ($action == 'addline' && $permissiontoadd) {  // Add a new line
+        $langs->load('errors');
+        $error = 0;
+
+        $label        = (GETPOSTISSET('label') ? GETPOST('label', 'alpha') : '');
+        $product_desc = (GETPOSTISSET('dp_desc') ? GETPOST('dp_desc', 'restricthtml') : '');
+
+        // Extrafields
+        $extralabelsline = $extrafields->fetch_name_optionals_label($object->table_element_line);
+        $array_options   = $extrafields->getOptionalsFromPost($object->table_element_line);
+        // Unset extrafield
+        if (is_array($extralabelsline)) {
+            // Get extra fields
+            foreach ($extralabelsline as $key => $value) {
+                unset($_POST["options_" . $key]);
+            }
+        }
+
+        if ($qty < 0) {
+            setEventMessages($langs->trans('FieldCannotBeNegative', $langs->transnoentitiesnoconv('Qty')), null, 'errors');
+            $error++;
+        }
+        if (!$error && ($qty >= 0)) {
+
+
+            $product_desc = dol_htmlcleanlastbr($product_desc);
+
+            if (!$error) {
+                // Insert line
+                $result = $object->addline($label, $product_desc, $array_options);
+
+                if ($result > 0) {
+                    $ret = $object->fetch($object->id); // Reload to get new records
+
+                    if (!getDolGlobalString('MAIN_DISABLE_PDF_AUTOUPDATE')) {
+                        $object->generateDocument($object->model_pdf, $langs, $hidedetails, $hidedesc, $hideref);
+                    }
+                    header('Location: ' . dol_buildpath('/conditionreport/conditionreportroom_card.php', 1) . '?id=' . $result); // Pour reaffichage de la fiche en cours d'edition
+                    exit();
+                } else {
+                    setEventMessages($object->error, $object->errors, 'errors');
+                }
+            }
+        }
     }
 }
 
@@ -510,7 +554,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             $dir = '/custom' . $dir;
         }
         if (!empty($object->lines)) {
-            $object->printObjectLines($action, $mysoc, null, GETPOST('lineid', 'int'), 1,$dir);
+            $object->printObjectLines($action, $mysoc, null, GETPOST('lineid', 'int'), 1, $dir);
         }
 
         // Form to add new line
