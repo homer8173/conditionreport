@@ -554,6 +554,10 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
                   $posy = $this->drawPaymentsTable($pdf, $object, $posy, $outputlangs);
                   }
                  */
+                $pdf->SetTextColor(125, 125, 125);
+                $pdf->SetFont('', '', $default_font_size - 2);
+                $pdf->SetXY($this->marge_gauche, $top_shift);
+                $pdf->MultiCell($this->largeur - $this->marge_gauche - $this->marge_droite, 5, $outputlangs->transnoentities("texteLegalCR2"), 0, $ltrdirection);
 
                 // Pagefoot
                 $this->_pagefoot($pdf, $object, $outputlangs);
@@ -743,7 +747,12 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
             $title .= ' - ';
             $title .= $outputlangsbis->transnoentities("PdfTitle");
         }
-        $pdf->MultiCell($w, 3, $title, '', 'R');
+        $pdf->SetXY( $this->marge_gauche, $posy);
+        $pdf->MultiCell( $this->page_largeur - $this->marge_droite - $this->marge_gauche, 3, $title, '', 'C');
+        $pdf->SetFont('', 'B', $default_font_size );
+        $posy    += 10;
+        $pdf->SetXY( $this->marge_gauche, $posy);
+        $pdf->MultiCell($this->page_largeur - $this->marge_droite - $this->marge_gauche, 3, $outputlangs->transnoentities("normeCR"), '', 'C');
 
         $pdf->SetFont('', 'B', $default_font_size);
 
@@ -795,10 +804,8 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
         $title = $outputlangs->transnoentities("DateEnter");
         $pdf->MultiCell($w, 3, $title . " : " . dol_print_date($object->date_enter, "day", false, $outputlangs, true), '', 'R');
 
-        $posy += 4;
+        $posy  += 4;
         $pdf->SetXY($posx, $posy);
-        $pdf->SetTextColor(0, 0, 60);
-
         $title = $outputlangs->transnoentities("DateExit");
         $pdf->MultiCell($w, 3, $title . " : " . dol_print_date($object->date_exit, "day", false, $outputlangs, true), '', 'R');
 
@@ -837,7 +844,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
         $pdf->SetFont('', '', $default_font_size - 2);
         $pdf->SetXY($this->marge_gauche, $posy + 10);
         $pdf->MultiCell($this->largeur - $this->marge_gauche - $this->marge_droite, 5, $outputlangs->transnoentities("texteLegalCR"), 0, $ltrdirection);
-        $top_shift += 20;
+        $top_shift += 30;
 
         if ($showaddress) {
             // Sender properties
@@ -891,7 +898,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
 
             if ($r > 0 && is_object($tenant)) {
                 $carac_client_name = html_entity_decode($tenant->getCivilityLabel($tenant->civility_id) . " " . $tenant->lastname . " " . $tenant->firstname);
-                $carac_client      = html_entity_decode($outputlangs->trans("BornAt") . " " . $tenant->town . " " . $tenant->getCountry($tenant->country_id));
+                $carac_client      = html_entity_decode($outputlangs->trans("BornAt") . " " . $tenant->town . " " . $tenant->getCountry($tenant->country_id)) . "\n";
             }
 
 //            $mode         = 'target';
