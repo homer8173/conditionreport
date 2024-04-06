@@ -252,16 +252,16 @@ class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
 
         //if (count($realpatharray) == 0) $this->posxpicture=$this->posxtva;
 
-        if (getMultidirOutput($object)) {
+        if (getMultidirOutput2($object)) {
             $object->fetch_thirdparty();
 
             // Definition of $dir and $file
             if ($object->specimen) {
-                $dir  = getMultidirOutput($object);
+                $dir  = getMultidirOutput2($object);
                 $file = $dir . "/SPECIMEN.pdf";
             } else {
                 $objectref = dol_sanitizeFileName($object->ref);
-                $dir       = getMultidirOutput($object) . "/" . $objectref;
+                $dir       = getMultidirOutput2($object) . "/" . $objectref;
                 $file      = $dir . "/" . $objectref . ".pdf";
             }
             if (!file_exists($dir)) {
@@ -411,10 +411,10 @@ class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
                         foreach ($imgs as $i => $imagePath) {
                             // Redimensionner l'image 
                             $tmpName      = $dir . '/tmp' . uniqid() . '.jpg';
-                            $resizedImage = dol_imageResizeOrCrop($imagePath, 0, $imageWidth * 2, 0, 0, 0, $tmpName, 100);  // *2 for better quality
+                            $resizedImage = dol_imageResizeOrCrop($imagePath, 0, $imageWidth * 6, 0, 0, 0, $tmpName, 100);  // *6 for better quality
                             $imgInfo      = dol_getImageSize($tmpName);
                             if (filesize($resizedImage) > 0) {
-                                $maxHeight = max($maxHeight, $imgInfo['height'] / 2); // /2 for better quality
+                                $maxHeight = max($maxHeight, $imgInfo['height'] / 6); // /4 for better quality
                             }
                             $imgTmp[$i] = $tmpName;
                         }
@@ -1005,8 +1005,8 @@ class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
         if (!getDolGlobalInt('PDF_DISABLE_MYCOMPANY_LOGO')) {
             if ($this->emetteur->logo) {
                 $logodir = $conf->mycompany->dir_output;
-                if (!empty(getMultidirOutput($object, 'mycompany'))) {
-                    $logodir = getMultidirOutput($object, 'mycompany');
+                if (!empty(getMultidirOutput2($object, 'mycompany'))) {
+                    $logodir = getMultidirOutput2($object, 'mycompany');
                 }
                 if (!getDolGlobalInt('MAIN_PDF_USE_LARGE_LOGO')) {
                     $logo = $logodir . '/logos/thumbs/' . $this->emetteur->logo_small;
@@ -1482,32 +1482,11 @@ class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
         return $result;
     }
 
-    // Fonction pour redimensionner une image avec GD
-    function resizeImage($imagePath, $newWidth)
-    {
-        list($width, $height) = getimagesize($imagePath);
-        $ratio = $width / $newWidth / 10;
-        if ($ratio > 0) {
-            $newHeight = $height / $ratio;
-
-            $imageResized = imagecreatetruecolor($newWidth, $newHeight);
-            $imageSource  = imagecreatefromjpeg($imagePath);
-            imagecopyresampled($imageResized, $imageSource, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-
-            ob_start(); // Commencer la capture de sortie
-            imagejpeg($imageResized); // Convertir l'image redimensionnée en jpeg et la mettre en mémoire tampon
-            $imageData = ob_get_clean(); // Récupérer les données de l'image redimensionnée depuis la mémoire tampon
-            imagedestroy($imageResized); // Libérer la mémoire utilisée par l'image redimensionnée
-            return $imageData; // Retourner les données de l'image redimensionnée
-        } else {
-            return false;
-        }
-    }
 }
 
-if (!function_exists('getMultidirOutput')) {
+if (!function_exists('getMultidirOutput2')) {
 
-    function getMultidirOutput()
+    function getMultidirOutput2()
     {
         return DOL_DATA_ROOT . '/conditionreport/conditionreportroom/';
     }

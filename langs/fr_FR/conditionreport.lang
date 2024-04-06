@@ -117,3 +117,11 @@ normeCR=(Conforme LOI ALUR)
 
 TheLodgement =Le logement
 TheCompteurs=Les compteurs
+titreSignatureCR=Signatures des parties
+DoneAtCR=Fait à %s, le %s, en 2 exemplaires originaux, chaque partie reconnaissant en avoir reçu un.
+
+SigneOwner=Signature du bailleur
+SigneOwnerDetails=Signature précédée des noms et prénoms, ou dénomination sociale, et de la mention « certifié exact » :
+
+SigneTenant=Signature du ou des colocataire(s)
+SigneTenantDetails=Signature précédée des noms et prénoms, et de la mention « certifié exact ». (Si le locataire représente d’autres locataires, ajouter la mention «Je me porte fort pour tous les autres titulaires du bail») :
