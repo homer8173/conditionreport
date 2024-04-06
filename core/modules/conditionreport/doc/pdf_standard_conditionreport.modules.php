@@ -625,7 +625,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
 
                 $pdf->Close();
 
-                $pdf->Output($file, 'I');
+                $pdf->Output($file, 'F');
 
                 // Add pdfgeneration hook
                 $hookmanager->initHooks(array('pdfgeneration'));
