@@ -22,6 +22,7 @@
  *
  * Put detailed description here.
  */
+dol_include_once('/ultimateimmo/class/immoproperty.class.php');
 
 /**
  * Class ActionsConditionreport
@@ -360,6 +361,34 @@ class ActionsConditionreport
         if (in_array($parameters['table_element_line'], ['conditionreport_conditionreportroom', 'conditionreport_conditionreportroomdet'])) {
             $this->results['perm'] = 1;
             return 1;
+        }
+    }
+
+    function addMoreActionsButtons($parameters, $object, $action, $hookmanager)
+    {
+        global $langs;
+        $langs->load("conditionreport@conditionreport");
+
+        if (in_array($parameters['currentcontext'], array('immorentcard'))) {  // do something only for the context 'somecontext1' or 'somecontext2'
+            $urlParam = [
+                'fk_property' => $object->fk_property,
+                'fk_lessor' => $object->fk_owner,
+                'fk_tenant' => $object->fk_renter,
+            ];
+            if (is_object($object) && isset($object->fk_property) && $object->fk_property) {
+                $property             = new ImmoProperty($this->db);
+                if ($property->fetch($object->fk_property))
+                    $urlParam['room_qty'] = $property->numroom;
+            }
+            print'<a class="butAction" href="' . dol_buildpath('/conditionreport/conditionreport_card.php', 2) . '?action=create&' . http_build_query($urlParam) . '">' . $langs->trans('createCRfromR') . '</a>';
+        }
+        if (in_array($parameters['currentcontext'], array('immopropertycard'))) {  // do something only for the context 'somecontext1' or 'somecontext2'
+            $urlParam = [
+                'fk_property' => $object->id,
+                'fk_lessor' => $object->fk_owner,
+                'room_qty' => $object->numroom
+            ];
+            print'<a class="butAction" href="' . dol_buildpath('/conditionreport/conditionreport_card.php', 2) . '?action=create&' . http_build_query($urlParam) . '">' . $langs->trans('createCRfromR') . '</a>';
         }
     }
 }
