@@ -224,7 +224,7 @@ if ($object->id > 0) {
 
     // Re-sort list
 //    $list        = dol_sort_array($list, $sortfield, $sortorder, 1, 0, 1);
-
+    $param       = "source=$source&id=$id";
     $arrayfields = array(
         'rowid' => array('label' => $langs->trans("Id"), 'checked' => 1),
         'ref' => array('label' => $langs->trans("Ref"), 'checked' => 1),
