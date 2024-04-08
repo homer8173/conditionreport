@@ -127,3 +127,4 @@ SigneTenant=Signature du ou des colocataire(s)
 SigneTenantDetails=Signature précédée des noms et prénoms, et de la mention « certifié exact ». (Si le locataire représente d’autres locataires, ajouter la mention «Je me porte fort pour tous les autres titulaires du bail») :
 
 createCRfromR=Créer un état des lieux
+titleTabCR=États des lieux
