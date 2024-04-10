@@ -128,3 +128,31 @@ SigneTenantDetails=Signature précédée des noms et prénoms, et de la mention 
 
 createCRfromR=Créer un état des lieux
 titleTabCR=États des lieux
+
+#signature en ligne 
+WelcomeOnOnlineSignaturePageConditionreport=Bienvenue sur la page pour signer l'état des lieux de %s
+ThisScreenAllowsYouToSignDocFromConditionreport=Cet écran vous permet d'accepter et de signer en ligne l'état des lieux
+ThisIsInformationOnDocumentToSignConditionreport=Voici les informations sur le document à accepter ou refuser :
+SignatureConditionreportRef=Signature de %s
+ConditionreportSigned=État des lieux signé avec succès
+SignConditionreport=Signer l'état des lieux
+
+SignedLessor=Signé par le bailleur
+SignedTenant=Signé par le locataire
+
+signExact=Certifié exact.
+signExactTenant=Je me porte fort pour tous les éventuels autres titulaires du bail.
+
+SigneOnlineTenant=Signer l'état des lieux 
+BackToCR=Retour à l'état des lieux 
+SendSMSCR=Envoyer un SMS au bailleur
+cancelSignature=Annuler les signatures
+SMSmessage = Voici votre lien pour la signature en ligne de l'état des lieux %s
+
+
+# setups 
+CONDITIONREPORT_ONLINE_SIGNATURE_SECURITY_TOKEN=Token de sécurité pour la signature en ligne
+CONDITIONREPORT_OVH_ACCOUNT=Compte SMS OVH
+CONDITIONREPORT_OVH_SMS_LOGIN=Login SMS OVH
+CONDITIONREPORT_OVH_SMS_PASSWORD=Mot de passe SMS OVH
+CONDITIONREPORT_OVH_SMS_SENDER=Expéditeur SMS OVH

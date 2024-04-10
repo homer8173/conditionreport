@@ -261,6 +261,9 @@ if (empty($reshook)) {
                 }
             }
         }
+    } elseif ($action == 'sendsms') {
+        $object->sendSMS();
+        header('Location: ' . dol_buildpath('/conditionreport/conditionreport_card.php', 1) . '?id=' . $object->id);
     }
 }
 
@@ -601,11 +604,21 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             // Back to draft
             if ($object->status == $object::STATUS_VALIDATED) {
                 print dolGetButtonAction('', $langs->trans('SetToDraft'), 'default', $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=confirm_setdraft&confirm=yes&token=' . newToken(), '', $permissiontoadd);
+                print dolGetButtonAction('', $langs->trans('SigneOnlineTenant'), 'default', $object->getOnlineSignatureUrl(0, 'conditionreport', $object->ref, 1, $object, 'lessor'), '', $permissiontoadd);
             }
+            // sign for tenant
 
+            if ($object->status == $object::STATUS_SIGNED_LESSOR) {
+                print dolGetButtonAction('', $langs->trans('SendSMSCR'), 'default', $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=sendsms&token=' . newToken(), '', $permissiontoadd);
+                print dolGetButtonAction('', $langs->trans('cancelSignature'), 'default', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=confirm_validate&confirm=yes&token=' . newToken(), '', $permissiontoadd);
+            }
+            if ($object->status == $object::STATUS_SIGNED_TENANT) {
+                print dolGetButtonAction('', $langs->trans('cancelSignature'), 'default', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=confirm_validate&confirm=yes&token=' . newToken(), '', $permissiontoadd);
+            }
             // Modify
-            print dolGetButtonAction('', $langs->trans('Modify'), 'default', $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=edit&token=' . newToken(), '', $permissiontoadd);
-
+            if ($object->status == $object::STATUS_DRAFT) {
+                print dolGetButtonAction('', $langs->trans('Modify'), 'default', $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=edit&token=' . newToken(), '', $permissiontoadd);
+            }
             // Validate
             if ($object->status == $object::STATUS_DRAFT) {
                 if (empty($object->table_element_line) || (is_array($object->lines) && count($object->lines) > 0)) {
@@ -679,6 +692,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         $linktoelem     = $form->showLinkToObjectBlock($object, null, array('conditionreport'));
         $somethingshown = $form->showLinkedObjectBlock($object, $linktoelem);
 
+        if ($object->status != Conditionreport::STATUS_DRAFT) {
+            print '<br><!-- Link to sign -->';
+            require_once DOL_DOCUMENT_ROOT . '/core/lib/signature.lib.php';
+            print $object->showOnlineSignatureUrl('conditionreport', $object->ref) . '<br>';
+        }
+
         print '</div><div class="fichehalfright">';
 
         $MAXEVENT = 10;
@@ -704,6 +723,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     $diroutput    = $conf->conditionreport->dir_output;
     $trackid      = 'conditionreport' . $object->id;
 
+    //small hack to have tenant email in sendto field (SORRY)
+    if ($object->fk_tenant) {
+        $tenant = new ImmoRenter($db);
+        if ($tenant->fetch($object->fk_tenant) && $tenant->email) {
+            $_GET['sendto'] = $tenant->email;
+        }
+    }
     include DOL_DOCUMENT_ROOT . '/core/tpl/card_presend.tpl.php';
 }
 

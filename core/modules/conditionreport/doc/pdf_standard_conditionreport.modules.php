@@ -596,26 +596,50 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
                 $posY = $pdf->getY() + 15;
 
                 // sign owner
+                $margin = 5;
                 $pdf->SetTextColor(0, 0, 60);
                 $pdf->SetFont('', '', $default_font_size + 3);
                 $pdf->SetXY($this->marge_gauche, $posY);
-                $pdf->MultiCell($fullWidth / 2, 5, $outputlangs->transnoentities("SigneOwner"), 0, $ltrdirection);
+                $pdf->MultiCell($fullWidth / 2 - $margin / 2, 5, $outputlangs->transnoentities("SigneOwner"), 0, $ltrdirection);
 
                 $pdf->SetTextColor(125, 125, 125);
                 $pdf->SetFont('', '', $default_font_size);
                 $pdf->SetXY($this->marge_gauche, $posY + 7);
-                $pdf->MultiCell($fullWidth / 2, 5, $outputlangs->transnoentities("SigneOwnerDetails"), 0, $ltrdirection);
+                $pdf->MultiCell($fullWidth / 2 - $margin / 2, 5, $outputlangs->transnoentities("SigneOwnerDetails"), 0, $ltrdirection);
 
                 // sign tenant                
                 $pdf->SetTextColor(0, 0, 60);
                 $pdf->SetFont('', '', $default_font_size + 3);
-                $pdf->SetXY($this->marge_gauche + $fullWidth / 2 +1, $posY);
-                $pdf->MultiCell($fullWidth / 2, 5, $outputlangs->transnoentities("SigneTenant"), 0, $ltrdirection);
+                $pdf->SetXY($this->marge_gauche + $fullWidth / 2 + $margin / 2, $posY);
+                $pdf->MultiCell($fullWidth / 2 - $margin / 2, 5, $outputlangs->transnoentities("SigneTenant"), 0, $ltrdirection);
 
                 $pdf->SetTextColor(125, 125, 125);
                 $pdf->SetFont('', '', $default_font_size);
-                $pdf->SetXY($this->marge_gauche + $fullWidth / 2 +1, $posY + 7);
-                $pdf->MultiCell($fullWidth / 2, 5, $outputlangs->transnoentities("SigneTenantDetails"), 0, $ltrdirection);
+                $pdf->SetXY($this->marge_gauche + $fullWidth / 2 + $margin / 2, $posY + 7);
+                $pdf->MultiCell($fullWidth / 2 - $margin / 2, 5, $outputlangs->transnoentities("SigneTenantDetails"), 0, $ltrdirection);
+
+                $posY = $pdf->getY() + 5;
+                $h    = 35;
+
+                // save data for signature positions 
+                $customMetadata = array(
+                    'lessor_sign' => ['page' => $pagenb, 'x' => $this->marge_gauche, 'y' => $posY, 'w' => $fullWidth / 2 - $margin / 2, 'h' => $h],
+                    'tenant_sign' => ['page' => $pagenb, 'x' => $this->marge_gauche + $fullWidth / 2 + $margin / 2, 'y' => $posY, 'w' => $fullWidth / 2 - $margin / 2, 'h' => $h],
+                );
+
+                // signature rectangle
+                $pdf->Rect($this->marge_gauche, $posY, $fullWidth / 2, $h);
+                $pdf->Rect($this->marge_gauche + $fullWidth / 2 + $margin / 2, $posY, $fullWidth / 2 - $margin / 2, $h);
+
+//                // Convertir le tableau en format JSON
+                $jsonMetadata = json_encode($customMetadata);
+
+//                // Ajouter les métadonnées personnalisées au PDF
+//                $pdf->SetAdditionalMetadata($jsonMetadata);
+//                PAS POSSIBLE AVEC TCPDI alors on va mettre ça dans un fichier json à part ;-)
+                $dirJson = $dir . "/" . $objectref . "/signature/";
+                dol_mkdir($dirJson);
+                file_put_contents($dirJson . 'positioncr.json', $jsonMetadata);
 
                 // Pagefoot
                 $this->_pagefoot($pdf, $object, $outputlangs);
@@ -822,7 +846,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
         $pdf->SetXY($posx, $posy);
         $pdf->SetTextColor(0, 0, 60);
         $textref = $outputlangs->transnoentities("Ref") . " : " . $outputlangs->convToOutputCharset($object->ref);
-        if ($object->statut == $object::STATUS_DRAFT) {
+        if ($object->status == $object::STATUS_DRAFT) {
             $pdf->SetTextColor(128, 0, 0);
             $textref .= ' - ' . $outputlangs->transnoentities("NotValidated");
         }

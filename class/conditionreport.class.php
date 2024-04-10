@@ -65,9 +65,11 @@ class Conditionreport extends CommonObject
      */
     public $picto = 'fa-home';
 
-    const STATUS_DRAFT     = 0;
-    const STATUS_VALIDATED = 1;
-    const STATUS_CANCELED  = 9;
+    const STATUS_DRAFT         = 0;
+    const STATUS_VALIDATED     = 1;
+    const STATUS_SIGNED_LESSOR = 2;
+    const STATUS_SIGNED_TENANT = 3;
+    const STATUS_CANCELED      = 9;
 
     /**
      *  'type' field format:
@@ -130,7 +132,7 @@ class Conditionreport extends CommonObject
         'last_main_doc' => array('type' => 'varchar(255)', 'label' => 'LastMainDoc', 'enabled' => '1', 'position' => 600, 'notnull' => 0, 'visible' => 0,),
         'import_key' => array('type' => 'varchar(14)', 'label' => 'ImportId', 'enabled' => '1', 'position' => 1000, 'notnull' => -1, 'visible' => -2,),
         'model_pdf' => array('type' => 'varchar(255)', 'label' => 'Model pdf', 'enabled' => '1', 'position' => 1010, 'notnull' => -1, 'visible' => 0,),
-        'status' => array('type' => 'integer', 'label' => 'Status', 'enabled' => '1', 'position' => 2000, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'arrayofkeyval' => array('0' => 'Brouillon', '1' => 'Valid&eacute;', '9' => 'Annul&eacute;'), 'validate' => '1',),
+        'status' => array('type' => 'integer', 'label' => 'Status', 'enabled' => '1', 'position' => 2000, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'arrayofkeyval' => array('0' => 'Brouillon', '1' => 'Valid&eacute;', '2' => 'Sign&eacute; par le bailleur', '3' => 'Sign&eacute; par le locataire', '9' => 'Annul&eacute;'), 'validate' => '1',),
         'room_qty' => array('type' => 'integer', 'label' => 'RoomQty', 'enabled' => '1', 'position' => 53, 'notnull' => 1, 'visible' => 1, 'default' => '0', 'help' => "RoomQtyDetails",),
         'date_enter' => array('type' => 'datetime', 'label' => 'DateEnter', 'enabled' => '1', 'position' => 502, 'notnull' => 1, 'visible' => 1, 'help' => "DateEnterDetails",),
         'date_exit' => array('type' => 'datetime', 'label' => 'DateExit', 'enabled' => '1', 'position' => 503, 'notnull' => 0, 'visible' => 1, 'help' => "DateExitDetails",),
@@ -682,6 +684,120 @@ class Conditionreport extends CommonObject
     }
 
     /**
+     * 	Sign object by lessor
+     *
+     * 	@return  	int						Return integer <=0 if OK, 0=Nothing done, >0 if KO
+     */
+    public function setSignedLessor()
+    {
+        global $conf, $langs;
+
+        require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+
+        $error = 0;
+
+        // Protection
+        if ($this->status != self::STATUS_VALIDATED) {
+            dol_syslog(get_class($this) . "::sign lessor action abandonned", LOG_WARNING);
+            return 0;
+        }
+
+        $now = dol_now();
+
+        $this->db->begin();
+
+        // Validate
+        $sql = "UPDATE " . MAIN_DB_PREFIX . $this->table_element;
+        $sql .= " SET date_signature_lessor = '" . $this->db->idate($now) . "',";
+        $sql .= " status = " . self::STATUS_SIGNED_LESSOR;
+//            if (!empty($this->fields['date_validation'])) {
+//                $sql .= ", date_validation = '" . $this->db->idate($now) . "'";
+//            }
+//            if (!empty($this->fields['fk_user_valid'])) {
+//                $sql .= ", fk_user_valid = " . ((int) $user->id);
+//            }
+        $sql .= " WHERE rowid = " . ((int) $this->id);
+
+        dol_syslog(get_class($this) . "::signed lessor()", LOG_DEBUG);
+        $resql = $this->db->query($sql);
+        if (!$resql) {
+            dol_print_error($this->db);
+            $this->error = $this->db->lasterror();
+            $error++;
+        }
+
+        // Set new ref and current status
+        if (!$error) {
+            $this->status = self::STATUS_SIGNED_LESSOR;
+        }
+
+        if (!$error) {
+            $this->db->commit();
+            return 1;
+        } else {
+            $this->db->rollback();
+            return -1;
+        }
+    }
+
+    /**
+     * 	Sign object by tenant
+     *
+     * 	@return  	int						Return integer <=0 if OK, 0=Nothing done, >0 if KO
+     */
+    public function setSignedTenant()
+    {
+        global $conf, $langs;
+
+        require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+
+        $error = 0;
+
+        // Protection
+        if ($this->status != self::STATUS_SIGNED_LESSOR) {
+            dol_syslog(get_class($this) . "::sign tenant action abandonned", LOG_WARNING);
+            return 0;
+        }
+
+        $now = dol_now();
+
+        $this->db->begin();
+
+        // Validate
+        $sql = "UPDATE " . MAIN_DB_PREFIX . $this->table_element;
+        $sql .= " SET date_signature_tenant = '" . $this->db->idate($now) . "',";
+        $sql .= " status = " . self::STATUS_SIGNED_TENANT;
+//            if (!empty($this->fields['date_validation'])) {
+//                $sql .= ", date_validation = '" . $this->db->idate($now) . "'";
+//            }
+//            if (!empty($this->fields['fk_user_valid'])) {
+//                $sql .= ", fk_user_valid = " . ((int) $user->id);
+//            }
+        $sql .= " WHERE rowid = " . ((int) $this->id);
+
+        dol_syslog(get_class($this) . "::signed tenant()", LOG_DEBUG);
+        $resql = $this->db->query($sql);
+        if (!$resql) {
+            dol_print_error($this->db);
+            $this->error = $this->db->lasterror();
+            $error++;
+        }
+
+        // Set new ref and current status
+        if (!$error) {
+            $this->status = self::STATUS_SIGNED_TENANT;
+        }
+
+        if (!$error) {
+            $this->db->commit();
+            return 1;
+        } else {
+            $this->db->rollback();
+            return -1;
+        }
+    }
+
+    /**
      * 	Set draft status
      *
      * 	@param	User	$user			Object user that modify
@@ -988,12 +1104,17 @@ class Conditionreport extends CommonObject
         if (empty($this->labelStatus) || empty($this->labelStatusShort)) {
             global $langs;
             //$langs->load("conditionreport@conditionreport");
-            $this->labelStatus[self::STATUS_DRAFT]          = $langs->transnoentitiesnoconv('Draft');
-            $this->labelStatus[self::STATUS_VALIDATED]      = $langs->transnoentitiesnoconv('Enabled');
-            $this->labelStatus[self::STATUS_CANCELED]       = $langs->transnoentitiesnoconv('Disabled');
-            $this->labelStatusShort[self::STATUS_DRAFT]     = $langs->transnoentitiesnoconv('Draft');
-            $this->labelStatusShort[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Enabled');
-            $this->labelStatusShort[self::STATUS_CANCELED]  = $langs->transnoentitiesnoconv('Disabled');
+            $this->labelStatus[self::STATUS_DRAFT]         = $langs->transnoentitiesnoconv('Draft');
+            $this->labelStatus[self::STATUS_VALIDATED]     = $langs->transnoentitiesnoconv('Enabled');
+            $this->labelStatus[self::STATUS_SIGNED_LESSOR] = $langs->transnoentitiesnoconv('SignedLessor');
+            $this->labelStatus[self::STATUS_SIGNED_TENANT] = $langs->transnoentitiesnoconv('SignedTenant');
+            $this->labelStatus[self::STATUS_CANCELED]      = $langs->transnoentitiesnoconv('Disabled');
+
+            $this->labelStatusShort[self::STATUS_DRAFT]         = $langs->transnoentitiesnoconv('Draft');
+            $this->labelStatusShort[self::STATUS_VALIDATED]     = $langs->transnoentitiesnoconv('Enabled');
+            $this->labelStatusShort[self::STATUS_SIGNED_LESSOR] = $langs->transnoentitiesnoconv('SignedLessor');
+            $this->labelStatusShort[self::STATUS_SIGNED_TENANT] = $langs->transnoentitiesnoconv('SignedTenant');
+            $this->labelStatusShort[self::STATUS_CANCELED]      = $langs->transnoentitiesnoconv('Disabled');
         }
 
         $statusType = 'status' . $status;
@@ -1366,6 +1487,201 @@ class Conditionreport extends CommonObject
         } else {
             dol_syslog(get_class($this) . "::addline status of condtionreportroom must be Draft to allow use of ->addline()", LOG_ERR);
             return -2;
+        }
+    }
+
+    function sendSMS()
+    {
+        global $langs;
+        $account  = getDolGlobalString('CONDITIONREPORT_OVH_ACCOUNT');
+        $login    = getDolGlobalString('CONDITIONREPORT_OVH_SMS_LOGIN');
+        $password = getDolGlobalString('CONDITIONREPORT_OVH_SMS_PASSWORD');
+        $from     = getDolGlobalString('CONDITIONREPORT_OVH_SMS_SENDER');
+        $link     = $this->getOnlineSignatureUrl(0, 'conditionreport', $this->ref, 1, $this);
+        $message  = $langs->transnoentitiesnoconv('SMSmessage', $link);
+
+        if ($object->fk_tenant) {
+            $tenant = new ImmoRenter($this->db);
+            if ($tenant->fetch($object->fk_tenant) && $tenant->phone_mobile) {
+                $url = $this->generateSMSURL($account, $login, $password, $from, $tenant->phone_mobile, $message);
+                file_get_contents($url);
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Fonction pour générer une URL pour l'envoi de SMS OVH avec les paramètres spécifiés.
+     *
+     * @param string $account Le compte SMS.
+     * @param string $login Le nom d'utilisateur.
+     * @param string $password Le mot de passe.
+     * @param string $from Le numéro ou le nom de l'expéditeur.
+     * @param string $phone Le numéro de téléphone du destinataire.
+     * @param string $message Le contenu du message SMS.
+     * @param string $senderForResponse Le paramètre pour indiquer si l'expéditeur est destiné à recevoir une réponse (0 ou 1).
+     * @return string L'URL complète pour l'envoi de SMS.
+     */
+    function generateSMSURL($account, $login, $password, $from, $phone, $message, $senderForResponse = 1)
+    {
+        // URL de base pour l'envoi de SMS
+        $baseURL = 'https://www.ovh.com/cgi-bin/sms/http2sms.cgi';
+
+        // Vérifier si le numéro commence par "+33"
+        if (substr($phone, 0, 3) === '+33') {
+            // Remplacer "+33" par "0033"
+            $phone = '00' . substr($phone, 1);
+        } elseif (substr($phone, 0, 2) === '06' || substr($phone, 0, 2) === '07') {
+            // Convertir "06" ou "07" en "0033" suivi des 8 chiffres restants
+            $phone = '0033' . substr($phone, 1);
+        }
+
+        // Construire les paramètres de l'URL
+        $params = array(
+            'account' => $account,
+            'login' => $login,
+            'password' => $password,
+            'from' => $from,
+            'senderForResponse' => $senderForResponse,
+            'to' => $phone,
+            'message' => $message
+        );
+
+        // Générer l'URL complète en combinant la base URL et les paramètres
+        $url = $baseURL . '?' . http_build_query($params);
+
+        // Retourner l'URL générée
+        return $url;
+    }
+
+    /**
+     * Return string with full online Url to accept and sign a quote
+     *
+     * @param   string			$type		Type of URL ('proposal', ...)
+     * @param	string			$ref		Ref of object
+     * @param   Object  		$obj  		object (needed to make multicompany good links)
+     * @return	string						Url string
+     */
+    function showOnlineSignatureUrl($type, $ref, $obj = null)
+    {
+        global $conf, $langs;
+
+        // Load translation files required by the page
+        $langs->loadLangs(array("payment", "paybox"));
+
+        $servicename = 'Online';
+
+        $out = img_picto('', 'globe') . ' <span class="opacitymedium">' . $langs->trans("ToOfferALinkForOnlineSignature", $servicename) . '</span><br>';
+        $url = $this->getOnlineSignatureUrl(0, $type, $ref, 1, $obj);
+        $out .= '<div class="urllink">';
+        if ($url == $langs->trans("FeatureOnlineSignDisabled")) {
+            $out .= $url;
+        } else {
+            $out .= '<input type="text" id="onlinesignatureurl" class="quatrevingtpercentminusx" value="' . $url . '">';
+        }
+        $out .= '<a class="" href="' . $url . '" target="_blank" rel="noopener noreferrer">' . img_picto('', 'globe', 'class="paddingleft"') . '</a>';
+        $out .= '</div>';
+        $out .= ajax_autoselect("onlinesignatureurl", 0);
+        return $out;
+    }
+
+    /**
+     * Return string with full Url
+     *
+     * @param   int				$mode				0=True url, 1=Url formated with colors
+     * @param   string			$type				Type of URL ('proposal', ...)
+     * @param	string			$ref				Ref of object
+     * @param   string  		$localorexternal  	0=Url for browser, 1=Url for external access
+     * @param   Object  		$obj  				object (needed to make multicompany good links)
+     * @return	string								Url string
+     */
+    function getOnlineSignatureUrl($mode, $type, $ref = '', $localorexternal = 1, $obj = null, $signature = 'tenant')
+    {
+        global $conf, $dolibarr_main_url_root;
+
+        if (empty($obj)) {
+            // For compatibility with 15.0 -> 19.0
+            global $object;
+            if (empty($object)) {
+                $obj = new stdClass();
+            } else {
+                dol_syslog(__FUNCTION__ . " using global object is deprecated, please give obj as argument", LOG_WARNING);
+                $obj = $object;
+            }
+        }
+
+        $ref = str_replace(' ', '', $ref);
+        $out = '';
+
+        // Define $urlwithroot
+        $urlwithouturlroot = preg_replace('/' . preg_quote(DOL_URL_ROOT, '/') . '$/i', '', trim($dolibarr_main_url_root));
+        $urlwithroot       = $urlwithouturlroot . DOL_URL_ROOT; // This is to use external domain name found into config file
+        //$urlwithroot=DOL_MAIN_URL_ROOT;					// This is to use same domain name than current
+
+        $urltouse = DOL_MAIN_URL_ROOT;
+        if ($localorexternal) {
+            $urltouse = $urlwithroot;
+        }
+
+        $securekeyseed = getDolGlobalString(dol_strtoupper($type) . '_ONLINE_SIGNATURE_SECURITY_TOKEN');
+        $out           = dol_buildpath('/conditionreport/onlinesign/newonlinesign.php', 3) . '?source=' . $type . '&ref=' . ($mode ? '<span style="color: #666666">' : '');
+
+        if ($mode == 1) {
+            $out .= $type . '_ref';
+        }
+        if ($mode == 0) {
+            $out .= urlencode($ref);
+        }
+        $out .= ($mode ? '</span>' : '');
+        if ($mode == 1) {
+            $out .= "hash('" . $securekeyseed . "' + '" . $type . "' + $type + '_ref)";
+        } else {
+            $out .= '&securekey=' . dol_hash($securekeyseed . $type . $ref . (!isModEnabled('multicompany') ? '' : $object->entity), '0');
+        }
+
+        // For multicompany
+        if (!empty($out) && isModEnabled('multicompany')) {
+            $out .= "&entity=" . (empty($obj->entity) ? '' : (int) $obj->entity); // Check the entity because we may have the same reference in several entities
+        }
+        if (!empty($signature)) {
+            $out .= "&signature=" . urlencode($signature); // Check the entity because we may have the same reference in several entities
+        }
+        if ($signature == 'tenant')
+            $out = $this->shrinkUrl($out);
+        return $out;
+    }
+
+    /**
+     * Shorten URL via our service lru.sh
+     *
+     * @param   string				$url				0=True url, 1=Url formated with colors
+     * @return	string								Url string
+     */
+    function shrinkUrl($url)
+    {
+        //
+        // A very simple PHP example that sends a url to get short one
+        //
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://lru.sh/");
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query(array('url' => $url, 'mode' => '')));
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1); //The number of seconds to wait while trying to connect.
+        curl_setopt($ch, CURLOPT_TIMEOUT, 1); //The maximum number of seconds to allow cURL functions to execute.
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Désactive la vérification du certificat SSL
+        // Receive server response ...
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $server_output         = curl_exec($ch);
+        curl_close($ch);
+        $server_output_decoded = json_decode($server_output);
+        // Further processing ...
+        if (json_last_error() === JSON_ERROR_NONE) { //OK
+            // get short url
+            return $server_output_decoded->shorturl;
+        } else { //KO
+            return $url;
         }
     }
 }
