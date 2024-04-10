@@ -505,8 +505,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
                 }
 
                 // Use new auto column system
-                $this->prepareArrayColumnField($object, $outputlangs, $hidedetails, $hidedesc, $hideref);
-
+//                $this->prepareArrayColumnField($object, $outputlangs, $hidedetails, $hidedesc, $hideref);
                 // Table simulation to know the height of the title line
                 $pdf->startTransaction();
                 $this->pdfTabTitles($pdf, $tab_top, $tab_height, $outputlangs, $hidetop);
@@ -518,7 +517,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
                 $this->_pagefoot($pdf, $object, $outputlangs);
                 $pageposbeforeprintlines = $pdf->getPage();
                 $pagenb                  = $pageposbeforeprintlines;
-                for ($i = 0; $i < $nblines; $i++) {
+                for ($i = 0; $i < count($object->lines); $i++) {
                     $crr        = $object->lines[$i];
                     $crr->generateDocument('', $outputlangs);
                     $pdfExterne = DOL_DATA_ROOT . '/' . $crr->last_main_doc;
@@ -998,6 +997,9 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
         }
         // logement
         if ($showaddress) {
+            if (!empty($object->note_public)) {
+                $posy += 10;
+            }
             //load lodgement
             $prop           = new ImmoProperty($this->db);
             $prop->fetch($object->fk_property);
@@ -1042,6 +1044,41 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
             $pdf->SetXY($posx + 2, $posy);
             $pdf->MultiCell($widthrecbox, 4, $lodgement_carac_details, 0, $ltrdirection);
         }
+        // type heaters
+        if ($showaddress) {
+            $posy    += $hautcadre * 1.55 + 10;
+            $posx    = $this->marge_gauche;
+            $pdf->SetTextColor(0, 0, 0);
+            $pdf->SetFont('', '', $default_font_size - 2);
+            $pdf->SetXY($posx + 2, $posy - 5);
+            $pdf->MultiCell($widthrecbox, 5, $outputlangs->transnoentities("TheHeaters") . ":", 0, $ltrdirection);
+            $pdf->Rect($posx, $posy, $widthrecbox, $hautcadre - 19);
+            $pdf->SetFont('', 'B', $default_font_size);
+            $pdf->SetTextColor(0, 0, 60);
+            $largeur = ($this->page_largeur - $this->marge_droite - $this->marge_gauche) / 3;
+
+            //Chauffage ambiant
+            $pdf->SetXY($posx + 2, $posy + 3);
+            $heater_carac = $outputlangs->transnoentities("ambiantHeater") . " :\n";
+            $heater_carac .= getDictionaryValue('c_type_heater', 'label', $object->type_heater);
+            $pdf->MultiCell($widthrecbox / 3, 2, $heater_carac, 0, $ltrdirection);
+
+            //Chauffage ambiant
+            $pdf->SetXY($posx + 2 + $largeur, $posy + 3);
+            $heater_carac = $outputlangs->transnoentities("waterHeater") . " :\n";
+            $heater_carac .= getDictionaryValue('c_type_heater', 'label', $object->type_water_heater);
+            $pdf->MultiCell($widthrecbox / 3, 2, $heater_carac, 0, $ltrdirection);
+
+            //Chauffage ambiant
+            $pdf->SetXY($posx + 2 + 2 * $largeur, $posy + 3);
+            $heater_carac = $outputlangs->transnoentities("cookHeater") . " :\n";
+            $heater_carac .= getDictionaryValue('c_type_heater', 'label', $object->type_cooker);
+            $pdf->MultiCell($widthrecbox / 3, 2, $heater_carac, 0, $ltrdirection);
+
+            $posy -= 34;
+        }
+
+
         // compteurs
         if ($showaddress) {
             //load compteurs
@@ -1056,12 +1093,12 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
             $pdf->SetFont('', '', $default_font_size - 2);
             $pdf->SetXY($posx + 2, $posy - 5);
             $pdf->MultiCell($widthrecbox, 5, $outputlangs->transnoentities("TheCompteurs") . ":", 0, $ltrdirection);
-            $pdf->Rect($posx, $posy, $widthrecbox, $hautcadre);
+            $pdf->Rect($posx, $posy, $widthrecbox, $hautcadre - 19);
 
             if (is_array($res) && count($res) > 0)
                 $widthrecbox = $widthrecbox / count($res);$posx        += 1;
             foreach ($res as $compteur) {
-                // show lodgement
+                // show compteur
                 $ict            = new ImmoCompteur_Type($this->db);
                 $ict->fetch($compteur->compteur_type_id);
                 $compteur_carac = $outputlangs->trans('ImmoCompteurType') . ": " . $ict->getNomUrl(0, 'nolink');

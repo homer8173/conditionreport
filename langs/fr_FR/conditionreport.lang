@@ -104,8 +104,10 @@ backToCR=Retour à l'état des lieux
 Type_heater=Type de chauffage
 InputCR=État des lieux d'entrée
 OutputCR=État des lieux de sortie
+tenantVisit=Visite de sécurité du logement
 DirectionCR0=État des lieux d'entrée
 DirectionCR1=État des lieux de sortie
+DirectionCR2=Visite de sécurité du logement
 
 BornAt=Né(e) à 
 TheLessor=Le bailleur (ou mandataire)
@@ -117,6 +119,7 @@ normeCR=(Conforme LOI ALUR)
 
 TheLodgement =Le logement
 TheCompteurs=Les compteurs
+TheHeaters=Les sytèmes de chauffages
 titreSignatureCR=Signatures des parties
 DoneAtCR=Fait à %s, le %s, en 2 exemplaires originaux, chaque partie reconnaissant en avoir reçu un.
 
@@ -156,3 +159,8 @@ CONDITIONREPORT_OVH_ACCOUNT=Compte SMS OVH
 CONDITIONREPORT_OVH_SMS_LOGIN=Login SMS OVH
 CONDITIONREPORT_OVH_SMS_PASSWORD=Mot de passe SMS OVH
 CONDITIONREPORT_OVH_SMS_SENDER=Expéditeur SMS OVH
+
+Images=Photographies
+ambiantHeater=Chauffage ambiant
+waterHeater=Chauffage d'eau chaude
+cookHeater=Appareil de cuisson
