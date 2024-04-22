@@ -36,7 +36,7 @@ class mod_conditionreport_standard extends ModeleNumRefConditionreport
 	 */
 	public $version = 'dolibarr'; // 'development', 'experimental', 'dolibarr'
 
-	public $prefix = 'CONDITIONREPORT';
+	public $prefix = 'CR';
 
 	/**
 	 * @var string Error code (or message)

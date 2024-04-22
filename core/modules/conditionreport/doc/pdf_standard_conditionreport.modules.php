@@ -910,7 +910,10 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
             $lessor = new ImmoOwner($this->db);
             $r      = $lessor->fetch($object->fk_lessor);
 
-            if ($r > 0 && is_object($lessor)) {
+            if ($r > 0 && is_object($lessor) && get_parent_class($lessor) == 'Societe') {
+                $carac_emetteur_name = html_entity_decode($lessor->getCivilityLabel($lessor->civility_id) . " " . $lessor->lastname . " " . $lessor->firstname);
+                $carac_emetteur      = html_entity_decode($lessor->address . "\n" . $lessor->zip . " " . $lessor->town . "\n" . $lessor->getCountry($lessor->country_id));
+            } elseif ($r > 0 && is_object($lessor) && get_parent_class($object) == 'CommonObject') {
                 $carac_emetteur_name = html_entity_decode($lessor->getCivilityLabel($lessor->civility_id) . " " . $lessor->lastname . " " . $lessor->firstname);
                 $carac_emetteur      = html_entity_decode($lessor->address . "\n" . $lessor->zip . " " . $lessor->town . "\n" . $lessor->getCountry($lessor->country_id));
             }
@@ -954,7 +957,10 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
             $tenant = new ImmoRenter($this->db);
             $r      = $tenant->fetch($object->fk_tenant);
 
-            if ($r > 0 && is_object($tenant)) {
+            if ($r > 0 && is_object($tenant) && get_parent_class($tenant) == 'Societe') {
+                $carac_client_name = html_entity_decode($tenant->name . " " . $tenant->array_options['options_firstname']);
+                $carac_client      = html_entity_decode($outputlangs->trans("BornAt") . " " . $tenant->town . ", " . $tenant->country) . "\n";
+            } elseif ($r > 0 && is_object($tenant) && get_parent_class($tenant) == 'CommonObject') {
                 $carac_client_name = html_entity_decode($tenant->getCivilityLabel($tenant->civility_id) . " " . $tenant->lastname . " " . $tenant->firstname);
                 $carac_client      = html_entity_decode($outputlangs->trans("BornAt") . " " . $tenant->town . ", " . $tenant->getCountry($tenant->country_id)) . "\n";
             }
