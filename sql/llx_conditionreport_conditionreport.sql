@@ -24,6 +24,7 @@ CREATE TABLE llx_conditionreport_conditionreport(
 	fk_tenant integer, 
 	fk_previous integer NULL, 
 	description text, 
+        direction integer, 
 	note_public text, 
 	note_private text, 
 	date_creation datetime NOT NULL, 
@@ -39,8 +40,8 @@ CREATE TABLE llx_conditionreport_conditionreport(
 	date_exit datetime NULL, 
 	date_signature_lessor datetime NULL, 
 	date_signature_tenant datetime NULL, 
-	type_heater integer, 
-	type_water_heater integer, 
-	type_cooker integer
+	type_heater integer NULL, 
+	type_water_heater integer NULL, 
+	type_cooker integer NULL
 	-- END MODULEBUILDER FIELDS
 ) ENGINE=innodb;
