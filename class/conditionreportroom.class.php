@@ -69,6 +69,8 @@ class Conditionreportroom extends CommonObject
     const STATUS_CANCELED  = 9;
     //constante for state of element 
     const CONDITION        = [
+//        -2 => 'Leaks',
+//        -1 => 'NotVerified',
         0 => 'BadCondition',
         1 => 'PoorCondition',
         2 => 'GoodCondition',
@@ -1493,6 +1495,7 @@ class ConditionreportroomLine extends CommonObjectLine
             $this->fk_conditionreportroom = $objp->fk_conditionreportroom;
             $this->label                  = $objp->label;
             $this->desc                   = $objp->description;
+            $this->description                   = $objp->description;
             $this->qty                    = $objp->qty;
             $this->condition              = $objp->condition;
             $this->db->free($result);
@@ -1692,7 +1695,6 @@ class ConditionreportroomLine extends CommonObjectLine
         if (empty($this->qty) || $this->qty < 0) {
             $this->qty = 0;
         }
-
         $this->db->begin();
 
         // Mise a jour ligne en base

@@ -34,13 +34,15 @@ require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/functions2.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/pdf.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
 
+dol_include_once('/conditionreport/lib/conditionreport.lib.php');
 dol_include_once('/conditionreport/core/modules/conditionreport/modules_conditionreport.php');
-dol_include_once('/custom/ultimateimmo/class/immorenter.class.php');
-dol_include_once('/custom/ultimateimmo/class/immoowner.class.php');
-dol_include_once('/custom/ultimateimmo/class/immoproperty.class.php');
-dol_include_once('/custom/ultimateimmo/class/immocompteur.class.php');
-dol_include_once('/custom/ultimateimmo/class/immocompteur_type.class.php');
+dol_include_once('/ultimateimmo/class/immorenter.class.php');
+dol_include_once('/ultimateimmo/class/immoowner.class.php');
+dol_include_once('/ultimateimmo/class/immoproperty.class.php');
+dol_include_once('/ultimateimmo/class/immocompteur.class.php');
+dol_include_once('/ultimateimmo/class/immocompteur_type.class.php');
 
 /**
  * 	Class to manage PDF template standard_conditionreport
@@ -648,7 +650,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
 
                 $pdf->Close();
 
-                $pdf->Output($file, 'F');
+                $pdf->Output($file, 'I');
 
                 // Add pdfgeneration hook
                 $hookmanager->initHooks(array('pdfgeneration'));
@@ -906,17 +908,20 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
 
         if ($showaddress) {
             // Sender properties
-
-            $lessor = new ImmoOwner($this->db);
+            if (isModEnabled("ultimateimmo"))
+                $lessor = new ImmoOwner($this->db);
+            else
+                $lessor = new Societe($this->db);
             $r      = $lessor->fetch($object->fk_lessor);
 
             if ($r > 0 && is_object($lessor) && get_parent_class($lessor) == 'Societe') {
-                $carac_emetteur_name = html_entity_decode($lessor->getCivilityLabel($lessor->civility_id) . " " . $lessor->lastname . " " . $lessor->firstname);
+                $carac_emetteur_name = html_entity_decode(getCivilityLabel($lessor->civility_id) . " " . $lessor->lastname . " " . $lessor->firstname);
                 $carac_emetteur      = html_entity_decode($lessor->address . "\n" . $lessor->zip . " " . $lessor->town . "\n" . $lessor->getCountry($lessor->country_id));
             } elseif ($r > 0 && is_object($lessor) && get_parent_class($object) == 'CommonObject') {
-                $carac_emetteur_name = html_entity_decode($lessor->getCivilityLabel($lessor->civility_id) . " " . $lessor->lastname . " " . $lessor->firstname);
-                $carac_emetteur      = html_entity_decode($lessor->address . "\n" . $lessor->zip . " " . $lessor->town . "\n" . $lessor->getCountry($lessor->country_id));
+                $carac_emetteur_name = html_entity_decode($lessor->array_options['options_civility_id']?getCivilityLabel($lessor->array_options['options_civility_id']) . " ":'' . $lessor->name . " " . $lessor->array_options['options_firstname']);
+                $carac_emetteur      = pdf_build_address($outputlangs, $lessor, $object->thirdparty, '', 0, 'source', $object);
             }
+
             // Show sender
             $posy = getDolGlobalInt('MAIN_PDF_USE_ISO_LOCATION') ? 40 : 42;
             $posy += $top_shift;
@@ -954,15 +959,22 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
             $pdf->SetFont('', '', $default_font_size - 1);
             $pdf->MultiCell($widthrecbox - 2, 4, $carac_emetteur, 0, $ltrdirection);
 
-            $tenant = new ImmoRenter($this->db);
+            if (isModEnabled("ultimateimmo"))
+                $tenant = new ImmoRenter($this->db);
+            else
+                $tenant = new Societe($this->db);
             $r      = $tenant->fetch($object->fk_tenant);
 
             if ($r > 0 && is_object($tenant) && get_parent_class($tenant) == 'Societe') {
                 $carac_client_name = html_entity_decode($tenant->name . " " . $tenant->array_options['options_firstname']);
                 $carac_client      = html_entity_decode($outputlangs->trans("BornAt") . " " . $tenant->town . ", " . $tenant->country) . "\n";
             } elseif ($r > 0 && is_object($tenant) && get_parent_class($tenant) == 'CommonObject') {
-                $carac_client_name = html_entity_decode($tenant->getCivilityLabel($tenant->civility_id) . " " . $tenant->lastname . " " . $tenant->firstname);
-                $carac_client      = html_entity_decode($outputlangs->trans("BornAt") . " " . $tenant->town . ", " . $tenant->getCountry($tenant->country_id)) . "\n";
+                $carac_client_name = html_entity_decode(getCivilityLabel($tenant->civility_id) . " " . $tenant->lastname . " " . $tenant->firstname);
+           
+				$carac_client_name = pdfBuildThirdpartyName($tenant, $outputlangs);
+//                $carac_client      = pdf_build_address($outputlangs, $tenant, $object->thirdparty, ($usecontact ? $object->contact : ''), $usecontact, 'target', $object);
+
+//                $carac_client      = html_entity_decode($outputlangs->trans("BornAt") . " " . $tenant->town . ", " . $tenant->getCountry($tenant->country_id)) . "\n";
             }
 
 //            $mode         = 'target';
@@ -1086,7 +1098,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
 
 
         // compteurs
-        if ($showaddress) {
+        if ($showaddress && isModEnabled("ultimateimmo")) {
             //load compteurs
             $compteurs = new ImmoCompteur($this->db);
             $res       = $compteurs->fetchAll('', '', 0, 0, ['fk_immoproperty' => $prop->id]);

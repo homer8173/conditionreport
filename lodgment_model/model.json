@@ -114,5 +114,8 @@
         "09divers.json",
         "10cles.json",
         "11chauffage.json"
+    ],
+    "visite":[
+        ""
     ]
 }

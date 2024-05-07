@@ -46,7 +46,7 @@ class modConditionreport extends DolibarrModules
 
         // Id for module (must be unique).
         // Use here a free id (See in Home -> System information -> Dolibarr for list of used modules id).
-        $this->numero = 121121; // TODO Go on page https://wiki.dolibarr.org/index.php/List_of_modules_id to reserve an id number for your module
+        $this->numero       = 121121; // TODO Go on page https://wiki.dolibarr.org/index.php/List_of_modules_id to reserve an id number for your module
         // Key text used to identify module (for permissions, menus, etc...)
         $this->rights_class = 'conditionreport';
 
@@ -72,7 +72,7 @@ class modConditionreport extends DolibarrModules
         $this->editor_url  = 'https://oscss-shop.fr/';
 
         // Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated', 'experimental_deprecated' or a version string like 'x.y.z'
-        $this->version = '1.0';
+        $this->version    = '1.0';
         // Url to the file with your last numberversion of this module
         //$this->url_last_version = 'http://www.example.com/versionmodule.txt';
         // Key used in llx_const table to save module status enabled/disabled (where CONDITIONREPORT is value of property name of module in uppercase)
@@ -158,7 +158,7 @@ class modConditionreport extends DolibarrModules
         // Example: $this->const=array(1 => array('CONDITIONREPORT_MYNEWCONST1', 'chaine', 'myvalue', 'This is a constant to add', 1),
         //                             2 => array('CONDITIONREPORT_MYNEWCONST2', 'chaine', 'myvalue', 'This is another constant to add', 0, 'current', 1)
         // );
-        $this->const = array();
+        $this->const                   = array();
 
         // Some keys to add into the overwriting translation tables
         /* $this->overwrite_translation = array(
@@ -173,7 +173,7 @@ class modConditionreport extends DolibarrModules
 
         // Array to add new pages in new tabs
         $this->tabs   = array();
-        $this->tabs[] = array('data' => 'immorent@ultimateimmo:+tabcr:titleTabCR:conditionreport@conditionreport:$user->hasRight("conditionreport", "conditionreport", "read"):/conditionreport/tabcr.php?source=immorent&id=__ID__');
+        $this->tabs[] = array('data' => 'immorent@conditionreport:+tabcr:titleTabCR:conditionreport@conditionreport:$user->hasRight("conditionreport", "conditionreport", "read"):/conditionreport/tabcr.php?source=immorent&id=__ID__');
         $this->tabs[] = array('data' => 'immorenter@ultimateimmo:+tabcr:titleTabCR:conditionreport@conditionreport:$user->hasRight("conditionreport", "conditionreport", "read"):/conditionreport/tabcr.php?source=immorenter&id=__ID__');
         $this->tabs[] = array('data' => 'immoproperty@ultimateimmo:+tabcr:titleTabCR:conditionreport@conditionreport:$user->hasRight("conditionreport", "conditionreport", "read"):/conditionreport/tabcr.php?source=immoproperty&id=__ID__');
 
@@ -259,7 +259,7 @@ class modConditionreport extends DolibarrModules
         // Cronjobs (List of cron jobs entries to add when module is enabled)
         // unit_frequency must be 60 for minute, 3600 for hour, 86400 for day, 604800 for week
         /* BEGIN MODULEBUILDER CRON */
-        $this->cronjobs = array(
+        $this->cronjobs      = array(
             //  0 => array(
             //      'label' => 'MyJob label',
             //      'jobtype' => 'method',
@@ -402,7 +402,7 @@ class modConditionreport extends DolibarrModules
         $this->menu[$r++] = array(
             'fk_menu' => 'fk_mainmenu=conditionreport,fk_leftmenu=conditionreport',
             'type' => 'left',
-            'titre' => 'List Conditionreport',
+            'titre' => 'ListConditionreport',
             'mainmenu' => 'conditionreport',
             'leftmenu' => 'conditionreport_conditionreport_list',
             'url' => '/conditionreport/conditionreport_list.php',
@@ -416,7 +416,7 @@ class modConditionreport extends DolibarrModules
         $this->menu[$r++] = array(
             'fk_menu' => 'fk_mainmenu=conditionreport,fk_leftmenu=conditionreport',
             'type' => 'left',
-            'titre' => 'New Conditionreport',
+            'titre' => 'NewConditionreport',
             'mainmenu' => 'conditionreport',
             'leftmenu' => 'conditionreport_conditionreport_new',
             'url' => '/conditionreport/conditionreport_card.php?action=create',
@@ -448,7 +448,7 @@ class modConditionreport extends DolibarrModules
         $this->menu[$r++] = array(
             'fk_menu' => 'fk_mainmenu=conditionreport,fk_leftmenu=conditionreportroom',
             'type' => 'left',
-            'titre' => 'List Conditionreportroom',
+            'titre' => 'ListConditionreportroom',
             'mainmenu' => 'conditionreport',
             'leftmenu' => 'conditionreport_conditionreportroom_list',
             'url' => '/conditionreport/conditionreportroom_list.php',
@@ -462,7 +462,7 @@ class modConditionreport extends DolibarrModules
         $this->menu[$r++] = array(
             'fk_menu' => 'fk_mainmenu=conditionreport,fk_leftmenu=conditionreportroom',
             'type' => 'left',
-            'titre' => 'New Conditionreportroom',
+            'titre' => 'NewConditionreportroom',
             'mainmenu' => 'conditionreport',
             'leftmenu' => 'conditionreport_conditionreportroom_new',
             'url' => '/conditionreport/conditionreportroom_card.php?action=create',
@@ -563,8 +563,11 @@ class modConditionreport extends DolibarrModules
         }
 
         // Create extrafields during init
-        //include_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
-        //$extrafields = new ExtraFields($this->db);
+        include_once DOL_DOCUMENT_ROOT . '/core/class/extrafields.class.php';
+        $extrafields = new ExtraFields($this->db);
+        $result1     = $extrafields->addExtraField('civility', 'Civility', 'sellist', 1, null, 'thirdparty', 0, 0, '1', array('options' => ['c_civility:label:rowid::active=1' => null]), 0, '', 1, 'Civility', '', 0, 'companies', '$conf->conditionreport->enabled', 0, 2, ['css' => 'civility', 'csslist' => 'civility', 'cssview' => 'civility']);
+        $result2     = $extrafields->addExtraField('firstname', 'Firstname', 'varchar', 2, 255, 'thirdparty', 0, 0, '', '', 0, '', 1, 'Firstname', '', 0, 'companies', '$conf->conditionreport->enabled', 0, 2, ['css' => 'firstname', 'csslist' => 'firstname', 'cssview' => 'firstname']);
+
         //$result1=$extrafields->addExtraField('conditionreport_myattr1', "New Attr 1 label", 'boolean', 1,  3, 'thirdparty',   0, 0, '', '', 1, '', 0, 0, '', '', 'conditionreport@conditionreport', 'isModEnabled("conditionreport")');
         //$result2=$extrafields->addExtraField('conditionreport_myattr2', "New Attr 2 label", 'varchar', 1, 10, 'project',      0, 0, '', '', 1, '', 0, 0, '', '', 'conditionreport@conditionreport', 'isModEnabled("conditionreport")');
         //$result3=$extrafields->addExtraField('conditionreport_myattr3', "New Attr 3 label", 'varchar', 1, 10, 'bank_account', 0, 0, '', '', 1, '', 0, 0, '', '', 'conditionreport@conditionreport', 'isModEnabled("conditionreport")');

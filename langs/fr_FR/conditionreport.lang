@@ -23,9 +23,9 @@ Conditionreport = État des lieux
 Conditionreports = États des lieux
 conditionreport = état des lieux
 conditionreports = états des lieux
-Conditionreportroom = État des lieux d'une pièce
+Conditionreportroom = État d'une pièce
 Conditionreportsroom = États des lieux d'une pièce
-conditionreportroom = état des lieux d'une pièce
+conditionreportroom = état d'une pièce
 conditionreportsroom = états des lieux d'une pièce
 
 # Module description 'ModuleConditionreportDesc'
@@ -47,13 +47,13 @@ CONDITIONREPORT_MYPARAM2Tooltip=My param 2 tooltip
 # About page
 #
 About = About
-ConditionreportAbout = About État des lieux
-ConditionreportAboutPage = État des lieux about page
+ConditionreportAbout = A propos d'état des lieux
+ConditionreportAboutPage = État des lieux page d'information
 
 #
 # Sample page
 #
-ConditionreportArea = Accueil État des lieux
+ConditionreportArea = Accueil état des lieux
 MyPageName = My page name
 
 #
@@ -92,6 +92,8 @@ LoadRoomModele=Charger un modèle
 AddNewElement=Ajouter un nouvel élément
 Condition=État
 BadCondition=Mauvais état
+Leaks=Fuite
+NotVerified=Non vérifié
 PoorCondition=État Passable
 GoodCondition=Bon état
 ExcellentCondition=Très bon état
@@ -105,6 +107,7 @@ Type_heater=Type de chauffage
 InputCR=État des lieux d'entrée
 OutputCR=État des lieux de sortie
 tenantVisit=Visite de sécurité du logement
+Direction=Type d'état des lieux 
 DirectionCR0=État des lieux d'entrée
 DirectionCR1=État des lieux de sortie
 DirectionCR2=Visite de sécurité du logement
@@ -164,3 +167,19 @@ Images=Photographies
 ambiantHeater=Chauffage ambiant
 waterHeater=Chauffage d'eau chaude
 cookHeater=Appareil de cuisson
+
+ListConditionreport=Liste des états des lieux
+NewConditionreport=Nouvel état des lieux
+ListConditionreportroom=Liste d'états de pièces
+NewConditionreportroom=Nouvel état d'une pièce
+PreviousCR=État des lieux précédent
+linkToPreviousCR=Lien vers l'état des lieux d'entrée pour comparaison
+DiffCR=Comparaison
+
+MissingCRdiff=Ecart de quantité
+DegradedCRdiff=Dégradation
+InvoicedCR=Facturer
+reasonCR=Raison
+elementlabel=Élément
+ProductInvoiced=Produit à facturer
+CreateInvoice=Créer une facture

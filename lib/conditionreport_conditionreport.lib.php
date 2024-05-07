@@ -46,6 +46,13 @@ function conditionreportPrepareHead($object)
 	$head[$h][2] = 'card';
 	$h++;
 
+    if($object->fk_previous){
+		$head[$h][0] = dol_buildpath("/conditionreport/conditionreport_diff.php", 1).'?id='.$object->id;
+		$head[$h][1] = $langs->trans("DiffCR");
+		$head[$h][2] = 'diffcr';
+		$h++;
+	
+    }
 	if ($showtabofpagecontact) {
 		$head[$h][0] = dol_buildpath("/conditionreport/conditionreport_contact.php", 1).'?id='.$object->id;
 		$head[$h][1] = $langs->trans("Contacts");

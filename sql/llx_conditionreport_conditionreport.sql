@@ -22,6 +22,7 @@ CREATE TABLE llx_conditionreport_conditionreport(
 	fk_property integer, 
 	fk_lessor integer, 
 	fk_tenant integer, 
+	fk_previous integer NULL, 
 	description text, 
 	note_public text, 
 	note_private text, 

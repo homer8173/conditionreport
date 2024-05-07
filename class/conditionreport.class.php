@@ -24,6 +24,7 @@
  */
 // Put here all includes required by your class file
 require_once DOL_DOCUMENT_ROOT . '/core/class/commonobject.class.php';
+require_once DOL_DOCUMENT_ROOT . '/compta/facture/class/facture.class.php';
 //require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
 //require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
 dol_include_once('/conditionreport/class/conditionreportroom.class.php');
@@ -118,11 +119,12 @@ class Conditionreport extends CommonObject
         'rowid' => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "Id"),
         'ref' => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'validate' => '1', 'comment' => "Reference of object"),
         'label' => array('type' => 'varchar(255)', 'label' => 'Label', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth300', 'cssview' => 'wordbreak', 'help' => "Help text", 'validate' => '1',),
-        'fk_property' => array('type' => 'integer:ImmoProperty:custom/ultimateimmo/class/immoproperty.class.php:1:(status:=:1)', 'label' => 'RealEstate', 'picto' => 'company', 'enabled' => '1', 'position' => 51, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToProperty", 'validate' => '1',),
-        'fk_lessor' => array('type' => 'integer:ImmoOwner:custom/ultimateimmo/class/immoowner.class.php:1:(status:=:1)', 'label' => 'Lessor', 'picto' => 'company', 'enabled' => '1', 'position' => 51, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToLessor", 'validate' => '1',),
-        'fk_tenant' => array('type' => 'integer:ImmoRenter:custom/ultimateimmo/class/immorenter.class.php:1:(status:=:1)', 'label' => 'Tenant', 'picto' => 'company', 'enabled' => '1', 'position' => 52, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToTenant", 'validate' => '1',),
+        'fk_property' => array('type' => 'integer:ImmoProperty:ultimateimmo/class/immoproperty.class.php:1:(status:=:1)', 'label' => 'RealEstate', 'picto' => 'company', 'enabled' => '1', 'position' => 51, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToProperty", 'validate' => '1',),
+        'fk_lessor' => array('type' => 'integer:ImmoOwner:ultimateimmo/class/immoowner.class.php:1:(status:=:1)', 'label' => 'Lessor', 'picto' => 'company', 'enabled' => '1', 'position' => 51, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToLessor", 'validate' => '1',),
+        'fk_tenant' => array('type' => 'integer:ImmoRenter:conditionreport/class/conditionreport.class.php:1:(status:=:3conditionreport)', 'label' => 'Tenant', 'picto' => 'company', 'enabled' => '1', 'position' => 52, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToPreviousCR", 'validate' => '1',),
+        'fk_previous' => array('type' => 'integer:Conditionreport:ultimateimmo/class/immorenter.class.php:1:(status:=:1)', 'label' => 'PreviousCR', 'picto' => 'company', 'enabled' => '1', 'position' => 52, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToTenant", 'validate' => '1',),
         'description' => array('type' => 'html', 'label' => 'Description', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 3, 'validate' => '1',),
-        'direction' => array('type' => 'select', 'label' => 'Direction', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 1, 'arrayofkeyval' => ['0' => 'InputCR', '1' => 'OutputCR',2=>'tenantVisit']),
+        'direction' => array('type' => 'select', 'label' => 'Direction', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 1, 'arrayofkeyval' => ['0' => 'InputCR', '1' => 'OutputCR', 2 => 'tenantVisit']),
         'note_public' => array('type' => 'html', 'label' => 'NotePublic', 'enabled' => '1', 'position' => 61, 'notnull' => 0, 'visible' => 0, 'cssview' => 'wordbreak', 'validate' => '1',),
         'note_private' => array('type' => 'html', 'label' => 'NotePrivate', 'enabled' => '1', 'position' => 62, 'notnull' => 0, 'visible' => 0, 'cssview' => 'wordbreak', 'validate' => '1',),
         'date_creation' => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 500, 'notnull' => 1, 'visible' => -2,),
@@ -237,6 +239,11 @@ class Conditionreport extends CommonObject
                 }
             }
         }
+        if (!isModEnabled("ultimateimmo")) {
+            $this->fields['fk_property']['type'] = 'integer:Product:product/class/product.class.php:1:(tosell:=:1)';
+            $this->fields['fk_lessor']['type']   = 'integer:Societe:societe/class/societe.class.php:1:(status:=:1)';
+            $this->fields['fk_tenant']['type']   = 'integer:Societe:societe/class/societe.class.php:1:(status:=:1)';
+        }
     }
 
     /**
@@ -259,6 +266,9 @@ class Conditionreport extends CommonObject
                 foreach ($model[$rooms] as $roomModel) {
                     $this->loadModel($user, $roomModel);
                 }
+            }
+            if ($this->direction == '2') {
+                $this->loadModel($user, '20securite.json');
             }
         }
         //$resultvalidate = $this->validate($user, $notrigger);
@@ -327,7 +337,8 @@ class Conditionreport extends CommonObject
                 }
             }
         }
-
+        // set previous 
+        $object->fk_previous                = $this->id;
         // Create clone
         $object->context['createfromclone'] = 'createfromclone';
         $result                             = $object->createCommon($user);
@@ -1683,6 +1694,164 @@ class Conditionreport extends CommonObject
         } else { //KO
             return $url;
         }
+    }
+
+    /**
+     * Load diff list with fk_previous
+     *
+     * @param   int				$param				0=True url, 1=Url formated with colors
+     * @return	string								Url string
+     */
+    function getDiffList($param = false)
+    {
+        $diff     = [];
+        $previous = new self($this->db);
+        $res      = $previous->fetch($this->fk_previous);
+        if (!$res)
+            return $diff;
+        foreach ($this->lines as $id1 => $crl) {
+            // same room
+            if (isset($previous->lines[$id1]) && $crl->label == $previous->lines[$id1]->label) {
+                foreach ($crl->lines as $id2 => $line) {
+                    //same element but qty doen't match
+                    if (isset($previous->lines[$id1]->lines[$id2]) &&
+                        $line->qty < $previous->lines[$id1]->lines[$id2]->qty &&
+                        $line->label == $previous->lines[$id1]->lines[$id2]->label
+                    ) {
+                        $ret               = new stdClass();
+                        $ret->reason       = 'MissingCRdiff';
+                        $ret->roomlabel    = $crl->label;
+                        $ret->roomid       = $crl->id;
+                        $ret->elementlabel = $line->label;
+                        $ret->qty          = $previous->lines[$id1]->lines[$id2]->qty - $line->qty;
+                        $ret->description  = $line->description;
+                        $ret->condition    = $line->condition;
+                        $diff[]            = $ret;
+                    }
+                    //same element but quality doesn't match
+                    elseif (isset($previous->lines[$id1]->lines[$id2]) &&
+                        $line->condition < $previous->lines[$id1]->lines[$id2]->condition &&
+                        $line->label == $previous->lines[$id1]->lines[$id2]->label) {
+                        $ret               = new stdClass();
+                        $ret->reason       = 'DegradedCRdiff';
+                        $ret->roomlabel    = $crl->label;
+                        $ret->roomid       = $crl->id;
+                        $ret->elementlabel = $line->label;
+                        $ret->qty          = $line->qty;
+                        $ret->description  = $line->description;
+                        $ret->condition    = $line->condition;
+                        $diff[]            = $ret;
+                    }
+                }
+            }
+        }
+        return $diff;
+    }
+
+    /**
+     * return label of the condition id
+     *
+     * @param   int				$condition				the condition id
+     * @return	string								Url string
+     */
+    function getLabelCondition($condition)
+    {
+        global $langs;
+        return $langs->trans(Conditionreportroom::CONDITION[$condition]);
+    }
+
+    /**
+     * Do something
+     *
+     * @param   int				$rows				0=True url, 1=Url formated with colors
+     * @return	string								Url string
+     */
+    function createInvoice(array $rows)
+    {
+        global $user,$conf;
+        $invoice                 = new Facture($this->db);
+        $invoice->linked_objects = ['conditionreport' => $this->id];
+        $invoice->socid         = $this->fk_tenant;
+        $invoice->date=time();
+        $invoice->cond_reglement_id=1; //ASAP
+        $res = $invoice->create($user);
+//        $invoice->fetch_thirdparty();
+        
+        foreach ($rows as $row) {
+            //only selected rows
+            if ($row['selected'] == 1) {
+                $pu_ht = 0;
+                $txtva                   =       0;
+                if ($row['product_id']) {
+                    $prod = new Product($this->db);
+                    if ($prod->fetch($row['product_id'])) {
+                        $pu_ht = $prod->price;
+                        $txtva = $prod->tva_tx;
+                    }
+                }
+                $txlocaltax1             = 0;
+                $txlocaltax2             = 0;
+                $remise_percent          = 0;
+                $date_start              = '';
+                $date_end                = '';
+                $ventil                  = 0;
+                $info_bits               = 0;
+                $fk_remise_except        = '';
+                $price_base_type         = 'HT';
+                $pu_ttc                  = 0;
+                $type                    = 0;
+                $rang                    = -1;
+                $special_code            = 0;
+                $origin                  = '';
+                $origin_id               = 0;
+                $fk_parent_line          = 0;
+                $fk_fournprice           = null;
+                $pa_ht                   = 0;
+                $label                   = $row['label'];
+                $array_options           = 0;
+                $situation_percent       = 100;
+                $fk_prev_id              = 0;
+                $fk_unit                 = null;
+                $pu_ht_devise            = 0;
+                $ref_ext                 = '';
+                $noupdateafterinsertline = 0;
+                $invoice->addline(
+                    $row['description'],
+                    $pu_ht,
+                    $row['qty'],
+                    $txtva,
+                    $txlocaltax1,
+                    $txlocaltax2,
+                    $row['product_id'],
+                    $remise_percent,
+                    $date_start,
+                    $date_end,
+                    $ventil,
+                    $info_bits,
+                    $fk_remise_except,
+                    $price_base_type,
+                    $pu_ttc,
+                    $type,
+                    $rang,
+                    $special_code,
+                    $origin,
+                    $origin_id,
+                    $fk_parent_line,
+                    $fk_fournprice,
+                    $pa_ht,
+                    $label,
+                    $array_options,
+                    $situation_percent,
+                    $fk_prev_id,
+                    $fk_unit,
+                    $pu_ht_devise,
+                    $ref_ext,
+                    $noupdateafterinsertline
+                );
+            }
+        }
+        $res = $invoice->update($user);
+        return $invoice->id;
     }
 }
 

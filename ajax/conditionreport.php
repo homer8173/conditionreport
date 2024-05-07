@@ -92,8 +92,8 @@ restrictedArea($user, 'conditionreport', 0, 'conditionreport', 'conditionreportr
 dol_syslog("Call ajax conditionreport/ajax/conditionreport.php");
 
 top_httphead('application/json');
-$arrayresult = [];
-if ($action == 'updateLine') {
+$arrayresult = ['Nothing to do'];
+if ($action == 'updateLine'&& GETPOSTISSET('value')) {
     $object = new ConditionreportroomLine($db);
     if ($object->fetch($id) > 0) {
         $object->$target = $value;

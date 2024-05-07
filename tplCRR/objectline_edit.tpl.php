@@ -121,10 +121,15 @@ $coldisplay = 0;
         <?php
         $coldisplay++;
         $conditions = [];
+        print '<select id="condition" name="condition" class="minwidth75">';
         foreach (Conditionreportroom::CONDITION as $key => $value) {
             $conditions[$key] = $langs->trans($value);
+            print '<option value="' . $key . '">' . $langs->trans($value) . '</option>';
         }
-        print $form->selectarray('condition', $conditions, (GETPOSTISSET('condition') ? GETPOST('condition') : $line->condition), 0, 0, 0, '', 0, 0, 0, '', 'minwidth75', 0);
+        print '</select>';
+
+        //print $form->selectarray('condition', $conditions, (GETPOSTISSET('condition') ? GETPOST('condition') : $line->condition), 0, 0, 0, '', 0, 0, 0, '', 'minwidth75', 0);
+
         ?>
     </td>
     <td class="linecoldesc minwidth250onall">

@@ -119,6 +119,7 @@ ob_start();
             let targetID = $(this).data('targetid'); // the line ID
             let target = $(this).data('target');
             let val = $('[data-id="' + target + '_' + targetID + '"]').val(); // the value of the field
+            console.log(targetID,target,val,button);
             // Requête AJAX POST
             $.post('<?php print dol_buildpath('/conditionreport/ajax/conditionreport.php', 1); ?>',
                     {action: 'updateLine', id: targetID, target: target, value: val},
