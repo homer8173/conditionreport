@@ -176,6 +176,8 @@ class modConditionreport extends DolibarrModules
         $this->tabs[] = array('data' => 'immorent@conditionreport:+tabcr:titleTabCR:conditionreport@conditionreport:$user->hasRight("conditionreport", "conditionreport", "read"):/conditionreport/tabcr.php?source=immorent&id=__ID__');
         $this->tabs[] = array('data' => 'immorenter@ultimateimmo:+tabcr:titleTabCR:conditionreport@conditionreport:$user->hasRight("conditionreport", "conditionreport", "read"):/conditionreport/tabcr.php?source=immorenter&id=__ID__');
         $this->tabs[] = array('data' => 'immoproperty@ultimateimmo:+tabcr:titleTabCR:conditionreport@conditionreport:$user->hasRight("conditionreport", "conditionreport", "read"):/conditionreport/tabcr.php?source=immoproperty&id=__ID__');
+        $this->tabs[] = array('data' => 'thirdparty:+tabcr:titleTabCR:conditionreport@conditionreport:$user->hasRight("conditionreport", "conditionreport", "read"):/conditionreport/tabcr.php?source=societe&id=__ID__');
+        $this->tabs[] = array('data' => 'product:+tabcr:titleTabCR:conditionreport@conditionreport:$user->hasRight("conditionreport", "conditionreport", "read"):/conditionreport/tabcr.php?source=product&id=__ID__');
 
         // Example:
         // $this->tabs[] = array('data'=>'objecttype:+tabname2:SUBSTITUTION_Title2:mylangfile@conditionreport:$user->hasRight('othermodule', 'read'):/conditionreport/mynewtab2.php?id=__ID__',  	// To add another new tab identified by code tabname2. Label will be result of calling all substitution functions on 'Title2' key.

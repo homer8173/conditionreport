@@ -96,7 +96,7 @@ $formSetup = new FormSetup($db);
 
 // CONDITIONREPORT_ONLINE_SIGNATURE_SECURITY_TOKEN used for online sign
 
-$item = $formSetup->newItem('CONDITIONREPORT_ONLINE_SIGNATURE_SECURITY_TOKEN');
+$item = $formSetup->newItem('CONDITIONREPORT_ONLINE_SIGNATURE_SECURITY_TOKEN')->setAsSecureKey();
 $item->defaultFieldValue = uniqid('KEY');
 $item = $formSetup->newItem('CONDITIONREPORT_OVH_ACCOUNT');
 $item = $formSetup->newItem('CONDITIONREPORT_OVH_SMS_LOGIN');

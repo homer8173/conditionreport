@@ -61,6 +61,8 @@ if (!$res) {
 }
 
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/product.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/html.formfile.class.php';
 if (isModEnabled('project')) {
@@ -110,7 +112,7 @@ if (!$sortorder) {
 if (!$sortfield) {
     $sortfield = "rowid";
 }
-
+$filtermode='AND';
 $search = [];
 switch ($source) {
     case 'immorenter':
@@ -124,8 +126,19 @@ switch ($source) {
     case 'immorent':
         $object                = new ImmoRent($db);
         break;
+    case 'product':
+        $object                = new Product($db);
+        $search['fk_property'] = $id;
+        break;
+    case 'societe':
+        $object                = new Societe($db);
+        $search['fk_tenant']   = $id;
+        $search['fk_lessor']   = $id;
+        $filtermode='OR';
+        break;
 
     default:
+        die('Unknown source');
         break;
 }
 $object->fetch($id, $ref);
@@ -178,6 +191,12 @@ if ($object->id > 0) {
         case 'immorent':
             $head = immorentPrepareHead($object);
             break;
+        case 'societe':
+            $head = societe_prepare_head($object);
+            break;
+        case 'product':
+            $head = product_prepare_head($object);
+            break;
 
         default:
             $head = [];
@@ -220,7 +239,7 @@ if ($object->id > 0) {
     print dol_get_fiche_end();
 
     $crs  = new Conditionreport($db);
-    $list = $crs->fetchAll($sortorder, $sortfield, 20, 0, $search);
+    $list = $crs->fetchAll($sortorder, $sortfield, 20, 0, $search,$filtermode);
 
     // Re-sort list
 //    $list        = dol_sort_array($list, $sortfield, $sortorder, 1, 0, 1);

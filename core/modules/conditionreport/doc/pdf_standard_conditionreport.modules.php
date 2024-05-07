@@ -35,6 +35,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/functions2.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/pdf.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
+require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
 
 dol_include_once('/conditionreport/lib/conditionreport.lib.php');
 dol_include_once('/conditionreport/core/modules/conditionreport/modules_conditionreport.php');
@@ -650,7 +651,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
 
                 $pdf->Close();
 
-                $pdf->Output($file, 'I');
+                $pdf->Output($file, 'F');
 
                 // Add pdfgeneration hook
                 $hookmanager->initHooks(array('pdfgeneration'));
@@ -918,7 +919,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
                 $carac_emetteur_name = html_entity_decode(getCivilityLabel($lessor->civility_id) . " " . $lessor->lastname . " " . $lessor->firstname);
                 $carac_emetteur      = html_entity_decode($lessor->address . "\n" . $lessor->zip . " " . $lessor->town . "\n" . $lessor->getCountry($lessor->country_id));
             } elseif ($r > 0 && is_object($lessor) && get_parent_class($object) == 'CommonObject') {
-                $carac_emetteur_name = html_entity_decode($lessor->array_options['options_civility_id']?getCivilityLabel($lessor->array_options['options_civility_id']) . " ":'' . $lessor->name . " " . $lessor->array_options['options_firstname']);
+                $carac_emetteur_name = html_entity_decode(($lessor->array_options['options_civility'] ? getCivilityLabel($lessor->array_options['options_civility']) . " " : '') . $lessor->name . " " . $lessor->array_options['options_firstname']);
                 $carac_emetteur      = pdf_build_address($outputlangs, $lessor, $object->thirdparty, '', 0, 'source', $object);
             }
 
@@ -969,12 +970,9 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
                 $carac_client_name = html_entity_decode($tenant->name . " " . $tenant->array_options['options_firstname']);
                 $carac_client      = html_entity_decode($outputlangs->trans("BornAt") . " " . $tenant->town . ", " . $tenant->country) . "\n";
             } elseif ($r > 0 && is_object($tenant) && get_parent_class($tenant) == 'CommonObject') {
-                $carac_client_name = html_entity_decode(getCivilityLabel($tenant->civility_id) . " " . $tenant->lastname . " " . $tenant->firstname);
-           
-				$carac_client_name = pdfBuildThirdpartyName($tenant, $outputlangs);
-//                $carac_client      = pdf_build_address($outputlangs, $tenant, $object->thirdparty, ($usecontact ? $object->contact : ''), $usecontact, 'target', $object);
-
-//                $carac_client      = html_entity_decode($outputlangs->trans("BornAt") . " " . $tenant->town . ", " . $tenant->getCountry($tenant->country_id)) . "\n";
+//				$carac_client_name = pdfBuildThirdpartyName($tenant, $outputlangs);
+                $carac_client_name = html_entity_decode(($tenant->array_options['options_civility'] ? getCivilityLabel($tenant->array_options['options_civility']) . " " : '') . $tenant->name . " " . $tenant->array_options['options_firstname']);
+                $carac_client      = pdf_build_address($outputlangs, $lessor, $tenant, '', 0, 'target', $object);
             }
 
 //            $mode         = 'target';
@@ -1019,7 +1017,13 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
                 $posy += 10;
             }
             //load lodgement
-            $prop           = new ImmoProperty($this->db);
+            if (isModEnabled("ultimateimmo")) {
+                $prop = new ImmoProperty($this->db);
+            } else {
+
+                $prop = new Product($this->db);
+            }
+
             $prop->fetch($object->fk_property);
             $this->property = $prop;
 
@@ -1034,36 +1038,45 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
             $pdf->Rect($posx, $posy, $widthrecbox, $hautcadre * 1.55);
 
             // show lodgement
-            $lodgement_carac = $prop->label . " " . $prop->type . " ID" . $prop->ref;
-            $lodgement_carac .= ", " . $prop->address . " " . $prop->zip . " " . $prop->town . ", " . $prop->getCountry($prop->country_id);
+            if (isModEnabled("ultimateimmo")) {
+                $lodgement_carac = $prop->label . " " . $prop->type . " ID" . $prop->ref;
+                $lodgement_carac .= ", " . $prop->address . " " . $prop->zip . " " . $prop->town . ", " . $prop->getCountry($prop->country_id);
+            } else {
+                $lodgement_carac = $prop->label . " " . $prop->ref;
+                $lodgement_carac .= ", " . $prop->description;
+            }
             $pdf->SetXY($posx + 2, $posy + 3);
             $pdf->SetFont('', 'B', $default_font_size);
             $pdf->SetTextColor(0, 0, 60);
             $pdf->MultiCell($widthrecbox, 2, $lodgement_carac, 0, $ltrdirection);
 
-            $posy                    = $pdf->getY();
-            $lodgement_carac_details = '  ';
-            $lodgement_carac_details .= $outputlangs->transnoentities("Juridique") . ": " . html_entity_decode($prop->fields['juridique_id']['arrayofkeyval'][$prop->juridique_id]) . "  \n  ";
-            $lodgement_carac_details .= $outputlangs->transnoentities("DateBuilt") . ": " . html_entity_decode($prop->fields['datebuilt']['arrayofkeyval'][$prop->datebuilt]) . "  \n  ";
-            $lodgement_carac_details .= $outputlangs->transnoentities("Area") . ": " . html_entity_decode($prop->area) . " m²  \n  ";
-            $lodgement_carac_details .= $outputlangs->transnoentities("NumberOfRoom") . ": " . html_entity_decode($prop->numroom) . "  \n  ";
-            $lodgement_carac_details .= $outputlangs->transnoentities("NumFlat") . ": " . html_entity_decode($prop->numflat) . "  \n  ";
-            $lodgement_carac_details .= $outputlangs->transnoentities("NumDoor") . ": " . html_entity_decode($prop->numdoor) . "  \n  ";
-            $lodgement_carac_details .= $outputlangs->transnoentities("NumFloor") . ": " . html_entity_decode($prop->numfloor) . "  \n  ";
-            $lodgement_carac_details .= $outputlangs->transnoentities("Staircase") . ": " . html_entity_decode($prop->staircase) . "  \n  ";
-            $lodgement_carac_details .= $outputlangs->transnoentities("Building") . ": " . html_entity_decode($prop->building) . "  \n  ";
-            $lodgement_carac_details .= $outputlangs->transnoentities("UISectioncadastrale") . ": " . html_entity_decode($prop->section_cadastrale) . "  \n  ";
-            $lodgement_carac_details .= $outputlangs->transnoentities("UIParcellecadastrale") . ": " . html_entity_decode($prop->parcelle_cadastrale) . "  \n  ";
-            $lodgement_carac_details .= $outputlangs->transnoentities("UINumPrmEdf") . ": " . html_entity_decode($prop->num_prm_edf) . "  \n  ";
-            $lodgement_carac_details .= $outputlangs->transnoentities("UINumLigneNet") . ": " . html_entity_decode($prop->num_internet_line);
+            $posy = $pdf->getY();
 
+                $lodgement_carac_details = '  ';
+            if (isModEnabled("ultimateimmo")) {
+                $lodgement_carac_details .= $outputlangs->transnoentities("Juridique") . ": " . html_entity_decode($prop->fields['juridique_id']['arrayofkeyval'][$prop->juridique_id]) . "  \n  ";
+                $lodgement_carac_details .= $outputlangs->transnoentities("DateBuilt") . ": " . html_entity_decode($prop->fields['datebuilt']['arrayofkeyval'][$prop->datebuilt]) . "  \n  ";
+                $lodgement_carac_details .= $outputlangs->transnoentities("Area") . ": " . html_entity_decode($prop->area) . " m²  \n  ";
+                $lodgement_carac_details .= $outputlangs->transnoentities("NumberOfRoom") . ": " . html_entity_decode($prop->numroom) . "  \n  ";
+                $lodgement_carac_details .= $outputlangs->transnoentities("NumFlat") . ": " . html_entity_decode($prop->numflat) . "  \n  ";
+                $lodgement_carac_details .= $outputlangs->transnoentities("NumDoor") . ": " . html_entity_decode($prop->numdoor) . "  \n  ";
+                $lodgement_carac_details .= $outputlangs->transnoentities("NumFloor") . ": " . html_entity_decode($prop->numfloor) . "  \n  ";
+                $lodgement_carac_details .= $outputlangs->transnoentities("Staircase") . ": " . html_entity_decode($prop->staircase) . "  \n  ";
+                $lodgement_carac_details .= $outputlangs->transnoentities("Building") . ": " . html_entity_decode($prop->building) . "  \n  ";
+                $lodgement_carac_details .= $outputlangs->transnoentities("UISectioncadastrale") . ": " . html_entity_decode($prop->section_cadastrale) . "  \n  ";
+                $lodgement_carac_details .= $outputlangs->transnoentities("UIParcellecadastrale") . ": " . html_entity_decode($prop->parcelle_cadastrale) . "  \n  ";
+                $lodgement_carac_details .= $outputlangs->transnoentities("UINumPrmEdf") . ": " . html_entity_decode($prop->num_prm_edf) . "  \n  ";
+                $lodgement_carac_details .= $outputlangs->transnoentities("UINumLigneNet") . ": " . html_entity_decode($prop->num_internet_line);
+            } else {
+                $lodgement_carac_details = $prop->description;
+            }
             // Show lodgement details
             $pdf->SetFont('', '', $default_font_size - 1);
             $pdf->SetXY($posx + 2, $posy);
             $pdf->MultiCell($widthrecbox, 4, $lodgement_carac_details, 0, $ltrdirection);
         }
         // type heaters
-        if ($showaddress) {
+        if (isModEnabled("ultimateimmo") && $showaddress) {
             $posy    += $hautcadre * 1.55 + 10;
             $posx    = $this->marge_gauche;
             $pdf->SetTextColor(0, 0, 0);

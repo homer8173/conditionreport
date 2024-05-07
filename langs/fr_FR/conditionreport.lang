@@ -36,7 +36,7 @@ ModuleConditionreportDesc = Gestion des état des lieux
 #
 ConditionreportSetup = État des lieux setup
 Settings = Settings
-ConditionreportSetupPage = État des lieux setup page
+ConditionreportSetupPage = État des lieux page de réglage, les SMS doivent être acheté ici : <a href="https://www.ovhcloud.com/fr/sms/" target="_blank">https://www.ovhcloud.com/fr/sms/</a>
 CONDITIONREPORT_MYPARAM1 = My param 1
 CONDITIONREPORT_MYPARAM1Tooltip = My param 1 tooltip
 CONDITIONREPORT_MYPARAM2=My param 2
@@ -183,3 +183,5 @@ reasonCR=Raison
 elementlabel=Élément
 ProductInvoiced=Produit à facturer
 CreateInvoice=Créer une facture
+createRDV=Créer un RDV
+createInter=Créer une intervention
