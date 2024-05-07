@@ -608,6 +608,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             if (isModEnabled("ficheinter")) {
                 print dolGetButtonAction('', $langs->trans('createInter'), 'default', dol_buildpath('/fichinter/card.php', 2) . '?actioncode=AC_RDV&socid=' . $object->fk_tenant . '&origin=conditionreport&originid=' . $object->id . '&action=create&token=' . newToken(), '', $permissiontoadd);
             }
+            if (isModEnabled("ticket")) {
+                print dolGetButtonAction('', $langs->trans('createTicket'), 'default', dol_buildpath('/ticket/card.php', 2) . '?socid=' . $object->fk_tenant . '&origin=conditionreport&originid=' . $object->id . '&action=create&token=' . newToken(), '', $permissiontoadd);
+            }
 
 
             // Back to draft
