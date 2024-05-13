@@ -12,6 +12,6 @@
  */
 function conditionreport_completesubstitutionarray(&$substitutionarray, $outputlangs, $object, $parameters)
 {
-    if (is_object($object))
+    if (is_object($object)&& is_callable([$object ,'getOnlineSignatureUrl']) && get_class($object) =='Conditionreport')
         $substitutionarray['__ONLINE_SIGN_URL__'] = $object->getOnlineSignatureUrl(0, 'conditionreport', $object->ref, 1, $object);
 }
