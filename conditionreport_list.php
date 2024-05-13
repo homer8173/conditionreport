@@ -80,6 +80,7 @@ if (!$res) {
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
 
 // load module libraries
 require_once __DIR__.'/class/conditionreport.class.php';
@@ -121,6 +122,8 @@ $pagenext = $page + 1;
 // Initialize technical objects
 $object = new Conditionreport($db);
 $extrafields = new ExtraFields($db);
+$formfile = new FormFile($db);
+
 $diroutputmassaction = $conf->conditionreport->dir_output.'/temp/massgeneration/'.$user->id;
 $hookmanager->initHooks(array($contextpage)); 	// Note that conf->hooks_modules contains array of activated contexes
 
@@ -789,6 +792,17 @@ while ($i < $imaxinloop) {
 				} else {
 					print $object->showOutputField($val, $key, $object->$key, '');
 				}
+                if ($key == 'ref') {                    
+                    $filename = dol_sanitizeFileName($object->ref);
+                    $filedir = $conf->facture->dir_output.'/'.dol_sanitizeFileName($obj->ref);
+                    
+                $filedir = $conf->conditionreport->dir_output . '/conditionreport/'.$filename;
+                
+               $filedir = $conf->conditionreport->multidir_output[$conf->entity] . "/conditionreport/" . dol_sanitizeFileName($object->ref);
+//               die($filedir);
+                    $urlsource = $_SERVER['PHP_SELF'].'?id='.$object->id;
+                    print $formfile->getDocumentsLink('conditionreport-conditionreport', $filename, $filedir);
+                }
 				print '</td>';
 				if (!$i) {
 					$totalarray['nbfield']++;
