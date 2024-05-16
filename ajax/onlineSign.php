@@ -118,6 +118,17 @@ if (empty($SECUREKEY) || !dol_verifyHash($securekeyseed . $type . $ref . (!isMod
     httponly_accessforbidden('Bad value for securitykey. Value provided ' . dol_escape_htmltag($SECUREKEY) . ' does not match expected value for ref=' . dol_escape_htmltag($ref), 403);
 }
 
+/**
+ * sort File By Time
+ *
+ * @param  string				$a				file a
+ * @param  string				$b				file b
+ * @return	bool								
+     */
+function sortFileByTime($a,$b)
+{
+    return filemtime($b) <=> filemtime($a);
+}
 
 /*
  * Actions
@@ -174,7 +185,7 @@ if ($action == "importSignature") {
                     if ($signatureMode == 'tenant') {
                         $files = glob($upload_dir . $ref . "_signed-*.pdf");
                         if (count($files)) {
-                            usort($files, fn($a, $b) => filemtime($b) <=> filemtime($a));
+                            usort($files, 'sortFileByTime');
                             $sourcefile=$files[0];
                         }
                     }

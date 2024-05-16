@@ -1712,37 +1712,39 @@ class Conditionreport extends CommonObject
         if (!$res)
             return $diff;
         foreach ($this->lines as $id1 => $crl) {
-            // same room
-            if (isset($previous->lines[$id1]) && $crl->label == $previous->lines[$id1]->label) {
-                foreach ($crl->lines as $id2 => $line) {
-                    //same element but qty doen't match
-                    if (isset($previous->lines[$id1]->lines[$id2]) &&
-                        $line->qty < $previous->lines[$id1]->lines[$id2]->qty &&
-                        $line->label == $previous->lines[$id1]->lines[$id2]->label
-                    ) {
-                        $ret               = new stdClass();
-                        $ret->reason       = 'MissingCRdiff';
-                        $ret->roomlabel    = $crl->label;
-                        $ret->roomid       = $crl->id;
-                        $ret->elementlabel = $line->label;
-                        $ret->qty          = $previous->lines[$id1]->lines[$id2]->qty - $line->qty;
-                        $ret->description  = $line->description;
-                        $ret->condition    = $line->condition;
-                        $diff[]            = $ret;
-                    }
-                    //same element but quality doesn't match
-                    elseif (isset($previous->lines[$id1]->lines[$id2]) &&
-                        $line->condition < $previous->lines[$id1]->lines[$id2]->condition &&
-                        $line->label == $previous->lines[$id1]->lines[$id2]->label) {
-                        $ret               = new stdClass();
-                        $ret->reason       = 'DegradedCRdiff';
-                        $ret->roomlabel    = $crl->label;
-                        $ret->roomid       = $crl->id;
-                        $ret->elementlabel = $line->label;
-                        $ret->qty          = $line->qty;
-                        $ret->description  = $line->description;
-                        $ret->condition    = $line->condition;
-                        $diff[]            = $ret;
+            // search room in previous
+            foreach ($previous->lines as $ij1 => $pline) {
+                if ($crl->label == $pline->label) {
+                    foreach ($crl->lines as $id2 => $line) {
+                        //search element in previous
+                        foreach ($pline->lines as $ij2 => $plineLine) {
+                            if ($line->label == $plineLine->label) {
+                                //same element but qty doen't match
+                                if ($line->qty < $plineLine->qty) {
+                                    $ret               = new stdClass();
+                                    $ret->reason       = 'MissingCRdiff';
+                                    $ret->roomlabel    = $crl->label;
+                                    $ret->roomid       = $crl->id;
+                                    $ret->elementlabel = $line->label;
+                                    $ret->qty          = $plineLine->qty - $line->qty;
+                                    $ret->description  = $line->description;
+                                    $ret->condition    = $line->condition;
+                                    $diff[]            = $ret;
+                                }
+                                //same element but quality doesn't match
+                                elseif ($line->condition != $plineLine->condition) {
+                                    $ret               = new stdClass();
+                                    $ret->reason       = 'DegradedCRdiff';
+                                    $ret->roomlabel    = $crl->label;
+                                    $ret->roomid       = $crl->id;
+                                    $ret->elementlabel = $line->label;
+                                    $ret->qty          = $line->qty;
+                                    $ret->description  = $line->description;
+                                    $ret->condition    = $line->condition;
+                                    $diff[]            = $ret;
+                                }
+                            }
+                        }
                     }
                 }
             }
