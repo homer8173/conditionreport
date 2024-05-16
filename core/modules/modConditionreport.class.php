@@ -87,7 +87,7 @@ class modConditionreport extends DolibarrModules
         // Define some features supported by module (triggers, login, substitutions, menus, css, etc...)
         $this->module_parts = array(
             // Set this to 1 if module has its own trigger directory (core/triggers)
-            'triggers' => 0,
+            'triggers' => 1,
             // Set this to 1 if module has its own login method file (core/login)
             'login' => 0,
             // Set this to 1 if module has its own substitution function file (core/substitutions)
@@ -115,7 +115,7 @@ class modConditionreport extends DolibarrModules
             // Set here all hooks context managed by module. To find available hook context, make a "grep -r '>initHooks(' *" on source code. You can also set hook context to 'all'
             'hooks' => array(
                 'data' => array(
-                    'rowinterface', 'immorentcard', 'immopropertycard'
+                    'rowinterface', 'immorentcard', 'immopropertycard','emailtemplates'
                 ),
                 'entity' => '0',
             ),
@@ -232,16 +232,18 @@ class modConditionreport extends DolibarrModules
         /* BEGIN MODULEBUILDER DICTIONARIES */
         $this->dictionaries = array(
             'langs' => 'conditionreport@conditionreport',
-            'tabname' => array('c_type_heater'),
-            'tablib' => array('Type_heater'),
-            'tabsql' => array('SELECT t.rowid as rowid, t.code, t.label, t.active FROM llx_c_type_heater as t'),
-            'tabsqlsort' => array('label ASC'),
-            'tabfield' => array('code,label'),
-            'tabfieldvalue' => array('code,label'),
-            'tabfieldinsert' => array('code,label'),
-            'tabrowid' => array('rowid'),
-            'tabcond' => array(isModEnabled('conditionreport')),
-            'tabhelp' => array(array('code' => $langs->trans('CodeTooltipHelp'), 'field2' => 'field2tooltip')),
+            'tabname' => array('c_type_heater','c_conditions'),
+            'tablib' => array('Type_heater','Conditions'),
+            'tabsql' => array('SELECT t.rowid as rowid, t.code, t.label, t.active FROM llx_c_type_heater as t',
+                'SELECT `rowid`, `label`,color, `position`, `active` FROM `llx_c_conditions` '),
+            'tabsqlsort' => array('label ASC','position ASC'),
+            'tabfield' => array('code,label','label,color,position'),
+            'tabfieldvalue' => array('code,label','label,color,position'),
+            'tabfieldinsert' => array('code,label','label,color,position'),
+            'tabrowid' => array('rowid','rowid'),
+            'tabcond' => array(isModEnabled('conditionreport'),isModEnabled('conditionreport')),
+            'tabhelp' => array(array('code' => $langs->trans('CodeTooltipHelp'), 'field2' => 'field2tooltip'),
+                array('code' => $langs->trans('CodeTooltipHelp'), 'field2' => 'field2tooltip'),),
         );
         /* END MODULEBUILDER DICTIONARIES */
 

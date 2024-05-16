@@ -611,9 +611,9 @@ if ($source == 'proposal') {
     print '<tr class="CTableRow2"><td class="CTableRow2">' . $langs->trans("TheLessor");
     print '</td><td class="CTableRow2">';
     print img_picto('', 'company', 'class="pictofixedwidth"');
-    $lessor = new ImmoOwner($db);
+    $lessor = new Societe($db);
     $lessor->fetch($object->fk_lessor);
-    print '<b>' . $lessor->civility . ' ' . $lessor->firstname . ' ' . $lessor->lastname . '</b>';
+    print '<b>' . $lessor->array_options['options_civility'] . ' ' . $lessor->name . ' ' . $lessor->array_options['options_firstname'] . ' ' . $lessor->lastname . '</b>';
     print '<input type="hidden" name="creditor" value="' . $creditor . '">';
     print '</td></tr>' . "\n";
 
@@ -621,9 +621,9 @@ if ($source == 'proposal') {
     print '<tr class="CTableRow2"><td class="CTableRow2">' . $langs->trans("TheTenant");
     print '</td><td class="CTableRow2">';
     print img_picto('', 'company', 'class="pictofixedwidth"');
-    $renter = new ImmoRenter($db);
-    $renter->fetch($object->fk_lessor);
-    print '<b>' . $renter->civility . ' ' . $renter->firstname . ' ' . $renter->lastname . '</b>';
+    $renter = new Societe($db);
+    $renter->fetch($object->fk_tenant);
+    print '<b>' . $renter->array_options['options_civility'] . ' ' . $lessor->name . ' ' . $renter->array_options['options_firstname'] . ' ' . $renter->lastname . '</b>';
     print '</td></tr>' . "\n";
 
     // Object
@@ -789,7 +789,7 @@ if ($action == "dosign" && empty($cancel)) {
 
             if ($object->status == Conditionreport::STATUS_SIGNED_LESSOR && $signature == 'lessor') {
                 //print ;
-                print '<br><br><a href="'. dol_buildpath('/conditionreport/conditionreport_card.php?id=',2).$object->id.'" class="butAction small wraponsmartphone marginbottomonly marginleftonly marginrightonly reposition">' . $langs->trans("BackToCR") . '</a>';
+                print '<br><br><a href="' . dol_buildpath('/conditionreport/conditionreport_card.php?id=', 2) . $object->id . '" class="butAction small wraponsmartphone marginbottomonly marginleftonly marginrightonly reposition">' . $langs->trans("BackToCR") . '</a>';
             }
         } else {
             print '<input type="submit" class="butAction small wraponsmartphone marginbottomonly marginleftonly marginrightonly reposition" value="' . $langs->trans("Sign" . dol_ucfirst($source)) . '">';

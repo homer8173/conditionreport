@@ -93,16 +93,19 @@ dol_syslog("Call ajax conditionreport/ajax/conditionreport.php");
 
 top_httphead('application/json');
 $arrayresult = ['Nothing to do'];
-if ($action == 'updateLine'&& GETPOSTISSET('value')) {
+if ($action == 'updateLine' && GETPOSTISSET('value')) {
     $object = new ConditionreportroomLine($db);
     if ($object->fetch($id) > 0) {
         $object->$target = $value;
         $object->update($user);
         $arrayresult     = $value;
-        if ($target == 'condition')
-            $arrayresult     = $langs->trans(Conditionreportroom::CONDITION[$value]);
-        else
-            $arrayresult     = $value;
+        if ($target == 'condition') {
+            $color       = Conditionreportroom::getColorCondition($value);
+            if ($color)
+                $arrayresult = '<span class="badge badge-primary" style="background-color:' . $color . '!important">' . '&nbsp;</span>&nbsp;';
+            $arrayresult .= $langs->trans(Conditionreportroom::getLibCondition($value));
+        } else
+            $arrayresult = $value;
     } else {
         $arrayresult = ['error' => 'Line not found'];
     }

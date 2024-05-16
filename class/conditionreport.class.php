@@ -701,7 +701,7 @@ class Conditionreport extends CommonObject
      */
     public function setSignedLessor()
     {
-        global $conf, $langs;
+        global $conf, $langs, $user;
 
         require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 
@@ -744,6 +744,7 @@ class Conditionreport extends CommonObject
 
         if (!$error) {
             $this->db->commit();
+            $this->call_trigger('CONDITIONREPORT_SIGNED_LESSOR', $user);
             return 1;
         } else {
             $this->db->rollback();
@@ -758,7 +759,7 @@ class Conditionreport extends CommonObject
      */
     public function setSignedTenant()
     {
-        global $conf, $langs;
+        global $conf, $langs, $user;
 
         require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 
@@ -801,6 +802,7 @@ class Conditionreport extends CommonObject
 
         if (!$error) {
             $this->db->commit();
+            $this->call_trigger('CONDITIONREPORT_SIGNED_TENANT', $user);
             return 1;
         } else {
             $this->db->rollback();
@@ -1511,10 +1513,10 @@ class Conditionreport extends CommonObject
         $link     = $this->getOnlineSignatureUrl(0, 'conditionreport', $this->ref, 1, $this);
         $message  = $langs->transnoentitiesnoconv('SMSmessage', $link);
 
-        if ($object->fk_tenant) {
-            $tenant = new ImmoRenter($this->db);
-            if ($tenant->fetch($object->fk_tenant) && $tenant->phone_mobile) {
-                $url = $this->generateSMSURL($account, $login, $password, $from, $tenant->phone_mobile, $message);
+        if ($this->fk_tenant) {
+            $tenant = new Societe($this->db);
+            if ($tenant->fetch($this->fk_tenant) && $tenant->phone) {
+                $url = $this->generateSMSURL($account, $login, $password, $from, $tenant->phone, $message);
                 file_get_contents($url);
                 return 1;
             }
@@ -1757,7 +1759,7 @@ class Conditionreport extends CommonObject
     function getLabelCondition($condition)
     {
         global $langs;
-        return $langs->trans(Conditionreportroom::CONDITION[$condition]);
+        return $langs->trans(Conditionreportroom::getLibCondition($condition));
     }
 
     /**
@@ -1768,20 +1770,20 @@ class Conditionreport extends CommonObject
      */
     function createInvoice(array $rows)
     {
-        global $user,$conf;
-        $invoice                 = new Facture($this->db);
-        $invoice->linked_objects = ['conditionreport' => $this->id];
-        $invoice->socid         = $this->fk_tenant;
-        $invoice->date=time();
-        $invoice->cond_reglement_id=1; //ASAP
-        $res = $invoice->create($user);
+        global $user, $conf;
+        $invoice                    = new Facture($this->db);
+        $invoice->linked_objects    = ['conditionreport' => $this->id];
+        $invoice->socid             = $this->fk_tenant;
+        $invoice->date              = time();
+        $invoice->cond_reglement_id = 1; //ASAP
+        $res                        = $invoice->create($user);
 //        $invoice->fetch_thirdparty();
-        
+
         foreach ($rows as $row) {
             //only selected rows
             if ($row['selected'] == 1) {
                 $pu_ht = 0;
-                $txtva                   =       0;
+                $txtva = 0;
                 if ($row['product_id']) {
                     $prod = new Product($this->db);
                     if ($prod->fetch($row['product_id'])) {

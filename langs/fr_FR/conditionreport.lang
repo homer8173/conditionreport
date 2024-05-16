@@ -94,7 +94,7 @@ Condition=État
 BadCondition=Mauvais état
 Leaks=Fuite
 NotVerified=Non vérifié
-PoorCondition=État Passable
+PoorCondition=État passable
 GoodCondition=Bon état
 ExcellentCondition=Très bon état
 Observations=Observation et date pour les clés
@@ -151,7 +151,7 @@ signExactTenant=Je me porte fort pour tous les éventuels autres titulaires du b
 
 SigneOnlineTenant=Signer l'état des lieux 
 BackToCR=Retour à l'état des lieux 
-SendSMSCR=Envoyer un SMS au bailleur
+SendSMSCR=Envoyer un SMS au locataire
 cancelSignature=Annuler les signatures
 SMSmessage = Voici votre lien pour la signature en ligne de l'état des lieux %s
 
@@ -186,3 +186,7 @@ CreateInvoice=Créer une facture
 createRDV=Créer un RDV
 createInter=Créer une intervention
 createTicket=Créer un ticket
+
+AutoCONDITIONREPORT_VALIDATE=État des lieux validé
+AutoCONDITIONREPORT_SIGNED_LESSOR=État des lieux signé par le bailleur
+AutoCONDITIONREPORT_SIGNED_TENANT=État des lieux signé par le locataire

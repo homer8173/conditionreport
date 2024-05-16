@@ -67,15 +67,6 @@ class Conditionreportroom extends CommonObject
     const STATUS_DRAFT     = 0;
     const STATUS_VALIDATED = 1;
     const STATUS_CANCELED  = 9;
-    //constante for state of element 
-    const CONDITION        = [
-//        -2 => 'Leaks',
-//        -1 => 'NotVerified',
-        0 => 'BadCondition',
-        1 => 'PoorCondition',
-        2 => 'GoodCondition',
-        3 => 'ExcellentCondition',
-    ];
 
     /**
      *  'type' field format:
@@ -176,7 +167,7 @@ class Conditionreportroom extends CommonObject
     /**
      * @var array	List of child tables. To test if we can delete object.
      */
-    protected $childtables =[]; //array('conditionreport_conditionreportroomdet' => array('name' => 'Conditionreportroom', 'fk_element' => 'fk_conditionreportroom'));
+    protected $childtables = []; //array('conditionreport_conditionreportroomdet' => array('name' => 'Conditionreportroom', 'fk_element' => 'fk_conditionreportroom'));
 
     /**
      * @var array    List of child tables. To know object to delete on cascade.
@@ -986,6 +977,70 @@ class Conditionreportroom extends CommonObject
     }
 
     /**
+     *  Return the label of a given condition
+     *
+     *  @param	int		$status        Id status
+     *  @return string 			       Label of condition
+     */
+    public static function getLibCondition($condition)
+    {
+        // phpcs:enable
+        if (is_null($condition)) {
+            return '';
+        }
+        return getDictionaryValue('c_conditions', 'label', $condition);
+    }
+
+    /**
+     *  Return the hex color of a given condition
+     *
+     *  @param	int		$status        Id status
+     *  @return string 			       Label of condition
+     */
+    public static function getColorCondition($condition)
+    {
+        // phpcs:enable
+        if (is_null($condition)) {
+            return '';
+        }
+        return getDictionaryValue('c_conditions', 'color', $condition);
+    }
+
+    public static function getAllConditions()
+    {
+
+        global $conf, $db;
+        $rowidfield='rowid';
+        $tablename = preg_replace('/^' . preg_quote(MAIN_DB_PREFIX, '/') . '/', '', 'c_conditions'); // Clean name of table for backward compatibility.
+
+        $dictvalues = (isset($conf->cache['dictvalues_' . $tablename]) ? $conf->cache['dictvalues_' . $tablename] : null);
+
+        if (is_null($dictvalues)) {
+            $dictvalues = array();
+
+            $sql = "SELECT * FROM " . MAIN_DB_PREFIX . $tablename . " WHERE active = 1"; // Here select * is allowed as it is generic code and we don't have list of fields
+
+            $resql = $db->query($sql);
+            if ($resql) {
+                while ($obj = $db->fetch_object($resql)) {
+                    $dictvalues[$obj->{$rowidfield}] = $obj; // $obj is stdClass
+                }
+            } else {
+                dol_print_error($db);
+            }
+
+            $conf->cache['dictvalues_' . $tablename] = $dictvalues;
+        }
+
+        if (!empty($dictvalues)) {
+            return $dictvalues;
+        } else {
+            // Not found
+            return [];
+        }
+    }
+
+    /**
      * 	Load the info information in the object
      *
      * 	@param  int		$id       Id of object
@@ -1403,12 +1458,12 @@ class Conditionreportroom extends CommonObject
                 $result = 0;
                 if (isset($model->elements)) {
                     foreach ($model->elements as $value) {
-                        $this->line = new ConditionreportroomLine($this->db);
+                        $this->line                         = new ConditionreportroomLine($this->db);
                         $this->line->fk_conditionreportroom = $this->id;
                         $this->line->label                  = $value;
                         $this->line->qty                    = 1;
                         $this->line->condition              = 3;
-                        $result = $this->line->insert($user);
+                        $result                             = $this->line->insert($user);
                     }
                 }
                 if (isset($model->name)) {
@@ -1495,7 +1550,7 @@ class ConditionreportroomLine extends CommonObjectLine
             $this->fk_conditionreportroom = $objp->fk_conditionreportroom;
             $this->label                  = $objp->label;
             $this->desc                   = $objp->description;
-            $this->description                   = $objp->description;
+            $this->description            = $objp->description;
             $this->qty                    = $objp->qty;
             $this->condition              = $objp->condition;
             $this->db->free($result);

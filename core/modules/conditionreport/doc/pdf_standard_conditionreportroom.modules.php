@@ -386,12 +386,12 @@ class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
                 //search jpg to add in notes
                 $fileList = glob($dir . '/*.jpg');
                 if (is_array($fileList) && count($fileList)) {
-                    
-                // Définition de la police et de la taille du texte pour le titre
-                $pdf->SetFont('', 'B', $default_font_size +3);
 
-                // Titre centré
-                $pdf->Cell(0, 10, $outputlangs->trans('Images').' :', 0, 1, 'L');
+                    // Définition de la police et de la taille du texte pour le titre
+                    $pdf->SetFont('', 'B', $default_font_size + 3);
+
+                    // Titre centré
+                    $pdf->Cell(0, 10, $outputlangs->trans('Images') . ' :', 0, 1, 'L');
                     $x            = $this->marge_gauche;
                     $y            = $pdf->getY();
                     $fitbox       = 'CM';
@@ -677,9 +677,16 @@ class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
                     }
                     // condition
                     if ($this->getColumnStatus('condition')) {
+                        $cond  = $object->lines[$i]->condition;
+                        $color = Conditionreportroom::getColorCondition($cond);
+                        if ($color) {
+                            list($r, $g, $b) = sscanf($color, "#%02x%02x%02x");
+                            $pdf->SetTextColor($r, $g, $b);
+                        }
                         $condition = $this->pdf_getlineCondition($object, $i, $outputlangs, $hidedetails);
                         $this->printStdColumnContent($pdf, $curY, 'condition', $condition);
                         $nexY      = max($pdf->GetY(), $nexY);
+                        $pdf->SetTextColor(0, 0, 60);
                     }
                     // label
                     if ($this->getColumnStatus('label')) {
@@ -827,7 +834,7 @@ class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
                         }
                     }
                 }
-                    $pdf->SetTextColor(0, 0, 0);
+                $pdf->SetTextColor(0, 0, 0);
 
                 // Show square
                 if ($pagenb == $pageposbeforeprintlines) {
@@ -1236,7 +1243,7 @@ class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
         global $conf;
         return $pdf->getY();
         $showdetails = !getDolGlobalInt('MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS') ? 0 : getDolGlobalInt('MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS');
-        return pdf_pagefoot($pdf, $outputlangs, 'INVOICE_FREE_TEXT', $this->emetteur, $this->marge_basse, $this->marge_gauche, $this->page_hauteur, $object, $showdetails, $hidefreetext);
+        return pdf_pagefoot($pdf, $outputlangs, '', $this->emetteur, $this->marge_basse, $this->marge_gauche, $this->page_hauteur, $object, $showdetails, $hidefreetext);
     }
 
     /**
@@ -1376,10 +1383,7 @@ class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
     function pdf_getlineCondition($object, $i, $outputlangs, $hidedetails)
     {
         $val = $object->lines[$i]->condition;
-        if (in_array($val, array_keys(Conditionreportroom::CONDITION))) {
-            return $outputlangs->trans(Conditionreportroom::CONDITION[$val]);
-        }
-        return '';
+        return $outputlangs->trans(Conditionreportroom::getLibCondition($val));
     }
 
     function pdf_getlineLabel($object, $i, $outputlangs, $hidedetails)
@@ -1481,7 +1485,6 @@ class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
         }
         return $result;
     }
-
 }
 
 if (!function_exists('getMultidirOutput2')) {

@@ -105,9 +105,13 @@ if ($nolinesbefore) {
     <td class="nobottom linecolqty right">
         <select id="condition" name="condition" class="flat minwidth75imp maxwidth150">
             <?php
-            foreach (Conditionreportroom::CONDITION as $key => $value) {
-                print '<option value="' . $key . '">';
-                print $langs->trans($value);
+            foreach (Conditionreportroom::getAllConditions() as $key => $value) {
+            if ($value->color)
+                $color                     = ' style="color: ' . $value->color . ';"';
+            else
+                $color                     = '';
+                print '<option value="' . $value->rowid . '" '.$color.'>';
+                print $langs->trans($value->label);
                 print '</option>';
             }
 

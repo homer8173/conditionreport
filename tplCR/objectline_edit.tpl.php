@@ -121,9 +121,10 @@ $coldisplay = 0;
         <?php
         $coldisplay++;
         $conditions = [];
-        foreach (Conditionreportroom::CONDITION as $key => $value) {
-            $conditions[$key] = $langs->trans($value);
+        foreach (Conditionreportroom::getAllConditions() as $key => $value) {
+            $conditions[$value->rowid] = $langs->trans($value->label);
         }
+        print var_export([$line->condition, $conditions],true);
         print $form->selectarray('condition', $conditions, (GETPOSTISSET('condition') ? GETPOST('condition') : $line->condition), 0, 0, 0, '', 0, 0, 0, '', 'minwidth75', 0);
         ?>
     </td>

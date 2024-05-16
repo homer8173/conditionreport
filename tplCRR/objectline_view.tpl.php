@@ -78,7 +78,7 @@ $domData .= ' data-qty="' . $line->qty . '"';
 $sign = 1;
 
 $coldisplay = 0;
-
+$color=Conditionreportroom::getColorCondition($line->condition);
 ?>
 <!-- BEGIN PHP TEMPLATE objectline_view.tpl.php -->
 <tr  id="row-<?php print $line->id ?>" class="drag drop oddeven" <?php print $domData; ?> >
@@ -107,22 +107,24 @@ $coldisplay = 0;
         }
         print '</td>';
 
-        print '<td class="linecolcondition nowraponall right ' . ($object->status == $object::STATUS_DRAFT ? ' editable' : '') . '">';
+        print '<td class="linecolcondition nowraponall left ' . ($object->status == $object::STATUS_DRAFT ? ' editable' : '') . '">';
         $coldisplay++;
         print '<div class="view" data-idview="condition_' . $line->id . '">';
-        if (in_array($line->condition, array_keys(Conditionreportroom::CONDITION))) {
-            print $langs->trans(Conditionreportroom::CONDITION[$line->condition]);
-        } else {
-            print 'Condition not found in list ???';
-        }
+        if($color)
+            print '<span class="badge badge-primary" style="background-color:'.$color.'!important">'.'&nbsp;</span>&nbsp;';
+        print $langs->trans(Conditionreportroom::getLibCondition($line->condition));
         print '</div>';
         if ($object->status == $object::STATUS_DRAFT) {
             print '<div class="edit">';
             $conditions = [];
-            print '<select id="condition" name="conditionNotUsed" class="minwidth75" data-id="condition_'. $line->id.'">';
-            foreach (Conditionreportroom::CONDITION as $key => $value) {
-                $conditions[$key] = $langs->trans($value);
-                print '<option value="' . $key . '">' . $langs->trans($value) . '</option>';
+            print '<select id="condition" name="conditionNotUsed" class="minwidth75" data-id="condition_' . $line->id . '">';
+            foreach (Conditionreportroom::getAllConditions() as $key => $value) {
+                $conditions[$value->rowid] = $langs->trans($value->label);
+                if ($value->color)
+                    $color                     = ' style="color: ' . $value->color . ';"';
+                else
+                    $color                     = '';
+                print '<option value="' . $value->rowid . '" ' . $color . '>' . $langs->trans($value->label) . '</option>';
             }
             print '</select>';
 //            print $form->selectarray('condition', $conditions, $line->condition, 0, 0, 0, ' data-id="condition_'. $line->id.'"', 0, 0, 0, '', 'minwidth75', 0);            

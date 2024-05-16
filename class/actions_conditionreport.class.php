@@ -87,6 +87,18 @@ class ActionsConditionreport
         return 0;
     }
 
+    public function emailElementlist(&$parameters, &$object, &$action)
+    {
+        global $langs;
+        $langs->load('conditionreport@conditionreport');
+
+        if (in_array($parameters['currentcontext'], array('emailtemplates'))) {
+            $this->results = ['conditionreport' =>
+                '<span class="fas fa-home  pictofixedwidth" style=""></span>' .
+                $langs->trans('Conditionreport')];
+        }
+    }
+
     /**
      * Overloading the doActions function : replacing the parent's function with the one below
      *

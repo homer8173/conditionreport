@@ -122,12 +122,19 @@ $coldisplay = 0;
         $coldisplay++;
         $conditions = [];
         print '<select id="condition" name="condition" class="minwidth75">';
-        foreach (Conditionreportroom::CONDITION as $key => $value) {
-            $conditions[$key] = $langs->trans($value);
-            print '<option value="' . $key . '">' . $langs->trans($value) . '</option>';
+        foreach (Conditionreportroom::getAllConditions() as $key => $value) {
+            $conditions[$value->rowid] = $langs->trans($value->label);
+            if ($value->color)
+                $color                     = ' style="color: ' . $value->color . ';"';
+            else
+                $color                     = '';
+            if ($value->rowid == $line->condition)//selected
+                $selected                  = ' selected ';
+            else
+                $selected                  = '';
+            print '<option value="' . $value->rowid . '" ' . $color . $selected . '>' . $langs->trans($value->label) . '</option>';
         }
         print '</select>';
-
         //print $form->selectarray('condition', $conditions, (GETPOSTISSET('condition') ? GETPOST('condition') : $line->condition), 0, 0, 0, '', 0, 0, 0, '', 'minwidth75', 0);
 
         ?>
