@@ -177,7 +177,7 @@ linkToPreviousCR=Lien vers l'état des lieux d'entrée pour comparaison
 DiffCR=Comparaison
 
 MissingCRdiff=Ecart de quantité
-DegradedCRdiff=Dégradation
+DegradedCRdiff=Remise en état
 InvoicedCR=Facturer
 reasonCR=Raison
 elementlabel=Élément

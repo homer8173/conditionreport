@@ -1648,6 +1648,12 @@ class ConditionreportroomLine extends CommonObjectLine
         }
     }
 
+    public function create($user = null, $notrigger = 0)
+    {
+        return $this->insert($user,$notrigger);
+    }
+    
+    
     /**
      * 	Insert line into database
      *

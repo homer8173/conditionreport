@@ -252,7 +252,7 @@ if ($object->id) {
         if ($permission) {
             //($selected = 0, $htmlname = 'productid', $filtertype = '', $limit = 0, $price_level = 0, $status = 1, $finished = 2, $selected_input_value = '', $hidelabel = 0, $ajaxoptions = array(), $socid = 0, $showempty = '1', $forcecombo = 0, $morecss = '', $hidepriceinlabel = 0, $warehouseStatus = '', $selected_combinations = null, $nooutput = 0
 //        $form->select_produits(GETPOST('idprod'), 'idprod', $filtertype, $conf->product->limit_size, $buyer->price_level, $statustoshow, 2, '', 1, array(), $buyer->id, '1', 0, 'maxwidth500', 0, $statuswarehouse, GETPOST('combinations', 'array'));
-            print '<td class="">' . $form->select_produits('', 'row[' . $ide . '][product_id]', '', $conf->product->limit_size, 0, 1, 2, '', 1, [], 0, '1', 0, 'maxwidth500', 0, '', [], 1) . '</td>';
+            print '<td class="">' . $form->select_produits('', 'product_id_' . $ide , '', $conf->product->limit_size, 0, 1, 2, '', 1, [], 0, '1', 0, 'maxwidth500', 0, '', [], 1) . '</td>';
 
             print '<td class="center">';
             print '<input type="checkbox" name="row[' . $ide . '][selected]" value="1" checked />';

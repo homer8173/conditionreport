@@ -1780,15 +1780,15 @@ class Conditionreport extends CommonObject
         $invoice->cond_reglement_id = 1; //ASAP
         $res                        = $invoice->create($user);
 //        $invoice->fetch_thirdparty();
-
+        $i=0;
         foreach ($rows as $row) {
             //only selected rows
             if ($row['selected'] == 1) {
                 $pu_ht = 0;
                 $txtva = 0;
-                if ($row['product_id']) {
+                if (GETPOST('product_id_'.$i)) {
                     $prod = new Product($this->db);
-                    if ($prod->fetch($row['product_id'])) {
+                    if ($prod->fetch(GETPOST('product_id_'.$i))) {
                         $pu_ht = $prod->price;
                         $txtva = $prod->tva_tx;
                     }
@@ -1826,7 +1826,7 @@ class Conditionreport extends CommonObject
                     $txtva,
                     $txlocaltax1,
                     $txlocaltax2,
-                    $row['product_id'],
+                    (int)GETPOST('product_id_'.$i),
                     $remise_percent,
                     $date_start,
                     $date_end,
@@ -1853,6 +1853,7 @@ class Conditionreport extends CommonObject
                     $noupdateafterinsertline
                 );
             }
+            $i++;
         }
         $res = $invoice->update($user);
         return $invoice->id;
