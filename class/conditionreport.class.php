@@ -1777,26 +1777,26 @@ class Conditionreport extends CommonObject
      */
     function createPropal(array $rows)
     {
-        return $this->createInvoice($rows,'Propal');
+        return $this->createInvoice($rows, 'Propal');
     }
-    
+
     /**
      * Do something
      *
      * @param   int				$rows				0=True url, 1=Url formated with colors
      * @return	string								Url string
      */
-    function createInvoice(array $rows, $type = 'Facture')
+    function createInvoice(array $rows, $typeObject = 'Facture')
     {
         global $user, $conf;
-        $invoice                    = new $type($this->db);
-        $invoice->linked_objects    = ['conditionreport' => $this->id];
-        $invoice->socid             = $this->fk_tenant;
-        $invoice->date              = time();
-        $invoice->cond_reglement_id = 1; //ASAP
-        $res                        = $invoice->create($user);
-//        $invoice->fetch_thirdparty();
-        $i                          = 0;
+        $newObject                    = new $typeObject($this->db);
+        $newObject->linked_objects    = ['conditionreport' => $this->id];
+        $newObject->socid             = $this->fk_tenant;
+        $newObject->date              = time();
+        $newObject->cond_reglement_id = 1; //ASAP
+        $res                          = $newObject->create($user);
+//        $newObject->fetch_thirdparty();
+        $i                            = 0;
         foreach ($rows as $row) {
             //only selected rows
             if ($row['selected'] == 1) {
@@ -1809,6 +1809,7 @@ class Conditionreport extends CommonObject
                         $txtva = $prod->tva_tx;
                     }
                 }
+                //fixed
                 $txlocaltax1             = 0;
                 $txlocaltax2             = 0;
                 $remise_percent          = 0;
@@ -1835,44 +1836,79 @@ class Conditionreport extends CommonObject
                 $pu_ht_devise            = 0;
                 $ref_ext                 = '';
                 $noupdateafterinsertline = 0;
-                $invoice->addline(
-                    $row['description'],
-                    $pu_ht,
-                    $row['qty'],
-                    $txtva,
-                    $txlocaltax1,
-                    $txlocaltax2,
-                    (int) GETPOST('product_id_' . $i),
-                    $remise_percent,
-                    $date_start,
-                    $date_end,
-                    $ventil,
-                    $info_bits,
-                    $fk_remise_except,
-                    $price_base_type,
-                    $pu_ttc,
-                    $type,
-                    $rang,
-                    $special_code,
-                    $origin,
-                    $origin_id,
-                    $fk_parent_line,
-                    $fk_fournprice,
-                    $pa_ht,
-                    $label,
-                    $array_options,
-                    $situation_percent,
-                    $fk_prev_id,
-                    $fk_unit,
-                    $pu_ht_devise,
-                    $ref_ext,
-                    $noupdateafterinsertline
-                );
+                // add invoice line 
+                if ($typeObject == 'Facture') {
+                    $newObject->addline(
+                        $row['description'],
+                        $pu_ht,
+                        $row['qty'],
+                        $txtva,
+                        $txlocaltax1,
+                        $txlocaltax2,
+                        (int) GETPOST('product_id_' . $i),
+                        $remise_percent,
+                        $date_start,
+                        $date_end,
+                        $ventil,
+                        $info_bits,
+                        $fk_remise_except,
+                        $price_base_type,
+                        $pu_ttc,
+                        $type,
+                        $rang,
+                        $special_code,
+                        $origin,
+                        $origin_id,
+                        $fk_parent_line,
+                        $fk_fournprice,
+                        $pa_ht,
+                        $label,
+                        $array_options,
+                        $situation_percent,
+                        $fk_prev_id,
+                        $fk_unit,
+                        $pu_ht_devise,
+                        $ref_ext,
+                        $noupdateafterinsertline
+                    );
+                }
+                // add propal line
+                if ($typeObject == 'Propal') {
+                   $res= $newObject->addline(
+                        $row['description'],
+                        $pu_ht,
+                        $row['qty'],
+                        $txtva,
+                        $txlocaltax1,
+                        $txlocaltax2,
+                        (int) GETPOST('product_id_' . $i),
+                        $remise_percent,
+                        $price_base_type,
+                        $pu_ttc,
+                        $info_bits,
+                        $type,
+                        $rang,
+                        $special_code,
+                        $fk_parent_line,
+                        $fk_fournprice,
+                        $pa_ht,
+                        $label,
+                        $date_start,
+                        $date_end,
+                        $array_options,
+                        $fk_unit,
+                        $origin,
+                        $origin_id,
+                        $pu_ht_devise,
+                        $fk_remise_except,
+                        $noupdateafterinsertline
+                    );
+                }
             }
             $i++;
         }
-        $res = $invoice->update($user);
-        return $invoice->id;
+        $res = $newObject->update($user);
+        return $newObject->id;
     }
 }
 
