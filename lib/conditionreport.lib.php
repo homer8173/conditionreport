@@ -253,7 +253,7 @@ function getCivilityLabel($searchkey, $withcode = '', $dbtouse = 0, $outputlangs
             else
                 $result = $label;
         } else {
-            $result = 'NotDefined';
+            $result = '';
         }
         $dbtouse->free($resql);
         return $result;

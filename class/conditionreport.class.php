@@ -25,6 +25,7 @@
 // Put here all includes required by your class file
 require_once DOL_DOCUMENT_ROOT . '/core/class/commonobject.class.php';
 require_once DOL_DOCUMENT_ROOT . '/compta/facture/class/facture.class.php';
+require_once DOL_DOCUMENT_ROOT . '/comm/propal/class/propal.class.php';
 //require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
 //require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
 dol_include_once('/conditionreport/class/conditionreportroom.class.php');
@@ -121,8 +122,8 @@ class Conditionreport extends CommonObject
         'label' => array('type' => 'varchar(255)', 'label' => 'Label', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth300', 'cssview' => 'wordbreak', 'help' => "Help text", 'validate' => '1',),
         'fk_property' => array('type' => 'integer:ImmoProperty:ultimateimmo/class/immoproperty.class.php:1:(status:=:1)', 'label' => 'RealEstate', 'picto' => 'company', 'enabled' => '1', 'position' => 51, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToProperty", 'validate' => '1',),
         'fk_lessor' => array('type' => 'integer:ImmoOwner:ultimateimmo/class/immoowner.class.php:1:(status:=:1)', 'label' => 'Lessor', 'picto' => 'company', 'enabled' => '1', 'position' => 51, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToLessor", 'validate' => '1',),
-        'fk_tenant' => array('type' => 'integer:ImmoRenter:conditionreport/class/conditionreport.class.php:1:(status:=:3conditionreport)', 'label' => 'Tenant', 'picto' => 'company', 'enabled' => '1', 'position' => 52, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToPreviousCR", 'validate' => '1',),
-        'fk_previous' => array('type' => 'integer:Conditionreport:ultimateimmo/class/immorenter.class.php:1:(status:=:1)', 'label' => 'PreviousCR', 'picto' => 'company', 'enabled' => '1', 'position' => 52, 'notnull' => 0, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToTenant", 'validate' => '1',),
+        'fk_tenant' => array('type' => 'integer:ImmoRenter:ultimateimmo/class/immorenter.class.php:1:(status:=:1)', 'label' => 'Tenant', 'picto' => 'company', 'enabled' => '1', 'position' => 52, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToPreviousCR", 'validate' => '1',),
+        'fk_previous' => array('type' => 'integer:Conditionreport:conditionreport/class/conditionreport.class.php:1:(status:=:1)', 'label' => 'PreviousCR', 'picto' => 'company', 'enabled' => '1', 'position' => 52, 'notnull' => 0, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToTenant", 'validate' => '1',),
         'description' => array('type' => 'html', 'label' => 'Description', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 3, 'validate' => '1',),
         'direction' => array('type' => 'select', 'label' => 'Direction', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 1, 'arrayofkeyval' => ['0' => 'InputCR', '1' => 'OutputCR', 2 => 'tenantVisit']),
         'note_public' => array('type' => 'html', 'label' => 'NotePublic', 'enabled' => '1', 'position' => 61, 'notnull' => 0, 'visible' => 0, 'cssview' => 'wordbreak', 'validate' => '1',),
@@ -184,14 +185,14 @@ class Conditionreport extends CommonObject
     /**
      * @var array	List of child tables. To test if we can delete object.
      */
-    protected $childtables = array('mychildtable' => array('name' => 'Conditionreport', 'fk_element' => 'fk_conditionreport'));
+//    protected $childtables = array('mychildtable' => array('name' => 'Conditionreport', 'fk_element' => 'fk_conditionreport'));
 
     /**
      * @var array    List of child tables. To know object to delete on cascade.
      *               If name matches '@ClassNAme:FilePathClass;ParentFkFieldName' it will
      *               call method deleteByParentField(parentId, ParentFkFieldName) to fetch and delete child object
      */
-    protected $childtablesoncascade = array('conditionreport_conditionreportdet');
+//    protected $childtablesoncascade = array('conditionreport_conditionreportdet');
 
     /**
      * @var ConditionreportLine[]     Array of subtable lines
@@ -540,6 +541,10 @@ class Conditionreport extends CommonObject
      */
     public function delete(User $user, $notrigger = false)
     {
+        foreach ($this->lines as $key => $line) {
+            $line->delete($user, $notrigger);
+        }
+
         return $this->deleteCommon($user, $notrigger);
         //return $this->deleteCommon($user, $notrigger, 1);
     }
@@ -1767,28 +1772,39 @@ class Conditionreport extends CommonObject
     /**
      * Do something
      *
+     * @param   int				$param				0=True url, 1=Url formated with colors
+     * @return	string								Url string
+     */
+    function createPropal(array $rows)
+    {
+        return $this->createInvoice($rows,'Propal');
+    }
+    
+    /**
+     * Do something
+     *
      * @param   int				$rows				0=True url, 1=Url formated with colors
      * @return	string								Url string
      */
-    function createInvoice(array $rows)
+    function createInvoice(array $rows, $type = 'Facture')
     {
         global $user, $conf;
-        $invoice                    = new Facture($this->db);
+        $invoice                    = new $type($this->db);
         $invoice->linked_objects    = ['conditionreport' => $this->id];
         $invoice->socid             = $this->fk_tenant;
         $invoice->date              = time();
         $invoice->cond_reglement_id = 1; //ASAP
         $res                        = $invoice->create($user);
 //        $invoice->fetch_thirdparty();
-        $i=0;
+        $i                          = 0;
         foreach ($rows as $row) {
             //only selected rows
             if ($row['selected'] == 1) {
                 $pu_ht = 0;
                 $txtva = 0;
-                if (GETPOST('product_id_'.$i)) {
+                if (GETPOST('product_id_' . $i)) {
                     $prod = new Product($this->db);
-                    if ($prod->fetch(GETPOST('product_id_'.$i))) {
+                    if ($prod->fetch(GETPOST('product_id_' . $i))) {
                         $pu_ht = $prod->price;
                         $txtva = $prod->tva_tx;
                     }
@@ -1826,7 +1842,7 @@ class Conditionreport extends CommonObject
                     $txtva,
                     $txlocaltax1,
                     $txlocaltax2,
-                    (int)GETPOST('product_id_'.$i),
+                    (int) GETPOST('product_id_' . $i),
                     $remise_percent,
                     $date_start,
                     $date_end,

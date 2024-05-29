@@ -352,7 +352,7 @@ $found = false;
 $error = 0;
 
 // Signature on commercial proposal
-if ($source == 'proposal') {
+if ($source == 'proposal'&& false) {
     $found = true;
     $langs->load("proposal");
 
@@ -445,7 +445,7 @@ if ($source == 'proposal') {
     print '<input type="hidden" name="source" value="' . GETPOST("source", 'alpha') . '">';
     print '<input type="hidden" name="ref" value="' . $object->ref . '">';
     print '</td></tr>' . "\n";
-} elseif ($source == 'contract') { // Signature on contract
+} elseif ($source == 'contract'&& false) { // Signature on contract
     $found = true;
     $langs->load("contract");
 
@@ -495,7 +495,7 @@ if ($source == 'proposal') {
     print '<input type="hidden" name="source" value="' . GETPOST("source", 'alpha') . '">';
     print '<input type="hidden" name="ref" value="' . $object->ref . '">';
     print '</td></tr>' . "\n";
-} elseif ($source == 'fichinter') {
+} elseif ($source == 'fichinter'&& false) {
     // Signature on fichinter
     $found = true;
     $langs->load("fichinter");
@@ -544,7 +544,7 @@ if ($source == 'proposal') {
     print '<input type="hidden" name="source" value="' . GETPOST("source", 'alpha') . '">';
     print '<input type="hidden" name="ref" value="' . $object->ref . '">';
     print '</td></tr>' . "\n";
-} elseif ($source == 'societe_rib') {
+} elseif ($source == 'societe_rib'&& false) {
     $found = true;
     $langs->loadLangs(array("companies", "commercial", "withdrawals"));
 
@@ -607,13 +607,13 @@ if ($source == 'proposal') {
         $result = $object->fetch_thirdparty();
     }
 
-    // lesser
+    // lessor
     print '<tr class="CTableRow2"><td class="CTableRow2">' . $langs->trans("TheLessor");
     print '</td><td class="CTableRow2">';
     print img_picto('', 'company', 'class="pictofixedwidth"');
     $lessor = new Societe($db);
     $lessor->fetch($object->fk_lessor);
-    print '<b>' . $lessor->array_options['options_civility'] . ' ' . $lessor->name . ' ' . $lessor->array_options['options_firstname'] . ' ' . $lessor->lastname . '</b>';
+    print '<b>' . ($lessor->array_options['options_civility'] ? getCivilityLabel($lessor->array_options['options_civility']) . " " : '') . ' ' . $lessor->name . ' ' . $lessor->array_options['options_firstname'] . ' ' . $lessor->lastname . '</b>';
     print '<input type="hidden" name="creditor" value="' . $creditor . '">';
     print '</td></tr>' . "\n";
 
@@ -623,9 +623,8 @@ if ($source == 'proposal') {
     print img_picto('', 'company', 'class="pictofixedwidth"');
     $renter = new Societe($db);
     $renter->fetch($object->fk_tenant);
-    print '<b>' . $renter->array_options['options_civility'] . ' ' . $lessor->name . ' ' . $renter->array_options['options_firstname'] . ' ' . $renter->lastname . '</b>';
+    print '<b>' .  ($renter->array_options['options_civility'] ? getCivilityLabel($renter->array_options['options_civility']) . " " : '')  . ' ' . $renter->name . ' ' . $renter->array_options['options_firstname'] . ' ' . $renter->lastname . '</b>';
     print '</td></tr>' . "\n";
-
     // Object
     $text = '<b>' . $langs->trans("Signature" . dol_ucfirst($source) . "Ref", $object->ref) . '</b>';
     print '<tr class="CTableRow2"><td class="CTableRow2">' . $langs->trans("Designation");

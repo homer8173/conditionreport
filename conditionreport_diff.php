@@ -116,11 +116,20 @@ if ($reshook < 0) {
 }
 
 if (empty($reshook)) {
-    if ($action == 'createinvoice' && $permissiontoadd) {
+    if ($action == 'createobject' && $permissiontoadd) {
+        $mode   = GETPOST('mode', 'alpha');
         $object->fetch($id, $ref);
-        $result = $object->createInvoice($rows);
+        if ($mode == 'CreateInvoice')
+            $result = $object->createInvoice($rows);
+        else
+            $result = $object->createPropal($rows);
         if ($result > 0) {
-            header("Location: " . dol_buildpath('/compta/facture/card.php',2) . "?facid=" . $result);
+
+            if ($mode == 'CreateInvoice')
+                header("Location: " . dol_buildpath('/compta/facture/card.php', 2) . "?facid=" . $result);
+            else
+                header("Location: " . dol_buildpath('/comm/propal/card.php', 2) . "?id=" . $result);
+
             exit;
         } else {
             setEventMessages($object->error, $object->errors, 'errors');
@@ -209,12 +218,13 @@ if ($object->id) {
     /**
      * Show list
      */
-    $permission = $user->hasRight("facture", "creer");
+    $permission       = $user->hasRight("facture", "creer");
+    $permissionPropal = $user->hasRight("propale", "creer");
     print '<form method="POST" id="searchFormList" action="' . $_SERVER["PHP_SELF"] . '">';
     print '<input type="hidden" name="id" value="' . $object->id . '">';
     print '<input type="hidden" name="token" value="' . newToken() . '">';
     print '<input type="hidden" name="formfilteraction" id="formfilteraction" value="list">';
-    print '<input type="hidden" name="action" value="createinvoice">';
+    print '<input type="hidden" name="action" value="createobject">';
 
     print '<div class="div-table-responsive-no-min">' . "\n";
     print '<table class="tagtable nobottomiftotal liste">';
@@ -238,9 +248,9 @@ if ($object->id) {
         print dol_escape_json($langs->trans($entry->reason));
         print '">';
         print '<input type="hidden" name="row[' . $ide . '][description]" value="';
-        print "<p>".dol_escape_json($langs->trans('RoomName') . ' : ' . $entry->roomlabel) . "<br />";
-        print "". dol_escape_json($langs->trans('elementlabel') . ' : ' . $entry->elementlabel) . ' (' . $object->getLabelCondition($entry->condition) . ')' . "</p>";
-        print "<p>".dol_escape_json($entry->description) . "</p>";
+        print "<p>" . dol_escape_json($langs->trans('RoomName') . ' : ' . $entry->roomlabel) . "<br />";
+        print "" . dol_escape_json($langs->trans('elementlabel') . ' : ' . $entry->elementlabel) . ' (' . $object->getLabelCondition($entry->condition) . ')' . "</p>";
+        print "<p>" . dol_escape_json($entry->description) . "</p>";
         print '">';
         print '</td>';
         print '<td class="tdoverflowmax200"><a href="' . dol_buildpath('/conditionreport/conditionreportroom_card.php', 2) . '?id=' . $entry->roomid . '">' . $entry->roomlabel . '</a></td>';
@@ -252,7 +262,7 @@ if ($object->id) {
         if ($permission) {
             //($selected = 0, $htmlname = 'productid', $filtertype = '', $limit = 0, $price_level = 0, $status = 1, $finished = 2, $selected_input_value = '', $hidelabel = 0, $ajaxoptions = array(), $socid = 0, $showempty = '1', $forcecombo = 0, $morecss = '', $hidepriceinlabel = 0, $warehouseStatus = '', $selected_combinations = null, $nooutput = 0
 //        $form->select_produits(GETPOST('idprod'), 'idprod', $filtertype, $conf->product->limit_size, $buyer->price_level, $statustoshow, 2, '', 1, array(), $buyer->id, '1', 0, 'maxwidth500', 0, $statuswarehouse, GETPOST('combinations', 'array'));
-            print '<td class="">' . $form->select_produits('', 'product_id_' . $ide , '', $conf->product->limit_size, 0, 1, 2, '', 1, [], 0, '1', 0, 'maxwidth500', 0, '', [], 1) . '</td>';
+            print '<td class="">' . $form->select_produits('', 'product_id_' . $ide, '', $conf->product->limit_size, 0, 1, 2, '', 1, [], 0, '1', 0, 'maxwidth500', 0, '', [], 1) . '</td>';
 
             print '<td class="center">';
             print '<input type="checkbox" name="row[' . $ide . '][selected]" value="1" checked />';
@@ -284,8 +294,11 @@ if ($object->id) {
     }
 
     if (empty($reshook)) {
+        if ($permissionPropal) {
+            print '<button class="butAction" name="mode" type="submit" value="CreatePropale" >' . $langs->trans('CreatePropale') . '</button>';
+            }
         if ($permission) {
-            print '<input class="butAction" type="submit" value="' . $langs->trans('CreateInvoice') . '">';
+            print '<button class="butAction" name="mode" type="submit" value="CreateInvoice"> ' . $langs->trans('CreateInvoice') . '</button>';
         }
     }
     print '</div>' . "\n";

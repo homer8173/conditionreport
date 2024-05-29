@@ -143,6 +143,7 @@ function sortFileByTime($a,$b)
 
 top_httphead();
 
+
 if ($action == "importSignature") {
     $issignatureok = (!empty($signature) && $signature[0] == "image/png;base64");
     if ($issignatureok) {
