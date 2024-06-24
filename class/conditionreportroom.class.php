@@ -301,7 +301,8 @@ class Conditionreportroom extends CommonObject
                 }
             }
         }
-
+        // new random ref
+        $object->ref ="ROOM" . uniqid();
         // Create clone
         $object->context['createfromclone'] = 'createfromclone';
         $result                             = $object->createCommon($user);

@@ -30,12 +30,13 @@
  *  \ingroup    conditionreport
  *  \brief      File of class to generate document from standard template
  */
-dol_include_once('/conditionreport/core/modules/conditionreport/modules_conditionreportroom.php');
 require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/functions2.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/pdf.lib.php';
+dol_include_once('/conditionreport/core/modules/conditionreport/modules_conditionreportroom.php');
+dol_include_once('/conditionreport/class/conditionreport.class.php');
 
 /**
  * 	Class to manage PDF template standard_conditionreportroom
@@ -381,7 +382,74 @@ class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
                     $notetoshow = dol_concatdesc($notetoshow, $extranote);
                 }
 
+                // search for previous CR                
+                if ($object->fk_conditionreport > 0) {
+                    //load CR
+                    $cr = new Conditionreport($this->db);
+                    if ($cr->fetch($object->fk_conditionreport) > 0) {
+                        if ($cr->fk_previous > 0) {
+                            // load previous CR
+                            $pcr = new Conditionreport($this->db);
+                            if ($pcr->fetch($cr->fk_previous) > 0) {
+                                // search mathcing room
+                                foreach ($pcr->lines as $room) {
+                                    if ($room->label == $object->label) {
+                                        $objectpref = dol_sanitizeFileName($room->ref);
+                                        $pdir       = getMultidirOutput2($room) . "/" . $objectpref;
+                                        $pfileList  = glob($pdir . '/*.jpg');
+                                        if (is_array($pfileList) && count($pfileList)) {
+                                            // pictures in parent
+                                            // Définition de la police et de la taille du texte pour le titre
+                                            $pdf->SetFont('', 'B', $default_font_size + 3);
 
+                                            // Titre centré
+                                            $pdf->Cell(0, 10, $outputlangs->trans('ImagesPrevious', $pcr->ref) . ' :', 0, 1, 'L');
+                                            $x            = $this->marge_gauche;
+                                            $y            = $pdf->getY();
+                                            $fitbox       = 'CM';
+                                            // Nombre d'images par ligne
+                                            $imagesPerRow = 4;
+                                            $padding      = 3;
+                                            $imageWidth   = ($this->page_largeur - $this->marge_gauche - $this->marge_droite - ($imagesPerRow - 1) * $padding) / $imagesPerRow;
+
+                                            // Diviser le tableau d'images en sous-tableaux avec trois images par sous-tableau
+                                            $imageChunks = array_chunk($pfileList, $imagesPerRow);
+                                            //search jpg to add in section
+                                            foreach ($imageChunks as $imgs) {
+                                                $imgTmp    = [];
+                                                $x         = $this->marge_gauche;
+                                                $maxHeight = 0;
+                                                // Parcours des images dans la ligne actuelle
+                                                foreach ($imgs as $i => $imagePath) {
+                                                    // Redimensionner l'image 
+                                                    $tmpName      = $pdir . '/tmp' . uniqid() . '.jpg';
+                                                    $resizedImage = dol_imageResizeOrCrop($imagePath, 0, $imageWidth * 6, 0, 0, 0, $tmpName, 100);  // *6 for better quality
+                                                    $imgInfo      = dol_getImageSize($tmpName);
+                                                    if (filesize($resizedImage) > 0) {
+                                                        $maxHeight = max($maxHeight, $imgInfo['height'] / 6); // /4 for better quality
+                                                    }
+                                                    $imgTmp[$i] = $tmpName;
+                                                }
+                                                // insertion des images
+                                                foreach ($imgs as $i => $imagePath) {
+                                                    //$pdf->Rect($x, $y, $imageWidth, $maxHeight, 'F', array(), array(255, 255, 255)); // background
+                                                    $pdf->Image($imgTmp[$i], $x, $y, $imageWidth, $maxHeight, 'JPG', '', '', false, 300, '', false, false, 0, $fitbox, false, false);
+                                                    if (filesize($imgTmp[$i]) > 0) {
+                                                        
+                                                    } $x += $imageWidth + $padding; // new column
+                                                    unlink($imgTmp[$i]); // clean tmp
+                                                }
+                                                $y += $maxHeight + $padding; // new row
+                                            }
+                                            $tab_top = $y + $padding;
+                                            $pdf->setY($y + 5);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 //search jpg to add in notes
                 $fileList = glob($dir . '/*.jpg');

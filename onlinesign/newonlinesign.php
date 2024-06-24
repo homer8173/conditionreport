@@ -352,7 +352,7 @@ $found = false;
 $error = 0;
 
 // Signature on commercial proposal
-if ($source == 'proposal'&& false) {
+if ($source == 'proposal' && false) {
     $found = true;
     $langs->load("proposal");
 
@@ -445,7 +445,7 @@ if ($source == 'proposal'&& false) {
     print '<input type="hidden" name="source" value="' . GETPOST("source", 'alpha') . '">';
     print '<input type="hidden" name="ref" value="' . $object->ref . '">';
     print '</td></tr>' . "\n";
-} elseif ($source == 'contract'&& false) { // Signature on contract
+} elseif ($source == 'contract' && false) { // Signature on contract
     $found = true;
     $langs->load("contract");
 
@@ -495,7 +495,7 @@ if ($source == 'proposal'&& false) {
     print '<input type="hidden" name="source" value="' . GETPOST("source", 'alpha') . '">';
     print '<input type="hidden" name="ref" value="' . $object->ref . '">';
     print '</td></tr>' . "\n";
-} elseif ($source == 'fichinter'&& false) {
+} elseif ($source == 'fichinter' && false) {
     // Signature on fichinter
     $found = true;
     $langs->load("fichinter");
@@ -544,7 +544,7 @@ if ($source == 'proposal'&& false) {
     print '<input type="hidden" name="source" value="' . GETPOST("source", 'alpha') . '">';
     print '<input type="hidden" name="ref" value="' . $object->ref . '">';
     print '</td></tr>' . "\n";
-} elseif ($source == 'societe_rib'&& false) {
+} elseif ($source == 'societe_rib' && false) {
     $found = true;
     $langs->loadLangs(array("companies", "commercial", "withdrawals"));
 
@@ -623,10 +623,10 @@ if ($source == 'proposal'&& false) {
     print img_picto('', 'company', 'class="pictofixedwidth"');
     $renter = new Societe($db);
     $renter->fetch($object->fk_tenant);
-    print '<b>' .  ($renter->array_options['options_civility'] ? getCivilityLabel($renter->array_options['options_civility']) . " " : '')  . ' ' . $renter->name . ' ' . $renter->array_options['options_firstname'] . ' ' . $renter->lastname . '</b>';
+    print '<b>' . ($renter->array_options['options_civility'] ? getCivilityLabel($renter->array_options['options_civility']) . " " : '') . ' ' . $renter->name . ' ' . $renter->array_options['options_firstname'] . ' ' . $renter->lastname . '</b>';
     print '</td></tr>' . "\n";
     // Object
-    $text = '<b>' . $langs->trans("Signature" . dol_ucfirst($source) . "Ref", $object->ref) . '</b>';
+    $text   = '<b>' . $langs->trans("Signature" . dol_ucfirst($source) . "Ref", $object->ref) . '</b>';
     print '<tr class="CTableRow2"><td class="CTableRow2">' . $langs->trans("Designation");
     print '</td><td class="CTableRow2">' . $text;
 
@@ -682,7 +682,8 @@ print '<tr><td class="center">';
 
 if ($action == "dosign" && empty($cancel)) {
     print '<div class="tablepublicpayment">';
-    print '<input type="text" class="paddingleftonly marginleftonly paddingrightonly marginrightonly marginbottomonly" id="name"  placeholder="' . $langs->trans("Lastname") . '" autofocus>';
+    print '<input type="text" class="paddingleftonly marginleftonly paddingrightonly marginrightonly marginbottomonly" id="name"  placeholder="' . $langs->trans("LastnameFirstname") . '" autofocus>';
+    print '<label><input type="checkbox" required name="certifexact" id="certifexact" value="1" />' . $langs->trans("CertifExact") . '</label>';
     print '<div id="signature" style="border:solid;"></div>';
     print '</div>';
     print '<input type="button" class="small noborderbottom cursorpointer buttonreset" id="clearsignature" value="' . $langs->trans("ClearSignature") . '">';
@@ -698,44 +699,51 @@ if ($action == "dosign" && empty($cancel)) {
 	<script type="text/javascript">
 	$(document).ready(function() {
 	  $("#signature").jSignature({ color:"#000", lineWidth:0, ' . (empty($conf->dol_optimize_smallscreen) ? '' : 'width: 280, ') . 'height: 180});
-
-	  $("#signature").on("change",function(){
+      let check= function(){
 		$("#clearsignature").css("display","");
-		$("#signbutton").attr("disabled",false);
-		if(!$._data($("#signbutton")[0], "events")){
-			$("#signbutton").on("click",function(){
-				console.log("We click on button sign");
-				document.body.style.cursor = \'wait\';
-				/* $("#signbutton").val(\'' . dol_escape_js($langs->transnoentities('PleaseBePatient')) . '\'); */
-				var signature = $("#signature").jSignature("getData", "image");
-				var name = document.getElementById("name").value;
-				$.ajax({
-					type: "POST",
-					url: "' . dol_buildpath('/conditionreport/ajax/onlineSign.php', 2) . '",
-					dataType: "text",
-					data: {
-						"action" : "importSignature",
-						"token" : \'' . newToken() . '\',
-						"signaturebase64" : signature,
-						"onlinesignname" : name,
-						"ref" : \'' . dol_escape_js($REF) . '\',
-						"securekey" : \'' . dol_escape_js($SECUREKEY) . '\',
-						"mode" : \'' . dol_escape_htmltag($source) . '\',
-						"signature" : \'' . dol_escape_htmltag($signature) . '\',
-						"entity" : \'' . dol_escape_htmltag($entity) . '\',
-					},
-					success: function(response) {
-						if(response == "success"){
-							console.log("Success on saving signature");
-							window.location.replace("' . $_SERVER["PHP_SELF"] . '?ref=' . urlencode($ref) . '&source=' . urlencode($source) . '&message=signed&securekey=' . urlencode($SECUREKEY) . (isModEnabled('multicompany') ? '&entity=' . $entity : '') . '&signature=' . $signature . '");
-						}else{
-							console.error(response);
-						}
-					},
-				});
-			});
-		}
-	  });
+        if($("#certifexact").is(":checked") && $("#signature").jSignature("getData", "native").length != 0){
+            $("#signbutton").attr("disabled",false);
+            console.log($("#signature").jSignature("getData", "native").length)
+            if(!$._data($("#signbutton")[0], "events")){
+                $("#signbutton").on("click",function(){
+                    console.log("We click on button sign");
+                    document.body.style.cursor = \'wait\';
+                    /* $("#signbutton").val(\'' . dol_escape_js($langs->transnoentities('PleaseBePatient')) . '\'); */
+                    var signature = $("#signature").jSignature("getData", "image");
+                    var name = document.getElementById("name").value;
+                    $.ajax({
+                        type: "POST",
+                        url: "' . dol_buildpath('/conditionreport/ajax/onlineSign.php', 2) . '",
+                        dataType: "text",
+                        data: {
+                            "action" : "importSignature",
+                            "token" : \'' . newToken() . '\',
+                            "signaturebase64" : signature,
+                            "onlinesignname" : name,
+                            "ref" : \'' . dol_escape_js($REF) . '\',
+                            "securekey" : \'' . dol_escape_js($SECUREKEY) . '\',
+                            "mode" : \'' . dol_escape_htmltag($source) . '\',
+                            "signature" : \'' . dol_escape_htmltag($signature) . '\',
+                            "entity" : \'' . dol_escape_htmltag($entity) . '\',
+                        },
+                        success: function(response) {
+                            if(response == "success"){
+                                console.log("Success on saving signature");
+                                window.location.replace("' . $_SERVER["PHP_SELF"] . '?ref=' . urlencode($ref) . '&source=' . urlencode($source) . '&message=signed&securekey=' . urlencode($SECUREKEY) . (isModEnabled('multicompany') ? '&entity=' . $entity : '') . '&signature=' . $signature . '");
+                            }else{
+                                console.error(response);
+                            }
+                        },
+                    });
+                });
+            }
+        } else {
+            $("#signbutton").attr("disabled",true);
+        }
+	  }
+
+	  $("#certifexact").on("change",check);
+	  $("#signature").on("change",check);
 
 	  $("#clearsignature").on("click",function(){
 		$("#signature").jSignature("clear");

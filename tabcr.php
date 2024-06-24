@@ -84,7 +84,7 @@ $langs->loadLangs(array('conditionreport@conditionreport', 'other', 'companies')
 $action  = GETPOST('action', 'alpha');
 $confirm = GETPOST('confirm', 'alpha');
 $source  = GETPOST('source', 'alpha');
-$id      = GETPOST('id', 'int');
+$id      = (int)GETPOST('id', 'int');
 $ref     = GETPOST('ref', 'alpha');
 
 // Get parameters

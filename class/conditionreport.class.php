@@ -123,7 +123,7 @@ class Conditionreport extends CommonObject
         'fk_property' => array('type' => 'integer:ImmoProperty:ultimateimmo/class/immoproperty.class.php:1:(status:=:1)', 'label' => 'RealEstate', 'picto' => 'company', 'enabled' => '1', 'position' => 51, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToProperty", 'validate' => '1',),
         'fk_lessor' => array('type' => 'integer:ImmoOwner:ultimateimmo/class/immoowner.class.php:1:(status:=:1)', 'label' => 'Lessor', 'picto' => 'company', 'enabled' => '1', 'position' => 51, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToLessor", 'validate' => '1',),
         'fk_tenant' => array('type' => 'integer:ImmoRenter:ultimateimmo/class/immorenter.class.php:1:(status:=:1)', 'label' => 'Tenant', 'picto' => 'company', 'enabled' => '1', 'position' => 52, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToPreviousCR", 'validate' => '1',),
-        'fk_previous' => array('type' => 'integer:Conditionreport:conditionreport/class/conditionreport.class.php:1:(status:=:1)', 'label' => 'PreviousCR', 'picto' => 'company', 'enabled' => '1', 'position' => 52, 'notnull' => 0, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToTenant", 'validate' => '1',),
+        'fk_previous' => array('type' => 'integer:Conditionreport:conditionreport/class/conditionreport.class.php:1:(status:in:1,2,3)', 'label' => 'PreviousCR', 'picto' => 'company', 'enabled' => '1', 'position' => 52, 'notnull' => 0, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'csslist' => 'tdoverflowmax150', 'help' => "linkToTenant", 'validate' => '1',),
         'description' => array('type' => 'html', 'label' => 'Description', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 3, 'validate' => '1',),
         'direction' => array('type' => 'select', 'label' => 'Direction', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 1, 'arrayofkeyval' => ['0' => 'InputCR', '1' => 'OutputCR', 2 => 'tenantVisit']),
         'note_public' => array('type' => 'html', 'label' => 'NotePublic', 'enabled' => '1', 'position' => 61, 'notnull' => 0, 'visible' => 0, 'cssview' => 'wordbreak', 'validate' => '1',),
@@ -299,6 +299,9 @@ class Conditionreport extends CommonObject
         $result = $object->fetchCommon($fromid);
         if ($result > 0 && !empty($object->table_element_line)) {
             $object->fetchLines();
+            foreach ($object->lines as &$line) {
+                $line->ref = "ROOM" . uniqid();
+            }
         }
 
         // get lines so they will be clone
@@ -1874,7 +1877,7 @@ class Conditionreport extends CommonObject
                 }
                 // add propal line
                 if ($typeObject == 'Propal') {
-                   $res= $newObject->addline(
+                    $res = $newObject->addline(
                         $row['description'],
                         $pu_ht,
                         $row['qty'],

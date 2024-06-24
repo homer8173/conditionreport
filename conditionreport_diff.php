@@ -295,10 +295,10 @@ if ($object->id) {
 
     if (empty($reshook)) {
         if ($permissionPropal) {
-            print '<button class="butAction" name="mode" type="submit" value="CreatePropale" >' . $langs->trans('CreatePropale') . '</button>';
-            }
+            print '<button class="butAction" name="mode" type="submit" value="CreatePropale" >' . $langs->trans('CreatePropale') . '"</button>';
+        }
         if ($permission) {
-            print '<button class="butAction" name="mode" type="submit" value="CreateInvoice"> ' . $langs->trans('CreateInvoice') . '</button>';
+            print '<button class="butAction" name="mode" type="submit" value="CreateInvoice"> ' . $langs->trans('CreateInvoice') . '"</button>';
         }
     }
     print '</div>' . "\n";

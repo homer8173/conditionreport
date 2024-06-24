@@ -550,9 +550,10 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
                     $pdf->useTemplate($tplidx);
                 }
                 if (!getDolGlobalInt('MAIN_PDF_DONOTREPEAT_HEAD')) {
-                    $this->_pagehead($pdf, $object, 0, $outputlangs);
+                    $y = $this->_pagehead($pdf, $object, 0, $outputlangs);
+                } else {
+                    $y = $this->marge_haute;
                 }
-
                 // Show square
 //				if ($pagenb == $pageposbeforeprintlines) {
 //					$this->_tableau($pdf, $tab_top, $this->page_hauteur - $tab_top - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, $hidetop, 0, $object->multicurrency_code, $outputlangsbis);
@@ -572,24 +573,30 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
                   }
                  */
 
+                $pdf->SetXY($this->marge_gauche, $y+5);
                 $pdf->SetFont('', 'B', $default_font_size + 5);
                 $fullWidth = $this->page_largeur - $this->marge_gauche - $this->marge_droite;
 
                 // Titre centré
                 $pdf->SetTextColor(0, 0, 60);
                 $pdf->Cell(0, 10, $outputlangs->transnoentities("titreSignatureCR"), 0, 1, 'C');
-                $tab_top = $pdf->getY() + 5;
+                $tab_top = $y + 20;
                 $pdf->SetTextColor(0, 0, 0);
 
                 //legals
                 $pdf->SetTextColor(125, 125, 125);
                 $pdf->SetFont('', '', $default_font_size - 2);
-                $pdf->SetXY($this->marge_gauche, $top_shift);
-                $pdf->MultiCell($fullWidth, 5, $outputlangs->transnoentities("texteLegalCR2"), 0, $ltrdirection);
+                $pdf->SetXY($this->marge_gauche, $tab_top);
+                $pdf->MultiCell($fullWidth, 5, $outputlangs->transnoentities($conf->global->CONDITIONREPORT_TEXT_LEGAL_2), 0, $ltrdirection);
 
                 // done at 
-                if (is_object($this->property))
+                if (is_object($this->property) && array_key_exists('options_adb', $this->property->array_options) && $this->property->array_options['options_adb']) {
+                    $town = $this->property->array_options['options_adb'];
+                } elseif (is_object($this->property))
                     $town = $this->property->town;
+                else
+                    $town = '';
+
                 $pdf->SetTextColor(0, 0, 60);
                 $pdf->SetFont('', '', $default_font_size + 2);
                 $pdf->SetXY($this->marge_gauche, $pdf->getY() + 10);
@@ -827,7 +834,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
             $pdf->SetFont('', 'B', $default_font_size + 10);
             $pdf->SetXY($posx, $posy);
             $pdf->SetTextColor(0, 0, 60);
-            $title = $outputlangs->transnoentities("DirectionCR$object->direction");
+            $title = $outputlangs->transnoentities("DirectionCR" . $object->direction);
             if (getDolGlobalInt('PDF_USE_ALSO_LANGUAGE_CODE') && is_object($outputlangsbis)) {
                 $title .= ' - ';
                 $title .= $outputlangsbis->transnoentities("PdfTitle");
@@ -836,9 +843,9 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
             $pdf->MultiCell($this->page_largeur - $this->marge_droite - $this->marge_gauche, 3, $title, '', 'C');
             $pdf->SetFont('', 'B', $default_font_size);
             if (property_exists($conf->global, 'PDF_CR_DISABLE_ALLURE') && !$conf->global->PDF_CR_DISABLE_ALLURE) {
-		        $posy += 10;
-		        $pdf->SetXY($this->marge_gauche, $posy);
-		        $pdf->MultiCell($this->page_largeur - $this->marge_droite - $this->marge_gauche, 3, $outputlangs->transnoentities("normeCR"), '', 'C');
+                $posy += 10;
+                $pdf->SetXY($this->marge_gauche, $posy);
+                $pdf->MultiCell($this->page_largeur - $this->marge_droite - $this->marge_gauche, 3, $outputlangs->transnoentities("normeCR"), '', 'C');
             }
             $pdf->SetFont('', 'B', $default_font_size);
             $posy += 10;
@@ -904,7 +911,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
             $pdf->SetTextColor(125, 125, 125);
             $pdf->SetFont('', '', $default_font_size - 2);
             $pdf->SetXY($this->marge_gauche, $posy + 10);
-            $pdf->MultiCell($this->largeur - $this->marge_gauche - $this->marge_droite, 5, $outputlangs->transnoentities("texteLegalCR"), 0, $ltrdirection);
+            $pdf->MultiCell($this->largeur - $this->marge_gauche - $this->marge_droite, 5, $outputlangs->transnoentities($conf->global->CONDITIONREPORT_TEXT_LEGAL_1), 0, $ltrdirection);
             $top_shift += 35;
         }
 
@@ -1043,7 +1050,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
                 $lodgement_carac = $prop->label . " " . $prop->type . " ID" . $prop->ref;
                 $lodgement_carac .= ", " . $prop->address . " " . $prop->zip . " " . $prop->town . ", " . getCountry($prop->country_id);
             } else {
-                $lodgement_carac = $prop->label . " " . $prop->ref;
+                $lodgement_carac = $prop->ref;
                 $lodgement_carac .= ", " . $prop->description;
             }
             $pdf->SetXY($posx + 2, $posy + 3);
@@ -1053,7 +1060,7 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
 
             $posy = $pdf->getY();
 
-                $lodgement_carac_details = '  ';
+            $lodgement_carac_details = '  ';
             if (isModEnabled("ultimateimmo")) {
                 $lodgement_carac_details .= $outputlangs->transnoentities("Juridique") . ": " . html_entity_decode($prop->fields['juridique_id']['arrayofkeyval'][$prop->juridique_id]) . "  \n  ";
                 $lodgement_carac_details .= $outputlangs->transnoentities("DateBuilt") . ": " . html_entity_decode($prop->fields['datebuilt']['arrayofkeyval'][$prop->datebuilt]) . "  \n  ";
@@ -1070,17 +1077,17 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
                 $lodgement_carac_details .= $outputlangs->transnoentities("UINumLigneNet") . ": " . html_entity_decode($prop->num_internet_line);
             } else {
                 $lodgement_carac_details = $prop->description;
-                if(array_key_exists('options_tpebien', $prop->array_options)&&$prop->array_options['options_tpebien']){
-                   $lodgement_carac_details .= "Type de bien:". $prop->array_options['options_tpebien']. "  \n";
+                if (array_key_exists('options_tpebien', $prop->array_options) && $prop->array_options['options_tpebien']) {
+                    $lodgement_carac_details .= "Type de bien:" . $prop->array_options['options_tpebien'] . "  \n";
                 }
-                if(array_key_exists('options_nappt', $prop->array_options)&&$prop->array_options['options_nappt']){
-                   $lodgement_carac_details .= "N° du bien:". $prop->array_options['options_nappt']. "  \n";
+                if (array_key_exists('options_nappt', $prop->array_options) && $prop->array_options['options_nappt']) {
+                    $lodgement_carac_details .= "N° du bien:" . $prop->array_options['options_nappt'] . "  \n";
                 }
-                if(array_key_exists('options_immeuble', $prop->array_options)&&$prop->array_options['options_immeuble']){
-                   $lodgement_carac_details .= "Immeuble:". $prop->array_options['options_immeuble']. "  \n";
+                if (array_key_exists('options_immeuble', $prop->array_options) && $prop->array_options['options_immeuble']) {
+                    $lodgement_carac_details .= "Immeuble:" . $prop->array_options['options_immeuble'] . "  \n";
                 }
-                if(array_key_exists('options_adb', $prop->array_options)&&$prop->array_options['options_adb']){
-                   $lodgement_carac_details .= "Adresse:". $prop->array_options['options_adb']. "  \n";
+                if (array_key_exists('options_adb', $prop->array_options) && $prop->array_options['options_adb']) {
+                    $lodgement_carac_details .= "Adresse:" . $prop->array_options['options_adb'] . "  \n";
                 }
             }
             // Show lodgement details
@@ -1162,7 +1169,10 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
             $posy = $pdf->getY();
         }
         $pdf->SetTextColor(0, 0, 0);
-        return $top_shift;
+        if (!$showaddress) {
+//        var_dump($posy,$top_shift);die();
+        }
+        return $showaddress ? $pdf->getY() - $top_shift : $posy;
     }
     // phpcs:disable PEAR.NamingConventions.ValidFunctionName.PublicUnderscore
 
