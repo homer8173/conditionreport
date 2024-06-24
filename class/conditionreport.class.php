@@ -301,6 +301,7 @@ class Conditionreport extends CommonObject
             $object->fetchLines();
             foreach ($object->lines as &$line) {
                 $line->ref = "ROOM" . uniqid();
+                $line->status = Conditionreportroom::STATUS_DRAFT;
             }
         }
 
@@ -311,6 +312,8 @@ class Conditionreport extends CommonObject
         unset($object->id);
         unset($object->fk_user_creat);
         unset($object->import_key);
+        unset($object->date_signature_lessor);
+        unset($object->date_signature_tenant);
 
         // Clear fields
         if (property_exists($object, 'ref')) {
@@ -691,6 +694,9 @@ class Conditionreport extends CommonObject
         if (!$error) {
             $this->ref    = $num;
             $this->status = self::STATUS_VALIDATED;
+            foreach ($this->lines as $line) {
+                $line->validate($user, $notrigger);
+            }
         }
 
         if (!$error) {
@@ -1521,7 +1527,7 @@ class Conditionreport extends CommonObject
         $link     = $this->getOnlineSignatureUrl(0, 'conditionreport', $this->ref, 1, $this);
         $message  = $langs->transnoentitiesnoconv('SMSmessage', $link);
 
-        if ($this->fk_tenant) {
+        if ($account && $this->fk_tenant) {
             $tenant = new Societe($this->db);
             if ($tenant->fetch($this->fk_tenant) && $tenant->phone) {
                 $url = $this->generateSMSURL($account, $login, $password, $from, $tenant->phone, $message);

@@ -403,7 +403,7 @@ class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
                                             $pdf->SetFont('', 'B', $default_font_size + 3);
 
                                             // Titre centré
-                                            $pdf->Cell(0, 10, $outputlangs->trans('ImagesPrevious', $pcr->ref) . ' :', 0, 1, 'L');
+                                            $pdf->Cell(0, 10, $outputlangs->transnoentities('ImagesPrevious', $pcr->ref) . ' :', 0, 1, 'L');
                                             $x            = $this->marge_gauche;
                                             $y            = $pdf->getY();
                                             $fitbox       = 'CM';
@@ -459,7 +459,7 @@ class pdf_standard_conditionreportroom extends ModelePDFConditionreportroom
                     $pdf->SetFont('', 'B', $default_font_size + 3);
 
                     // Titre centré
-                    $pdf->Cell(0, 10, $outputlangs->trans('Images') . ' :', 0, 1, 'L');
+                    $pdf->Cell(0, 10, $outputlangs->transnoentities('Images') . ' :', 0, 1, 'L');
                     $x            = $this->marge_gauche;
                     $y            = $pdf->getY();
                     $fitbox       = 'CM';

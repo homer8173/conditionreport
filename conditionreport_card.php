@@ -621,6 +621,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             // sign for tenant
 
             if ($object->status == $object::STATUS_SIGNED_LESSOR) {
+                if(getDolGlobalString('CONDITIONREPORT_OVH_ACCOUNT'))
                 print dolGetButtonAction('', $langs->trans('SendSMSCR'), 'default', $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=sendsms&token=' . newToken(), '', $permissiontoadd);
                 print dolGetButtonAction('', $langs->trans('cancelSignature'), 'default', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=confirm_validate&confirm=yes&token=' . newToken(), '', $permissiontoadd);
             }
