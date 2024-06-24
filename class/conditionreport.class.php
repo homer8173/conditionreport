@@ -300,7 +300,7 @@ class Conditionreport extends CommonObject
         if ($result > 0 && !empty($object->table_element_line)) {
             $object->fetchLines();
             foreach ($object->lines as &$line) {
-                $line->ref = "ROOM" . uniqid();
+                $line->ref    = "ROOM" . uniqid();
                 $line->status = Conditionreportroom::STATUS_DRAFT;
             }
         }
@@ -1519,7 +1519,7 @@ class Conditionreport extends CommonObject
 
     function sendSMS()
     {
-        global $langs;
+        global $langs,$user;
         $account  = getDolGlobalString('CONDITIONREPORT_OVH_ACCOUNT');
         $login    = getDolGlobalString('CONDITIONREPORT_OVH_SMS_LOGIN');
         $password = getDolGlobalString('CONDITIONREPORT_OVH_SMS_PASSWORD');
@@ -1531,10 +1531,15 @@ class Conditionreport extends CommonObject
             $tenant = new Societe($this->db);
             if ($tenant->fetch($this->fk_tenant) && $tenant->phone) {
                 $url = $this->generateSMSURL($account, $login, $password, $from, $tenant->phone, $message);
-                file_get_contents($url);
-                return 1;
+                $ret = file_get_contents($url);
+                if (strpos($ret, 'OK') === 0) {
+                    $this->call_trigger('CONDITIONREPORT_SENTBYSMS', $user);
+                    setEventMessage($langs->trans('SMSsuccess',$tenant->phone));
+                    return 1;
+                } 
             }
         }
+        setEventMessage($langs->trans('SMSerror',$tenant->phone), 'errors');
         return 0;
     }
 

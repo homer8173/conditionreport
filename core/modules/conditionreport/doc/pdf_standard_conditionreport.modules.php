@@ -1077,15 +1077,15 @@ class pdf_standard_conditionreport extends ModelePDFConditionreport
                 $lodgement_carac_details .= $outputlangs->transnoentities("UINumLigneNet") . ": " . html_entity_decode($prop->num_internet_line);
             } else {
                 $lodgement_carac_details = $prop->description;
-                if (array_key_exists('options_tpebien', $prop->array_options) && $prop->array_options['options_tpebien']) {
-                    $lodgement_carac_details .= "Type de bien:" . $prop->array_options['options_tpebien'] . "  \n";
-                }
+//                if (array_key_exists('options_tpebien', $prop->array_options) && $prop->array_options['options_tpebien']) {
+//                    $lodgement_carac_details .= "Type de bien:" . $prop->array_options['options_tpebien'] . "  \n";
+//                }
                 if (array_key_exists('options_nappt', $prop->array_options) && $prop->array_options['options_nappt']) {
                     $lodgement_carac_details .= "N° du bien:" . $prop->array_options['options_nappt'] . "  \n";
                 }
-                if (array_key_exists('options_immeuble', $prop->array_options) && $prop->array_options['options_immeuble']) {
-                    $lodgement_carac_details .= "Immeuble:" . $prop->array_options['options_immeuble'] . "  \n";
-                }
+//                if (array_key_exists('options_immeuble', $prop->array_options) && $prop->array_options['options_immeuble']) {
+//                    $lodgement_carac_details .= "Immeuble:" . $prop->array_options['options_immeuble'] . "  \n";
+//                }
                 if (array_key_exists('options_adb', $prop->array_options) && $prop->array_options['options_adb']) {
                     $lodgement_carac_details .= "Adresse:" . $prop->array_options['options_adb'] . "  \n";
                 }

@@ -196,3 +196,7 @@ AutoCONDITIONREPORT_SIGNED_TENANT=État des lieux signé par le locataire
 
 LastnameFirstname=Nom et prénom
 CertifExact=Certifié exact (REQUIS)
+SMSsuccess=SMS envoyé au %s
+SMSerror=SMS non envoyé, verifiez votre configuration SMS ou rechargez votre compte
+AutoCONDITIONREPORT_SENTBYMAIL=Etat des lieux envoyé par mail
+AutoCONDITIONREPORT_SENTBYSMS=Demande de signature d'état des lieux envoyé par SMS

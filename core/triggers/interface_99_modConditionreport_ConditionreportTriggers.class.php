@@ -284,7 +284,8 @@ class InterfaceConditionreportTriggers extends DolibarrTriggers
             //case 'SHIPPING_REOPEN':
             //case 'SHIPPING_DELETE':
             // and more...
-
+            case 'CONDITIONREPORT_SENTBYMAIL':
+            case 'CONDITIONREPORT_SENTBYSMS':
             case 'CONDITIONREPORT_VALIDATE':
             case 'CONDITIONREPORT_SIGNED_LESSOR':
             case 'CONDITIONREPORT_SIGNED_TENANT':
@@ -292,18 +293,18 @@ class InterfaceConditionreportTriggers extends DolibarrTriggers
                 // Insertion action
                 require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
                 $now                      = dol_now();
-                $elementtype='conditionreport';
-                $elementmodule='conditionreport';
+                $elementtype              = 'conditionreport';
+                $elementmodule            = 'conditionreport';
                 $actioncomm               = new ActionComm($this->db);
                 $actioncomm->type_code    = 'AC_OTH_AUTO'; // Type of event ('AC_OTH', 'AC_OTH_AUTO', 'AC_XXX'...)
                 $actioncomm->code         = 'AC_' . $action;
-                $actioncomm->label        = $langs->trans('Auto'.$action);
+                $actioncomm->label        = $langs->trans('Auto' . $action);
                 $actioncomm->note_private = $object->actionmsg;
                 $actioncomm->datep        = $now;
                 $actioncomm->datef        = $now;
                 $actioncomm->durationp    = 0;
                 $actioncomm->percentage   = -1; // Not applicable
-                $actioncomm->socid        = $object->fk_tenant;                
+                $actioncomm->socid        = $object->fk_tenant;
                 $actioncomm->authorid     = $user->id; // User saving action
                 $actioncomm->userownerid  = $user->id; // Owner of action
                 // Fields defined when action is an email (content should be into object->actionmsg to be added into event note, subject should be into object->actionms2 to be added into event label)
@@ -321,8 +322,8 @@ class InterfaceConditionreportTriggers extends DolibarrTriggers
                 // Object linked (if link is for thirdparty, contact or project, it is a recording error. We should not have links in link table
                 // for such objects because there is already a dedicated field into table llx_actioncomm or llx_actioncomm_resources.
 //                if (!in_array($elementtype, array('societe', 'contact', 'project'))) {
-                    $actioncomm->fk_element  = $object->id;
-                    $actioncomm->elementtype = $elementtype . ($elementmodule ? '@' . $elementmodule : '');
+                $actioncomm->fk_element  = $object->id;
+                $actioncomm->elementtype = $elementtype . ($elementmodule ? '@' . $elementmodule : '');
 //                }
 
                 if (property_exists($object, 'attachedfiles') && is_array($object->attachedfiles) && count($object->attachedfiles) > 0) {
